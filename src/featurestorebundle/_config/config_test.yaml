@@ -1,0 +1,29 @@
+parameters:
+  databricksbundle:
+    databricks_connect:
+      connection:
+        address: 'https://dbc-123.cloud.databricks.com'
+        token: 'abcd123456'
+        cluster_id: '0416-084917-doles835'
+
+  datalake:
+    base_path: '/foo/bar'
+
+  featurestorebundle:
+    table:
+      name_template: '%kernel.environment%_{identifier}'
+      defaults:
+        encrypted: !expr 'db_identifier[-1:] == "e"'
+        db_identifier_base: !expr 'db_identifier[:db_identifier.find("_")]'
+        target_path:
+          resolver_class: 'featurestorebundle.test.TargetPathResolver'
+          resolver_arguments:
+            - '%datalake.base_path%'
+
+    tables:
+      mydatabase_e.my_table:
+        schema_loader: 'featurestorebundle.test.TestSchema:get_schema'
+
+      mydatabase_p.another_table:
+        schema_loader: 'featurestorebundle.test.AnotherSchema:get_schema'
+        partition_by: ['date']

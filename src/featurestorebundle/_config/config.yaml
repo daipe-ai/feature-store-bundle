@@ -1,0 +1,28 @@
+parameters:
+  featurestorebundle:
+    db_name_template: '%kernel.environment%_feature_store'
+    table_name_template: 'features_{entity}'
+
+services:
+  featurestorebundle.logger:
+    class: logging.Logger
+    factory: ['@loggerbundle.LoggerFactory', 'create']
+    arguments:
+      - 'feature_store'
+
+  featurestorebundle.db.TableNames:
+    arguments:
+      - '%featurestorebundle.db_name_template%'
+      - '%featurestorebundle.table_name_template%'
+
+  featurestorebundle.feature.EmptyTableCreator:
+
+  featurestorebundle.feature.FeatureDataMerger:
+
+  featurestorebundle.feature.FeatureManager:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.feature.FeatureStore:
+
+  featurestorebundle.feature.TablePreparer:
