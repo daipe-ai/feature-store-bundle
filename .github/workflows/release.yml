@@ -75,3 +75,8 @@ jobs:
           asset_path: dist/${{ env.WHEEL_NAME }}
           asset_name: ${{ env.WHEEL_NAME }}
           asset_content_type: application/zip
+      - name: Publish package to DevOps repository
+        run: |
+          eval "$(conda shell.bash hook)"
+          conda activate $PWD/.venv
+          poetry publish -r dataengineerics -u __token__ -p ${{ secrets.DEVOPS_TOKEN }}
