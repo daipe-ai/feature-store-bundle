@@ -13,4 +13,4 @@ class TableNames:
         return self.__replace_placeholders(self.__table_name_template, entity_name)
 
     def __replace_placeholders(self, template: str, entity_name: str):
-        return template.format(dict(entity=entity_name))
+        return template.format(entity=entity_name)
