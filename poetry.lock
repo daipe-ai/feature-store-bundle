@@ -93,7 +93,7 @@ python-dotenv = ">=0.13.0,<1.0.0"
 
 [[package]]
 name = "databricks-bundle"
-version = "0.8.1b3"
+version = "0.8.1b6"
 description = "Databricks bundle for the Daipe framework"
 category = "main"
 optional = false
@@ -105,38 +105,6 @@ injecta = ">=0.10.0,<0.11.0"
 logger-bundle = ">=0.7.0,<0.8.0"
 pyfony-bundles = ">=0.4.0,<0.5.0"
 pyfony-core = ">=0.8.0,<0.9.0"
-
-[[package]]
-name = "databricks-connect"
-version = "7.3.7"
-description = "Databricks Connect Client"
-category = "dev"
-optional = false
-python-versions = "*"
-
-[package.dependencies]
-py4j = "0.10.9"
-six = "*"
-
-[package.extras]
-ml = ["numpy (>=1.7)"]
-mllib = ["numpy (>=1.7)"]
-sql = ["pandas (>=0.23.2)", "pyarrow (>=0.15.1)"]
-
-[[package]]
-name = "datalake-bundle"
-version = "0.6.1b1"
-description = "DataLake tables management bundle for the Daipe Framework"
-category = "main"
-optional = false
-python-versions = ">=3.7,<4.0"
-
-[package.dependencies]
-console-bundle = ">=0.4.0,<0.5.0"
-databricks-bundle = ">=0.8.1b3,<0.9.0"
-injecta = ">=0.10.0,<0.11.0"
-pyfony-bundles = ">=0.4.0,<0.5.0"
-simpleeval = ">=0.9.10,<1.0.0"
 
 [[package]]
 name = "flake8"
@@ -368,6 +336,22 @@ optional = false
 python-versions = ">=2.6, !=3.0.*, !=3.1.*, !=3.2.*"
 
 [[package]]
+name = "pyspark"
+version = "3.1.1"
+description = "Apache Spark Python API"
+category = "dev"
+optional = false
+python-versions = ">=3.6"
+
+[package.dependencies]
+py4j = "0.10.9"
+
+[package.extras]
+ml = ["numpy (>=1.7)"]
+mllib = ["numpy (>=1.7)"]
+sql = ["pandas (>=0.23.2)", "pyarrow (>=1.0.0)"]
+
+[[package]]
 name = "pytest"
 version = "5.2.4"
 description = "pytest: simple powerful testing with Python"
@@ -402,7 +386,7 @@ testing = ["pytest", "coverage (>=3.6)", "pytest-cov"]
 
 [[package]]
 name = "python-dotenv"
-version = "0.16.0"
+version = "0.17.0"
 description = "Read key-value pairs from a .env file and set them as environment variables"
 category = "main"
 optional = false
@@ -424,14 +408,6 @@ name = "regex"
 version = "2021.3.17"
 description = "Alternative regular expression module, to replace re."
 category = "dev"
-optional = false
-python-versions = "*"
-
-[[package]]
-name = "simpleeval"
-version = "0.9.10"
-description = "A simple, safe single expression evaluator library."
-category = "main"
 optional = false
 python-versions = "*"
 
@@ -498,7 +474,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "5046617ef808c55d22bcb9529a071dea42fe5f6500815db85432e2e490c68594"
+content-hash = "5d21fa4900d1a36ebdd49203b0b4c6741ee9b8da4b3b43183cca351c1d26145c"
 
 [metadata.files]
 appdirs = [
@@ -532,15 +508,8 @@ console-bundle = [
     {file = "console_bundle-0.4.0-py3-none-any.whl", hash = "sha256:6fb19484d5ebf6904e60646fb253558c3eebb6335d283088ddb7054f83505921"},
 ]
 databricks-bundle = [
-    {file = "databricks-bundle-0.8.1b3.tar.gz", hash = "sha256:8aa2c4861193ad0e5cf5d5b3302f7f729efee4f8f80bcfc0e3b11facf6933b3d"},
-    {file = "databricks_bundle-0.8.1b3-py3-none-any.whl", hash = "sha256:ad3c43f39aa524507422ce89de27c64a3124b1e2a806221a76ed37aed47bf439"},
-]
-databricks-connect = [
-    {file = "databricks-connect-7.3.7.tar.gz", hash = "sha256:35ead50a0550e65a7d6fd78e2c8e54095b53514fba85180768a2dbcdd3f2cf0b"},
-]
-datalake-bundle = [
-    {file = "datalake-bundle-0.6.1b1.tar.gz", hash = "sha256:d9ca956b1f38a153846dc708159db4441c0ca44efff38567db59de1c08cd804a"},
-    {file = "datalake_bundle-0.6.1b1-py3-none-any.whl", hash = "sha256:a1d70ade28da654abbc2e4e21553319c0b34119b764d47ec05ed76c374c3cc2e"},
+    {file = "databricks-bundle-0.8.1b6.tar.gz", hash = "sha256:84f3d6f626c739644b17bc44d424d67bf2246dac9b64f48c641f35e526546e44"},
+    {file = "databricks_bundle-0.8.1b6-py3-none-any.whl", hash = "sha256:cb69aff9b5c75451c4339fccd886fe0e0fc4efdabe67aa05a8e60415e981586d"},
 ]
 flake8 = [
     {file = "flake8-3.9.0-py2.py3-none-any.whl", hash = "sha256:12d05ab02614b6aee8df7c36b97d1a3b2372761222b19b58621355e82acddcff"},
@@ -626,6 +595,9 @@ pyparsing = [
     {file = "pyparsing-2.4.6-py2.py3-none-any.whl", hash = "sha256:c342dccb5250c08d45fd6f8b4a559613ca603b57498511740e65cd11a2e7dcec"},
     {file = "pyparsing-2.4.6.tar.gz", hash = "sha256:4c830582a84fb022400b85429791bc551f1f4871c33f23e44f353119e92f969f"},
 ]
+pyspark = [
+    {file = "pyspark-3.1.1.tar.gz", hash = "sha256:104abc146d4ffb72d4c683d25d7af5a6bf955d94590a76f542ee23185670aa7e"},
+]
 pytest = [
     {file = "pytest-5.2.4-py3-none-any.whl", hash = "sha256:8e256fe71eb74e14a4d20a5987bb5e1488f0511ee800680aaedc62b9358714e8"},
     {file = "pytest-5.2.4.tar.gz", hash = "sha256:ff0090819f669aaa0284d0f4aad1a6d9d67a6efdc6dd4eb4ac56b704f890a0d6"},
@@ -635,8 +607,8 @@ python-box = [
     {file = "python_box-3.4.6-py2.py3-none-any.whl", hash = "sha256:a71d3dc9dbaa34c8597d3517c89a8041bd62fa875f23c0f3dad55e1958e3ce10"},
 ]
 python-dotenv = [
-    {file = "python-dotenv-0.16.0.tar.gz", hash = "sha256:9fa413c37d4652d3fa02fea0ff465c384f5db75eab259c4fc5d0c5b8bf20edd4"},
-    {file = "python_dotenv-0.16.0-py2.py3-none-any.whl", hash = "sha256:31d752f5b748f4e292448c9a0cac6a08ed5e6f4cefab85044462dcad56905cec"},
+    {file = "python-dotenv-0.17.0.tar.gz", hash = "sha256:471b782da0af10da1a80341e8438fca5fadeba2881c54360d5fd8d03d03a4f4a"},
+    {file = "python_dotenv-0.17.0-py2.py3-none-any.whl", hash = "sha256:49782a97c9d641e8a09ae1d9af0856cc587c8d2474919342d5104d85be9890b2"},
 ]
 pyyaml = [
     {file = "PyYAML-5.4.1-cp27-cp27m-macosx_10_9_x86_64.whl", hash = "sha256:3b2b1824fe7112845700f815ff6a489360226a5609b96ec2190a45e62a9fc922"},
@@ -711,9 +683,6 @@ regex = [
     {file = "regex-2021.3.17-cp39-cp39-win32.whl", hash = "sha256:dc9963aacb7da5177e40874585d7407c0f93fb9d7518ec58b86e562f633f36cd"},
     {file = "regex-2021.3.17-cp39-cp39-win_amd64.whl", hash = "sha256:a0d04128e005142260de3733591ddf476e4902c0c23c1af237d9acf3c96e1b38"},
     {file = "regex-2021.3.17.tar.gz", hash = "sha256:4b8a1fb724904139149a43e172850f35aa6ea97fb0545244dc0b805e0154ed68"},
-]
-simpleeval = [
-    {file = "simpleeval-0.9.10.tar.gz", hash = "sha256:692055488c2864637f6c2edb5fa48175978a2a07318009e7cf03c9790ca17bea"},
 ]
 six = [
     {file = "six-1.14.0-py2.py3-none-any.whl", hash = "sha256:8f3cd2e254d8f793e7f3d6d9df77b92252b52637291d0f0da013c76ea2724b6c"},

@@ -26,17 +26,17 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 pyfony-bundles = "0.4.*"
-datalake-bundle = "^0.6.1b1"
+databricks-bundle = "^0.8.1b6"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
-databricks-connect = ">=7.3.7"
 flake8 = "^3.9.0"
 black = "^20.8b1"
 flake8-fixme = "^1.1.1"
 pep8-naming = "^0.11.1"
 poethepoet = "^0.10.0"
 pyfony-core = "0.8.*"
+pyspark = "^3"
 
 [tool.poetry.plugins."pyfony.bundle"]
 create = "featurestorebundle.FeatureStoreBundle:FeatureStoreBundle"
