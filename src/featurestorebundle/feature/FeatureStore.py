@@ -12,8 +12,10 @@ class FeatureStore:
         self.__feature_manager = feature_manager
         self.__spark = spark
 
-    def get(self, entity_name: str, feature_names: List[str]):
+    def get(self, entity_name: str, feature_names: List[str] = None):
         registered_feature_list = self.__feature_manager.get_features(entity_name)
+        if feature_names is None:
+            feature_names = registered_feature_list.get_names()
         unregistered_features = set(feature_names) - set(registered_feature_list.get_names())
 
         if unregistered_features != set():
