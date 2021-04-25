@@ -1,4 +1,4 @@
-from databricksbundle.notebook.decorator.ResultProcessingDecorator import ResultProcessingDecorator
+from daipecore.decorator.OutputDecorator import OutputDecorator
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 from pyspark.sql.types import DataType
@@ -9,7 +9,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.TablePreparer import TablePreparer
 
 
-class feature_writer(ResultProcessingDecorator):  # noqa: N801
+class feature_writer(OutputDecorator):  # noqa: N801
     def __init__(
         self,
         *args,

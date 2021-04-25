@@ -1,10 +1,9 @@
 parameters:
-  databricksbundle:
-    databricks_connect:
-      connection:
-        address: 'https://dbc-123.cloud.databricks.com'
-        token: 'abcd123456'
-        cluster_id: '0416-084917-doles835'
-
   datalake:
     base_path: '/foo/bar'
+
+services:
+  featurestorebundle.test.DummySparkFactory:
+
+  pyspark.sql.session.SparkSession:
+    factory: ['@featurestorebundle.test.DummySparkFactory', 'create']
