@@ -15,6 +15,13 @@ class FeatureList:
     def get_names(self):
         return [feature.name for feature in self.__features]
 
+    def get_feature_by_name(self, feature_name: str) -> Feature:
+        for feature in self.__features:
+            if feature.name == feature_name:
+                return feature
+
+        raise Exception(f"Feature {feature_name} not found")
+
     def get_unregistered(self, registered_feature_names: list):
         return FeatureList([feature for feature in self.__features if feature.name not in registered_feature_names])
 

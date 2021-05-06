@@ -16,16 +16,18 @@ class feature_writer(OutputDecorator):  # noqa: N801
         entity: Entity,
         data_id_column: str = None,
         data_time_column: str = None,
+        category: str = None,
     ):
         self._args = args
         self.__entity = entity
         self.__data_id_column = data_id_column or entity.id_column
         self.__data_time_column = data_time_column
+        self.__category = category
 
     def __prepare_features(self, args: tuple):
         # @[foo]_feature_writer("Average delay in last 30 days", t.FloatType())
         if len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], DataType):
-            return FeatureList([Feature(self._function.__name__, args[0], args[1])])
+            return FeatureList([Feature(self._function.__name__, args[0], args[1], category=self.__category)])
 
         """
         @[foo]_feature_writer(
@@ -33,7 +35,7 @@ class feature_writer(OutputDecorator):  # noqa: N801
             ("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", t.DecimalType())
         )
         """
-        return FeatureList([Feature(*arg) for arg in args])
+        return FeatureList([Feature(*arg, category=self.__category) for arg in args])
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         table_preparer: TablePreparer = container.get(TablePreparer)
