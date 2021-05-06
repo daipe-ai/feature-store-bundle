@@ -1,5 +1,6 @@
 from datetime import datetime
 from pyspark.sql import SparkSession, DataFrame
+from pyspark.sql import functions as f
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
@@ -48,6 +49,18 @@ class FeatureDataMerger:
                 f"VALUES ({data_id_column}, {data_time_column}, {build_insert_clause()})\n"
             )
 
+        def add_metadata(feature_store_table_name: str, feature_list: FeatureList):
+            df = self.__spark.read.table(feature_store_table_name)
+
+            for field in df.schema:
+                if field.name in feature_list.get_names():
+                    feature = feature_list.get_feature_by_name(field.name)
+                    metadata = field.metadata
+                    metadata["category"] = feature.category
+                    df = df.withColumn(feature.name, f.col(feature.name).alias("", metadata=metadata))
+
+            df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(feature_store_table_name)
+
         # store data to a view
         run_timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
         view_tablename = f"fv_{run_timestamp}"
@@ -55,3 +68,5 @@ class FeatureDataMerger:
         merge_str = build_merge_into_string(entity, view_tablename)
 
         self.__spark.sql(merge_str)
+
+        add_metadata(self.__table_names.get_full_tablename(entity.name), feature_list)
