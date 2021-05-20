@@ -2,6 +2,9 @@ parameters:
   featurestorebundle:
     db_name_template: '%kernel.environment%_feature_store'
     table_name_template: 'features_{entity}'
+    metadata_api:
+      enabled: False
+      url:
 
 services:
   featurestorebundle.logger:
@@ -18,6 +21,9 @@ services:
   featurestorebundle.feature.EmptyTableCreator:
 
   featurestorebundle.feature.FeatureDataMerger:
+    arguments:
+      - '%featurestorebundle.metadata_api.enabled%'
+      - '@featurestorebundle.logger'
 
   featurestorebundle.feature.FeatureManager:
     arguments:
@@ -26,3 +32,13 @@ services:
   featurestorebundle.feature.FeatureStore:
 
   featurestorebundle.feature.TablePreparer:
+
+  featurestorebundle.gql.GraphQLTransport:
+    class: gql.transport.requests.RequestsHTTPTransport
+    arguments:
+      url: '%featurestorebundle.metadata_api.url%'
+
+  featurestorebundle.gql.GraphQLClient:
+    class: gql.client.Client
+    arguments:
+      transport: '@featurestorebundle.gql.GraphQLTransport'

@@ -1,13 +1,19 @@
 from datetime import datetime
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql import functions as f
+from pyspark.sql import types as t
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
+from gql import gql, Client
+from logging import Logger
 
 
 class FeatureDataMerger:
-    def __init__(self, table_names: TableNames, spark: SparkSession):
+    def __init__(self, metadata_api_enabled: bool, logger: Logger, gql_client: Client, table_names: TableNames, spark: SparkSession):
+        self.__metadata_api_enabled = metadata_api_enabled
+        self.__logger = logger
+        self.__gql_client = gql_client
         self.__table_names = table_names
         self.__spark = spark
 
@@ -56,10 +62,14 @@ class FeatureDataMerger:
                 if field.name in feature_list.get_names():
                     feature = feature_list.get_feature_by_name(field.name)
                     metadata = field.metadata
+                    metadata["comment"] = feature.description
                     metadata["category"] = feature.category
                     df = df.withColumn(feature.name, f.col(feature.name).alias("", metadata=metadata))
 
             df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(feature_store_table_name)
+
+            if self.__metadata_api_enabled:
+                self.__post_metadata_to_db(df.schema, feature_list, entity)
 
         # store data to a view
         run_timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
@@ -70,3 +80,23 @@ class FeatureDataMerger:
         self.__spark.sql(merge_str)
 
         add_metadata(self.__table_names.get_full_tablename(entity.name), feature_list)
+
+    def __post_metadata_to_db(self, schema: t.StructType(), feature_list: FeatureList, entity: Entity):
+        for field in schema[2:]:
+            if field.name in feature_list.get_names():
+                gql_query = gql(
+                    f"""
+                        mutation {{
+                            createFeature(entity: "{entity.name}", name: "{field.name}", description: "{field.metadata.get('comment')}", category: "{field.metadata.get('category')}") {{
+                                id,
+                                existing,
+                            }}
+                        }}
+                    """
+                )
+
+                try:
+                    self.__gql_client.execute(gql_query)
+
+                except BaseException:
+                    self.__logger.warning("Cannot reach metadata api server. The metadata will not be written.")
