@@ -15,6 +15,7 @@ class EmptyTableCreator:
                 f'({entity.id_column} {entity.id_column_type.typeName()} COMMENT "Entity id column",\n'
                 f'{entity.time_column} {entity.time_column_type.typeName()} COMMENT "Compute time column")\n'
                 f"USING DELTA\n"
+                f"LOCATION '{self.__table_names.get_path(entity.name)}'\n"
                 f"PARTITIONED BY ({entity.time_column})\n"
                 f'COMMENT "The table contains entity {entity.name} features"\n'
             )

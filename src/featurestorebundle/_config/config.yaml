@@ -2,6 +2,7 @@ parameters:
   featurestorebundle:
     db_name_template: '%kernel.environment%_feature_store'
     table_name_template: 'features_{entity}'
+    path_template: 'dbfs:/feature_store/{entity}.delta'
     metadata_api:
       enabled: False
       url:
@@ -17,6 +18,7 @@ services:
     arguments:
       - '%featurestorebundle.db_name_template%'
       - '%featurestorebundle.table_name_template%'
+      - '%featurestorebundle.path_template%'
 
   featurestorebundle.feature.EmptyTableCreator:
 
