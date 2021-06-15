@@ -2,6 +2,7 @@ parameters:
   featurestorebundle:
     db_name_template: '%kernel.environment%_feature_store'
     table_name_template: 'features_{entity}'
+    datalake_base_path: 'dbfs:/feature_store'
 
 services:
   featurestorebundle.logger:
@@ -16,6 +17,8 @@ services:
       - '%featurestorebundle.table_name_template%'
 
   featurestorebundle.feature.EmptyTableCreator:
+    arguments:
+      - '%featurestorebundle.datalake_base_path%'
 
   featurestorebundle.feature.FeatureDataMerger:
 
