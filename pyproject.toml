@@ -26,7 +26,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 pyfony-bundles = "0.4.*"
-daipe-core = "^0.8.0b1"
+daipe-core = "^1.0.0"
 
 [tool.poetry.dev-dependencies]
 pytest = "^5.2"
