@@ -12,8 +12,8 @@ class EmptyTableCreator:
         def build_create_entity_table_string(entity: Entity):
             return (
                 f"CREATE TABLE IF NOT EXISTS {self.__table_names.get_full_tablename(entity.name)}\n"
-                f'({entity.id_column} {entity.id_column_type.typeName()} COMMENT "Entity id column",\n'
-                f'{entity.time_column} {entity.time_column_type.typeName()} COMMENT "Compute time column")\n'
+                f'({entity.id_column} {entity.id_column_type.typeName()} NOT NULL COMMENT "Entity id column",\n'
+                f'{entity.time_column} {entity.time_column_type.typeName()} NOT NULL COMMENT "Compute time column")\n'
                 f"USING DELTA\n"
                 f"LOCATION '{self.__table_names.get_path(entity.name)}'\n"
                 f"PARTITIONED BY ({entity.time_column})\n"
