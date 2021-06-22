@@ -22,11 +22,11 @@ class FeatureDataMerger:
         entity: Entity,
         feature_list: FeatureList,
         features_data: DataFrame,
-        data_id_column: str,
-        data_time_column: str,
     ):
         feature_names = feature_list.get_names()
-        data_column_names = [field.name for field in features_data.schema.fields if field.name not in [data_id_column, data_time_column]]
+        data_column_names = [
+            field.name for field in features_data.schema.fields if field.name not in [entity.id_column, entity.time_column]
+        ]
 
         if len(data_column_names) != len(feature_names):
             raise Exception(f"Number or dataframe columns ({len(data_column_names)}) != number of features defined ({len(feature_names)})")
@@ -46,13 +46,13 @@ class FeatureDataMerger:
             return (
                 f"MERGE INTO {self.__table_names.get_full_tablename(entity.name)} AS existing_data\n"
                 f"USING {view_tablename} AS new_data\n"
-                f"ON existing_data.{entity.id_column} = new_data.{data_id_column} "
-                f"AND existing_data.{entity.time_column} = new_data.{data_time_column}\n"
+                f"ON existing_data.{entity.id_column} = new_data.{entity.id_column} "
+                f"AND existing_data.{entity.time_column} = new_data.{entity.time_column}\n"
                 f"WHEN MATCHED THEN\n"
                 f"{build_update_set_clause()}\n"
                 f"WHEN NOT MATCHED\n"
                 f"THEN INSERT ({entity.id_column}, {entity.time_column}, {','.join(feature_names)}) "
-                f"VALUES ({data_id_column}, {data_time_column}, {build_insert_clause()})\n"
+                f"VALUES ({entity.id_column}, {entity.time_column}, {build_insert_clause()})\n"
             )
 
         def add_metadata(feature_store_table_name: str, feature_list: FeatureList):

@@ -14,14 +14,10 @@ class feature_writer(OutputDecorator):  # noqa: N801
         self,
         *args,
         entity: Entity,
-        data_id_column: str = None,
-        data_time_column: str = None,
         category: str = None,
     ):
         self._args = args
         self.__entity = entity
-        self.__data_id_column = data_id_column or entity.id_column
-        self.__data_time_column = data_time_column
         self.__category = category
 
     def __prepare_features(self, args: tuple):
@@ -49,6 +45,4 @@ class feature_writer(OutputDecorator):  # noqa: N801
             self.__entity,
             current_feature_list,
             result,
-            self.__data_id_column,
-            self.__data_time_column,
         )
