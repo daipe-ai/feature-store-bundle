@@ -5,27 +5,27 @@ from pyspark.sql.types import DataType
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.writer import FeaturesWriterInterface
 from featurestorebundle.feature.writer.FeaturesWriterInjector import FeaturesWriterInjector
 
 
 class feature_writer(OutputDecorator):  # noqa: N801
-    def __init__(
-        self,
-        *args,
-        entity: Entity,
-        category: str = None,
-    ):
+    def __init__(self, *args, entity: Entity, category: str = None, features_storage: FeaturesStorage = None):
         self._args = args
         self.__entity = entity
         self.__category = category
+        self.__features_storage = features_storage
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         feature_list = self.__prepare_features(self._args)
 
-        features_injector: FeaturesWriterInjector = container.get(FeaturesWriterInjector)
-        features_writer: FeaturesWriterInterface = features_injector.get()
-        features_writer.write(result, self.__entity, feature_list)
+        if self.__features_storage:
+            self.__features_storage.add(result, feature_list)
+        else:
+            features_injector: FeaturesWriterInjector = container.get(FeaturesWriterInjector)
+            features_writer: FeaturesWriterInterface = features_injector.get()
+            features_writer.write(result, self.__entity, feature_list)
 
     def __prepare_features(self, args: tuple):
         # @[foo]_feature_writer("Average delay in last 30 days", t.FloatType())
