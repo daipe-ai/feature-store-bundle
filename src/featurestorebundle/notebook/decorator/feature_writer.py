@@ -18,6 +18,7 @@ class feature_writer(OutputDecorator):  # noqa: N801
         self.__features_storage = features_storage
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
+        self.__check_primary_key_columns(result)
         feature_list = self.__prepare_features(self._args)
 
         if self.__features_storage:
@@ -26,6 +27,18 @@ class feature_writer(OutputDecorator):  # noqa: N801
             features_injector: FeaturesWriterInjector = container.get(FeaturesWriterInjector)
             features_writer: FeaturesWriterInterface = features_injector.get()
             features_writer.write(result, self.__entity, feature_list)
+
+    def __check_primary_key_columns(self, result: DataFrame):
+        if self.__entity.id_column not in result.columns and self.__entity.time_column not in result.columns:
+            raise Exception(
+                f"Output dataframe must contain both {self.__entity.id_column} and {self.__entity.time_column} primary key columns"
+            )
+
+        if self.__entity.id_column not in result.columns:
+            raise Exception(f"{self.__entity.id_column} columns is missing in the output dataframe")
+
+        if self.__entity.time_column not in result.columns:
+            raise Exception(f"{self.__entity.time_column} columns is missing in the output dataframe")
 
     def __prepare_features(self, args: tuple):
         # @[foo]_feature_writer("Average delay in last 30 days", t.FloatType())
