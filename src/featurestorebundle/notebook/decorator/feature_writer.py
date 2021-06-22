@@ -4,9 +4,9 @@ from pyspark.sql import DataFrame
 from pyspark.sql.types import DataType
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.Feature import Feature
-from featurestorebundle.feature.FeatureDataMerger import FeatureDataMerger
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.feature.TablePreparer import TablePreparer
+from featurestorebundle.feature.writer import FeaturesWriterInterface
+from featurestorebundle.feature.writer.FeaturesWriterInjector import FeaturesWriterInjector
 
 
 class feature_writer(OutputDecorator):  # noqa: N801
@@ -20,6 +20,13 @@ class feature_writer(OutputDecorator):  # noqa: N801
         self.__entity = entity
         self.__category = category
 
+    def process_result(self, result: DataFrame, container: ContainerInterface):
+        feature_list = self.__prepare_features(self._args)
+
+        features_injector: FeaturesWriterInjector = container.get(FeaturesWriterInjector)
+        features_writer: FeaturesWriterInterface = features_injector.get()
+        features_writer.write(result, self.__entity, feature_list)
+
     def __prepare_features(self, args: tuple):
         # @[foo]_feature_writer("Average delay in last 30 days", t.FloatType())
         if len(args) == 2 and isinstance(args[0], str) and isinstance(args[1], DataType):
@@ -32,17 +39,3 @@ class feature_writer(OutputDecorator):  # noqa: N801
         )
         """
         return FeatureList([Feature(*arg, category=self.__category) for arg in args])
-
-    def process_result(self, result: DataFrame, container: ContainerInterface):
-        table_preparer: TablePreparer = container.get(TablePreparer)
-        feature_data_manager: FeatureDataMerger = container.get(FeatureDataMerger)
-
-        current_feature_list = self.__prepare_features(self._args)
-
-        table_preparer.prepare(self.__entity, current_feature_list)
-
-        feature_data_manager.merge(
-            self.__entity,
-            current_feature_list,
-            result,
-        )

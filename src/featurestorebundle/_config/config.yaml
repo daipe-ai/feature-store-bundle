@@ -3,6 +3,7 @@ parameters:
     db_name_template: '%kernel.environment%_feature_store'
     table_name_template: 'features_{entity}'
     path_template: 'dbfs:/feature_store/{entity}.delta'
+    writer: delta
     metadata_api:
       enabled: False
       url:
@@ -20,6 +21,10 @@ services:
       - '%featurestorebundle.table_name_template%'
       - '%featurestorebundle.path_template%'
 
+  featurestorebundle.delta.DeltaWriter:
+    tags:
+      - {name: 'feature.writer', alias: 'delta'}
+
   featurestorebundle.feature.EmptyTableCreator:
 
   featurestorebundle.feature.FeatureDataMerger:
@@ -34,6 +39,10 @@ services:
   featurestorebundle.feature.FeatureStore:
 
   featurestorebundle.feature.TablePreparer:
+
+  featurestorebundle.feature.writer.FeaturesWriterInjector:
+    arguments:
+      - !tagged_aliased ['feature.writer', '%featurestorebundle.writer%']
 
   featurestorebundle.gql.GraphQLTransport:
     class: gql.transport.requests.RequestsHTTPTransport
