@@ -2,6 +2,7 @@ from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureDataMerger import FeatureDataMerger
 from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.TablePreparer import TablePreparer
 from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWriterInterface
 
@@ -19,3 +20,6 @@ class DeltaWriter(FeaturesWriterInterface):
             feature_list,
             result,
         )
+
+    def write_all(self, features_storage: FeaturesStorage):
+        pass
