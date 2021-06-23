@@ -1,7 +1,7 @@
-from datetime import datetime
 from pyspark.sql import SparkSession, DataFrame
 from pyspark.sql import functions as f
 from pyspark.sql import types as t
+from delta.tables import DeltaTable
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
@@ -31,29 +31,20 @@ class FeatureDataMerger:
         if len(data_column_names) != len(feature_names):
             raise Exception(f"Number or dataframe columns ({len(data_column_names)}) != number of features defined ({len(feature_names)})")
 
-        def build_update_set_clause():
-            def build_update_condition(feature_name, i):
-                return f"existing_data.{feature_name} = new_data.`{data_column_names[i]}`"
+        def build_update_set():
+            update_set = {}
 
-            update_conditions = [build_update_condition(feature_name, i) for i, feature_name in enumerate(feature_names)]
+            for i, feature_name in enumerate(feature_names):
+                update_set[feature_name] = f"source.{data_column_names[i]}"
 
-            return f"UPDATE SET {','.join(update_conditions)}"
+            return update_set
 
-        def build_insert_clause():
-            return ",".join([f"`{data_column_names[i]}`" for i, feature_name in enumerate(feature_names)])
+        def build_insert_set():
+            insert_set = build_update_set()
+            insert_set[entity.id_column] = f"source.{entity.id_column}"
+            insert_set[entity.time_column] = f"source.{entity.time_column}"
 
-        def build_merge_into_string(entity: Entity, view_tablename: str):
-            return (
-                f"MERGE INTO {self.__table_names.get_full_tablename(entity.name)} AS existing_data\n"
-                f"USING {view_tablename} AS new_data\n"
-                f"ON existing_data.{entity.id_column} = new_data.{entity.id_column} "
-                f"AND existing_data.{entity.time_column} = new_data.{entity.time_column}\n"
-                f"WHEN MATCHED THEN\n"
-                f"{build_update_set_clause()}\n"
-                f"WHEN NOT MATCHED\n"
-                f"THEN INSERT ({entity.id_column}, {entity.time_column}, {','.join(feature_names)}) "
-                f"VALUES ({entity.id_column}, {entity.time_column}, {build_insert_clause()})\n"
-            )
+            return insert_set
 
         def add_metadata(feature_store_table_name: str, feature_list: FeatureList):
             df = self.__spark.read.table(feature_store_table_name)
@@ -71,13 +62,16 @@ class FeatureDataMerger:
             if self.__metadata_api_enabled:
                 self.__post_metadata_to_db(df.schema, feature_list, entity)
 
-        # store data to a view
-        run_timestamp = datetime.now().strftime("%Y%m%d%H%M%S")
-        view_tablename = f"fv_{run_timestamp}"
-        features_data.createOrReplaceTempView(view_tablename)
-        merge_str = build_merge_into_string(entity, view_tablename)
+        delta_table = DeltaTable.forName(self.__spark, self.__table_names.get_full_tablename(entity.name))
 
-        self.__spark.sql(merge_str)
+        merge_condition = f"""
+            target.{entity.id_column} = source.{entity.id_column} AND
+            target.{entity.time_column} = source.{entity.time_column}
+        """
+
+        delta_table.alias("target").merge(features_data.alias("source"), merge_condition).whenMatchedUpdate(
+            set=build_update_set()
+        ).whenNotMatchedInsert(values=build_insert_set()).execute()
 
         add_metadata(self.__table_names.get_full_tablename(entity.name), feature_list)
 
