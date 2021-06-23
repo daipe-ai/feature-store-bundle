@@ -22,4 +22,15 @@ class DeltaWriter(FeaturesWriterInterface):
         )
 
     def write_all(self, features_storage: FeaturesStorage):
-        pass
+        self.__table_preparer.prepare(features_storage.entity, features_storage.feature_list)
+
+        joined_df = features_storage.results[0]
+
+        for df in features_storage.results[1:]:
+            joined_df = joined_df.join(df, on=[features_storage.entity.id_column, features_storage.entity.time_column], how="outer")
+
+        self.__feature_data_merger.merge(
+            features_storage.entity,
+            features_storage.feature_list,
+            joined_df,
+        )
