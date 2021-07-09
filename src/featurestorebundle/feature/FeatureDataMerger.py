@@ -46,6 +46,22 @@ class FeatureDataMerger:
 
             return insert_set
 
+        def build_pruning_condition():
+            rows = features_data.select(entity.time_column).distinct().collect()
+            time_records = [getattr(row, entity.time_column) for row in rows]
+            run_dates = [f"DATE'{d.year}-{d.month}-{d.day}'" for d in time_records]
+
+            return f"target.{entity.time_column} IN ({', '.join(run_dates)})"
+
+        def build_merge_condition():
+            merge_condition = f"""
+                {build_pruning_condition()} AND
+                target.{entity.id_column} = source.{entity.id_column} AND
+                target.{entity.time_column} = source.{entity.time_column}
+            """
+
+            return merge_condition
+
         def add_metadata(feature_store_table_name: str, feature_list: FeatureList):
             df = self.__spark.read.table(feature_store_table_name)
 
@@ -57,23 +73,20 @@ class FeatureDataMerger:
                     metadata["category"] = feature.category
                     df = df.withColumn(feature.name, f.col(feature.name).alias("", metadata=metadata))
 
-            df.write.format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(feature_store_table_name)
+            df.write.partitionBy(entity.time_column).format("delta").mode("overwrite").option("overwriteSchema", "true").saveAsTable(
+                feature_store_table_name
+            )
 
             if self.__metadata_api_enabled:
                 self.__post_metadata_to_db(df.schema, feature_list, entity)
 
         delta_table = DeltaTable.forName(self.__spark, self.__table_names.get_full_tablename(entity.name))
 
-        merge_condition = f"""
-            target.{entity.id_column} = source.{entity.id_column} AND
-            target.{entity.time_column} = source.{entity.time_column}
-        """
-
-        delta_table.alias("target").merge(features_data.alias("source"), merge_condition).whenMatchedUpdate(
+        delta_table.alias("target").merge(features_data.alias("source"), build_merge_condition()).whenMatchedUpdate(
             set=build_update_set()
         ).whenNotMatchedInsert(values=build_insert_set()).execute()
 
-        add_metadata(self.__table_names.get_full_tablename(entity.name), feature_list)
+        # add_metadata(self.__table_names.get_full_tablename(entity.name), feature_list)
 
     def __post_metadata_to_db(self, schema: t.StructType(), feature_list: FeatureList, entity: Entity):
         for field in schema[2:]:
