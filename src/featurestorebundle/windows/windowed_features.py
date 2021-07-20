@@ -15,7 +15,9 @@ PERIODS = {
 }
 
 
-def get_aggregations(windowed_columns: List[WindowedCol], agg_funs: List[callable], windows: List, is_windows: Dict[str, Column]):
+def get_aggregations(
+    windowed_columns: List[WindowedCol], agg_funs: List[callable], windows: List, is_windows: Dict[str, Column]
+) -> List[Column]:
     columns = []
     for windowed_column in windowed_columns:
         for agg_fun in agg_funs:

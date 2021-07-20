@@ -7,7 +7,6 @@ from featurestorebundle.windows.windowed_features import (
     get_windowed_mapping_for_renaming,
     get_aggregations,
 )
-from featurestorebundle.windows.WindowedCols import WindowedCols
 from featurestorebundle.windows.tests.Mocks import DataFrameMock, WindowedColMock, fcol, fsum, fwhen, flit
 
 
@@ -24,7 +23,7 @@ class WindowedFeaturesTest(unittest.TestCase):
             "cardtr_czech_count_360d": [1, 1, 0],
         }
         self.df = DataFrameMock(data)
-        self.is_windows = {
+        self.__is_windows = {
             window: fcol("window_col").cast("long") >= (flit(self.__target_date).cast("long") - f"{window[:-1]} * 24 * 60 * 60")
             for window in self.__windows
         }
@@ -39,7 +38,7 @@ class WindowedFeaturesTest(unittest.TestCase):
             ],
             [fsum],
             self.__windows,
-            self.is_windows,
+            self.__is_windows,
         )
         self.assertListEqual(
             [
@@ -63,7 +62,7 @@ class WindowedFeaturesTest(unittest.TestCase):
             ],
             [fsum],
             self.__windows,
-            self.is_windows,
+            self.__is_windows,
         )
         self.assertListEqual(
             [
@@ -89,13 +88,16 @@ class WindowedFeaturesTest(unittest.TestCase):
         )
 
     def test_with_column(self):
-        wc = WindowedCols()
+        df = self.df
         for window in self.__windows:
-            wc = wc.with_column(f"cardtr_czech_flag_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"))
-        df = self.df.select("*", *wc.cols)
+            df = df.withColumn(f"cardtr_czech_flag_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer")).withColumn(
+                f"cardtr_abroad_flag_{window}", fcol("cardtr_location").isin("SK").cast("integer")
+            )
 
         self.assertIn("cardtr_czech_flag_30d", df.data)
         self.assertIn("cardtr_czech_flag_60d", df.data)
+        self.assertIn("cardtr_abroad_flag_30d", df.data)
+        self.assertIn("cardtr_abroad_flag_60d", df.data)
 
     def test_with_column_renamed(self):
         self.assertIn("cardtr_czech_count_30d", self.df.data)

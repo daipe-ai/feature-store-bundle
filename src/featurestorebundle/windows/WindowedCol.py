@@ -8,10 +8,10 @@ class WindowedCol:
         self.__default_value = default_value
 
     def to_agg_windowed_column(self, agg_fun: callable, is_window: Column, window) -> Column:
-        col_name = self.col_name(agg_fun, window)
+        col_name = self.agg_col_name(agg_fun, window)
         return agg_fun(self.to_windowed_column(is_window)).alias(col_name)
 
-    def col_name(self, agg_fun: callable, window) -> str:
+    def agg_col_name(self, agg_fun: callable, window) -> str:
         function_name = agg_fun.__name__
         agg_name = self.__name.format(agg_fun=function_name, window=window)
         return agg_name

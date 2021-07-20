@@ -95,7 +95,7 @@ def fwhen(condition: Column_mock, value: Column_mock):
     return ColumnWhen_mock(cmd)
 
 
-def fcol(name):
+def fcol(name: str):
     return Column_mock(name)
 
 
@@ -103,12 +103,12 @@ def flit(value):
     return Column_mock(value)
 
 
+def fsum(col: Column_mock):
+    return fcol(f"sum({col.cmd})")
+
+
 class WindowedColMock(WindowedCol):  # noqa: N801
     def to_agg_windowed_column(self, agg_fun: callable, is_window: Column_mock, window) -> Column_mock:
-        col_name = self.col_name(agg_fun, window)
+        col_name = self.agg_col_name(agg_fun, window)
         wcol = fwhen(is_window, self._col).otherwise(None)
         return fsum(wcol).alias(col_name)
-
-
-def fsum(x):
-    return fcol(f"sum({str(x)[8:-2]})")
