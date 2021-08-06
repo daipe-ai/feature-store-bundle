@@ -1,22 +1,19 @@
 from pyspark.sql import SparkSession
-from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.entity.Entity import Entity
 
 
 class EmptyTableCreator:
-    def __init__(self, spark: SparkSession, table_names: TableNames):
+    def __init__(self, spark: SparkSession):
         self.__spark = spark
-        self.__table_names = table_names
 
-    def create(self, entity: Entity):
+    def create(self, table_name: str, path: str, entity: Entity):
         def build_create_entity_table_string(entity: Entity):
             return (
-                f"CREATE TABLE IF NOT EXISTS {self.__table_names.get_full_tablename(entity.name)}\n"
+                f"CREATE TABLE IF NOT EXISTS {table_name}\n"
                 f'({entity.id_column} {entity.id_column_type.typeName()} NOT NULL COMMENT "Entity id column",\n'
                 f'{entity.time_column} {entity.time_column_type.typeName()} NOT NULL COMMENT "Compute time column")\n'
                 f"USING DELTA\n"
-                f"LOCATION '{self.__table_names.get_path(entity.name)}'\n"
-                f"PARTITIONED BY ({entity.time_column})\n"
+                f"LOCATION '{path}'\n"
                 f'COMMENT "The table contains entity {entity.name} features"\n'
             )
 
