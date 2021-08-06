@@ -9,14 +9,19 @@ class FeaturesStorage:
     __results: List[DataFrame]
     __feature_list: FeatureList
 
-    def __init__(self, entity: Entity):
+    def __init__(self, entity: Entity, storage_type: str = "latest"):
         self.__entity = entity
+        self.__storage_type = storage_type
         self.__results = []
         self.__feature_list = FeatureList([])
 
     @property
     def entity(self):
         return self.__entity
+
+    @property
+    def storage_type(self):
+        return self.__storage_type
 
     @property
     def results(self):

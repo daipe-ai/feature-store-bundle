@@ -2,7 +2,10 @@ parameters:
   featurestorebundle:
     db_name_template: '%kernel.environment%_feature_store'
     table_name_template: 'features_{entity}'
-    path_template: 'dbfs:/feature_store/{entity}.delta'
+    base_path: 'dbfs:/%kernel.environment%_feature_store'
+    latest_path_template: '%featurestorebundle.base_path%/latest/{entity}.delta'
+    historized_path_template: '%featurestorebundle.base_path%/historized/{entity}.delta'
+    archive_path_template: '%featurestorebundle.base_path%/archive/{entity}/{date}.delta'
     writer: delta
     metadata_api:
       enabled: False
@@ -19,13 +22,21 @@ services:
     arguments:
       - '%featurestorebundle.db_name_template%'
       - '%featurestorebundle.table_name_template%'
-      - '%featurestorebundle.path_template%'
+      - '%featurestorebundle.latest_path_template%'
+      - '%featurestorebundle.historized_path_template%'
+      - '%featurestorebundle.archive_path_template%'
 
   featurestorebundle.delta.DeltaWriter:
+    arguments:
+      - '@featurestorebundle.logger'
     tags:
       - {name: 'feature.writer', alias: 'delta'}
 
   featurestorebundle.feature.EmptyTableCreator:
+
+  featurestorebundle.feature.EmptyFileCreator:
+
+  featurestorebundle.feature.EmptyDataFrameCreator:
 
   featurestorebundle.feature.FeatureDataMerger:
     arguments:
@@ -39,10 +50,6 @@ services:
   featurestorebundle.feature.FeatureStore:
 
   featurestorebundle.feature.TablePreparer:
-
-  featurestorebundle.feature.writer.FeaturesWriterInjector:
-    arguments:
-      - !tagged_aliased ['feature.writer', '%featurestorebundle.writer%']
 
   featurestorebundle.gql.GraphQLTransport:
     class: gql.transport.requests.RequestsHTTPTransport
