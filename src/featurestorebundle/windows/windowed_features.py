@@ -15,18 +15,15 @@ PERIODS = {
 }
 
 
-def get_aggregations(
-    windowed_columns: List[WindowedCol], agg_funs: List[callable], windows: List, is_windows: Dict[str, Column]
-) -> List[Column]:
+def get_aggregations(windowed_columns: List[WindowedCol], windows: List, is_windows: Dict[str, Column]) -> List[Column]:
     columns = []
     for windowed_column in windowed_columns:
-        for agg_fun in agg_funs:
-            columns.extend([windowed_column.to_agg_windowed_column(agg_fun, is_windows[window], window) for window in windows])
+        columns.extend([windowed_column.to_agg_windowed_column(is_windows[window], window) for window in windows])
     return columns
 
 
 def get_windowed_aggregations(
-    windowed_columns: List[WindowedCol], agg_funs: List[callable], windows: List, window_col: str, target_date: Union[Column, datetime]
+    windowed_columns: List[WindowedCol], windows: List, window_col: str, target_date: Union[Column, datetime]
 ) -> List[Column]:
     if isinstance(target_date, datetime):
         target_date = f.lit(target_date)
@@ -35,7 +32,7 @@ def get_windowed_aggregations(
         window: f.col(window_col).cast("long") >= (target_date.cast("long") - PERIODS[window[-1]] * int(window[:-1])) for window in windows
     }
 
-    return get_aggregations(windowed_columns, agg_funs, windows, is_windows)
+    return get_aggregations(windowed_columns, windows, is_windows)
 
 
 def get_windowed_mapping_for_renaming(windows: List, mapping: Dict[str, str]) -> Dict[str, str]:

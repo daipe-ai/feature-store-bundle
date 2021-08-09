@@ -108,7 +108,7 @@ def fsum(col: Column_mock):
 
 
 class WindowedColMock(WindowedCol):  # noqa: N801
-    def to_agg_windowed_column(self, agg_fun: callable, is_window: Column_mock, window) -> Column_mock:
-        col_name = self.agg_col_name(agg_fun, window)
+    def to_agg_windowed_column(self, is_window: Column_mock, window) -> Column_mock:
+        col_name = self.agg_col_name(window)
         wcol = fwhen(is_window, self._col).otherwise(None)
         return fsum(wcol).alias(col_name)

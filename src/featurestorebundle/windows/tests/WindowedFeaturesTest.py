@@ -30,13 +30,7 @@ class WindowedFeaturesTest(unittest.TestCase):
 
     def test_one_column_for_agg(self):
         output = get_aggregations(
-            [
-                WindowedColMock(
-                    "cardtr_czech_count_{agg_fun}_{window}",
-                    fcol("cardtr_location").isin("CZ", "CZE").cast("integer"),
-                )
-            ],
-            [fsum],
+            [WindowedColMock("cardtr_czech_count_{agg_fun}_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum)],
             self.__windows,
             self.__is_windows,
         )
@@ -51,16 +45,13 @@ class WindowedFeaturesTest(unittest.TestCase):
     def test_multiple_columns_for_agg(self):
         output = get_aggregations(
             [
-                WindowedColMock(
-                    "cardtr_czech_count_{agg_fun}_{window}",
-                    fcol("cardtr_location").isin("CZ", "CZE").cast("integer"),
-                ),
+                WindowedColMock("cardtr_czech_count_{agg_fun}_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum),
                 WindowedColMock(
                     "cardtr_czech_{agg_fun}_volume_{window}",
                     fwhen(fcol("cardtr_location").isin("CZ", "CZE"), fcol("cardtr_amount")).otherwise(None),
+                    fsum,
                 ),
             ],
-            [fsum],
             self.__windows,
             self.__is_windows,
         )
