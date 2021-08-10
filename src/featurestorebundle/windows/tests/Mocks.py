@@ -1,38 +1,20 @@
-from typing import Optional
+from typing import Optional, Any
 
 from featurestorebundle.windows.windowed_features import WindowedCol
 
 
-class DataFrameMock:  # noqa: N801
+class DataFrameMock:
     def __init__(self, data: dict):
         self.data = data
-
-    @property
-    def columns(self):
-        return self.data.keys()
 
     def drop(self, *cols):
         for col in cols:
             del self.data[col]
         return self
 
-    def select(self, *cols):
-        new_data = self.data.copy()
-        for col in cols:
-            if col == "*":
-                continue
-            new_data[col.name] = col
-        return DataFrameMock(new_data)
-
     def withColumn(self, name, data):  # noqa: N802
         new_data = self.data.copy()
         new_data[name] = data
-        return DataFrameMock(new_data)
-
-    def withColumnRenamed(self, old_name, new_name):  # noqa: N802
-        new_data = self.data.copy()
-        new_data[new_name] = new_data[old_name]
-        del new_data[old_name]
         return DataFrameMock(new_data)
 
 
@@ -46,11 +28,8 @@ class JavaCol:
     def cmd(self):
         return self.__cmd
 
-    def toString(self):  # noqa: N802
-        return self.cmd
 
-
-class Column_mock:  # noqa: N801
+class ColumnMock:
     def __init__(self, cmd, name=None):
         self._jc = JavaCol(cmd)
         self.name = name
@@ -61,54 +40,52 @@ class Column_mock:  # noqa: N801
 
     def isin(self, *lst):
         new_cmd = f"({self.cmd}) IN ({', '.join(lst)})"
-        return Column_mock(new_cmd)
+        return ColumnMock(new_cmd)
 
-    def cast(self, dtype):
-        return Column_mock(f"CAST ({self.cmd}) AS {dtype}")
+    def cast(self, dtype: str):
+        return ColumnMock(f"CAST ({self.cmd}) AS {dtype}")
 
-    def alias(self, name):
-        return Column_mock(f"{self.cmd} AS `{name}`", name)
+    def alias(self, name: str):
+        return ColumnMock(f"{self.cmd} AS `{name}`", name)
 
     def __repr__(self):
         return f"Column<'{self.cmd}'>"
 
-    def __sub__(self, other):
-        if isinstance(other, str):
-            other = Column_mock(other)
-        return Column_mock(f"({self.cmd}) - {other.cmd})")
+    def __sub__(self, other: Any):
+        if not isinstance(other, ColumnMock):
+            other = ColumnMock(other)
+        return ColumnMock(f"({self.cmd}) - {other.cmd})")
 
-    def __ge__(self, other):
-        if isinstance(other, str):
-            other = Column_mock(other)
-        return Column_mock(f"({self.cmd}) >= {other.cmd})")
+    def __ge__(self, other: Any):
+        if not isinstance(other, ColumnMock):
+            other = ColumnMock(other)
+        return ColumnMock(f"({self.cmd}) >= {other.cmd})")
 
 
-class ColumnWhen_mock(Column_mock):  # noqa: N801
-    def otherwise(self, value: Optional[Column_mock]):
+class ColumnWhenMock(ColumnMock):
+    def otherwise(self, value: Optional[ColumnMock]):
         if not value:
-            value = Column_mock(None)
-        return Column_mock(f"{self.cmd} ELSE {value.cmd})")
+            value = ColumnMock(None)
+        return ColumnMock(f"{self.cmd} ELSE {value.cmd})")
 
 
-def fwhen(condition: Column_mock, value: Column_mock):
+def fwhen(condition: ColumnMock, value: ColumnMock):
     cmd = f"(CASE WHEN {condition.cmd} THEN {value.cmd}"
-    return ColumnWhen_mock(cmd)
+    return ColumnWhenMock(cmd)
 
 
-def fcol(name: str):
-    return Column_mock(name)
+def fcol(name: str) -> ColumnMock:
+    return ColumnMock(name)
 
 
-def flit(value):
-    return Column_mock(value)
+def flit(value: Any) -> ColumnMock:
+    return ColumnMock(value)
 
 
-def fsum(col: Column_mock):
+def fsum(col: ColumnMock) -> ColumnMock:
     return fcol(f"sum({col.cmd})")
 
 
-class WindowedColMock(WindowedCol):  # noqa: N801
-    def to_agg_windowed_column(self, is_window: Column_mock, window) -> Column_mock:
-        col_name = self.agg_col_name(window)
-        wcol = fwhen(is_window, self._col).otherwise(None)
-        return fsum(wcol).alias(col_name)
+class WindowedColMock(WindowedCol):
+    def _fwhen(self, *args, **kwargs) -> ColumnMock:
+        return fwhen(*args, **kwargs)

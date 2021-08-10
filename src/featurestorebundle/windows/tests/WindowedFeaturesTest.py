@@ -7,11 +7,11 @@ from featurestorebundle.windows.windowed_features import (
     get_windowed_mapping_for_renaming,
     get_aggregations,
 )
-from featurestorebundle.windows.tests.Mocks import DataFrameMock, WindowedColMock, fcol, fsum, fwhen, flit
+from featurestorebundle.windows.tests.Mocks import WindowedColMock, DataFrameMock, fcol, fsum, fwhen, flit
 
 
 class WindowedFeaturesTest(unittest.TestCase):
-    def setUp(self) -> None:
+    def setUp(self):
         self.__windows = ["30d", "60d"]
         self.__target_date = datetime(2021, 1, 1)
         data = {
@@ -30,14 +30,14 @@ class WindowedFeaturesTest(unittest.TestCase):
 
     def test_one_column_for_agg(self):
         output = get_aggregations(
-            [WindowedColMock("cardtr_czech_count_{agg_fun}_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum)],
+            [WindowedColMock("cardtr_czech_count_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum)],
             self.__windows,
             self.__is_windows,
         )
         self.assertListEqual(
             [
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_fsum_30d`'>",
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_fsum_60d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_30d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_60d`'>",
             ],
             list(map(str, output)),
         )
@@ -45,9 +45,9 @@ class WindowedFeaturesTest(unittest.TestCase):
     def test_multiple_columns_for_agg(self):
         output = get_aggregations(
             [
-                WindowedColMock("cardtr_czech_count_{agg_fun}_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum),
+                WindowedColMock("cardtr_czech_count_{window}", fcol("cardtr_location").isin("CZ", "CZE").cast("integer"), fsum),
                 WindowedColMock(
-                    "cardtr_czech_{agg_fun}_volume_{window}",
+                    "cardtr_czech_volume_{window}",
                     fwhen(fcol("cardtr_location").isin("CZ", "CZE"), fcol("cardtr_amount")).otherwise(None),
                     fsum,
                 ),
@@ -57,10 +57,10 @@ class WindowedFeaturesTest(unittest.TestCase):
         )
         self.assertListEqual(
             [
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_fsum_30d`'>",
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_fsum_60d`'>",
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN (CASE WHEN (cardtr_location) IN (CZ, CZE) THEN cardtr_amount ELSE NULL) ELSE NULL)) AS `cardtr_czech_fsum_volume_30d`'>",
-                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN (CASE WHEN (cardtr_location) IN (CZ, CZE) THEN cardtr_amount ELSE NULL) ELSE NULL)) AS `cardtr_czech_fsum_volume_60d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_30d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN CAST ((cardtr_location) IN (CZ, CZE)) AS integer ELSE NULL)) AS `cardtr_czech_count_60d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 30 * 24 * 60 * 60)) THEN (CASE WHEN (cardtr_location) IN (CZ, CZE) THEN cardtr_amount ELSE NULL) ELSE NULL)) AS `cardtr_czech_volume_30d`'>",
+                "Column<'sum((CASE WHEN (CAST (window_col) AS long) >= (CAST (2021-01-01 00:00:00) AS long) - 60 * 24 * 60 * 60)) THEN (CASE WHEN (cardtr_location) IN (CZ, CZE) THEN cardtr_amount ELSE NULL) ELSE NULL)) AS `cardtr_czech_volume_60d`'>",
             ],
             list(map(str, output)),
         )

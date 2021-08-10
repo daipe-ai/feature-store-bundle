@@ -1,5 +1,4 @@
-from datetime import datetime
-from typing import Dict, List, Union
+from typing import Dict, List
 from pyspark.sql import Column, DataFrame, functions as f
 
 from featurestorebundle.windows.WindowedCol import WindowedCol
@@ -22,12 +21,7 @@ def get_aggregations(windowed_columns: List[WindowedCol], windows: List, is_wind
     return columns
 
 
-def get_windowed_aggregations(
-    windowed_columns: List[WindowedCol], windows: List, window_col: str, target_date: Union[Column, datetime]
-) -> List[Column]:
-    if isinstance(target_date, datetime):
-        target_date = f.lit(target_date)
-
+def get_windowed_aggregations(windowed_columns: List[WindowedCol], windows: List, window_col: str, target_date: Column) -> List[Column]:
     is_windows = {
         window: f.col(window_col).cast("long") >= (target_date.cast("long") - PERIODS[window[-1]] * int(window[:-1])) for window in windows
     }
@@ -49,7 +43,7 @@ def get_windowed_columns_renamed(df: DataFrame, windows: List, mapping: Dict[str
     ]
 
 
-def get_windowed_columns_to_drop(windows: List, *col_names) -> List[str]:
+def get_windowed_columns_to_drop(windows: List, *col_names: str) -> List[str]:
     col_names_to_drop = []
     for col_name in col_names:
         col_names_to_drop.extend(get_windowed_column_names(windows, col_name))
