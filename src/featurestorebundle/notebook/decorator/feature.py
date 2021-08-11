@@ -18,9 +18,9 @@ class feature(OutputDecorator):  # noqa: N801
     def process_result(self, result: DataFrame, container: ContainerInterface):
         self.__check_primary_key_columns(result)
 
-        feature_list = self.__prepare_features(self._args)
-
         if self.__features_storage:
+            feature_list = self.__prepare_features(self._args)
+
             self.__features_storage.add(result, feature_list)
 
     def __check_primary_key_columns(self, result: DataFrame):
