@@ -49,6 +49,10 @@ services:
 
   featurestorebundle.feature.FeatureStore:
 
+  featurestorebundle.metadata.MetadataExtractor:
+
+  featurestorebundle.metadata.MetadataWriter:
+
   featurestorebundle.feature.TablePreparer:
 
   featurestorebundle.gql.GraphQLTransport:

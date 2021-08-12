@@ -6,13 +6,18 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from gql import gql, Client
 from logging import Logger
 
+from featurestorebundle.metadata.MetadataWriter import MetadataWriter
+
 
 class FeatureDataMerger:
-    def __init__(self, metadata_api_enabled: bool, logger: Logger, gql_client: Client, spark: SparkSession):
+    def __init__(
+        self, metadata_api_enabled: bool, logger: Logger, gql_client: Client, spark: SparkSession, metadata_writer: MetadataWriter
+    ):
         self.__metadata_api_enabled = metadata_api_enabled
         self.__logger = logger
         self.__gql_client = gql_client
         self.__spark = spark
+        self.__metadata_writer = metadata_writer
 
     def merge(
         self,
@@ -65,41 +70,7 @@ class FeatureDataMerger:
             .execute()
         )
 
-        self.__write_metadata(metadata_table_path, feature_list)
-
-    def __write_metadata(self, metadata_path: str, feature_list: FeatureList):
-        metadata_columns = ["feature", "description", "category"]
-        metadata = []
-
-        for feature in feature_list.get_all():
-            metadata.append([feature.name, feature.description, feature.category])
-
-        metadata_df = self.__spark.createDataFrame(metadata, metadata_columns)
-
-        if not DeltaTable.isDeltaTable(self.__spark, metadata_path):
-            metadata_df.write.format("delta").save(metadata_path)
-            return
-
-        delta_table = DeltaTable.forPath(self.__spark, metadata_path)
-
-        update_set = {
-            "description": "source.description",
-            "category": "source.category",
-        }
-
-        insert_set = {
-            "feature": "source.feature",
-            "description": "source.description",
-            "category": "source.category",
-        }
-
-        (
-            delta_table.alias("target")
-            .merge(metadata_df.alias("source"), "target.feature = source.feature")
-            .whenMatchedUpdate(set=update_set)
-            .whenNotMatchedInsert(values=insert_set)
-            .execute()
-        )
+        self.__metadata_writer.write_metadata(metadata_table_path, entity, feature_list, features_data)
 
     def __post_metadata_to_db(self, schema: t.StructType(), feature_list: FeatureList, entity: Entity):
         for field in schema[2:]:
