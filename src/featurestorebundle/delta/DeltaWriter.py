@@ -73,9 +73,8 @@ class DeltaWriter(FeaturesWriterInterface):
         join_batch_size = 10
         batch_counter = 0
 
-        if len(features_storage.results) == 0:
-            self.__logger.warning("There are no features to write")
-            return self.__empty_dataframe_creator.create(features_storage.entity)
+        if not features_storage.results:
+            raise Exception("There are no features to write.")
 
         pk_columns = [features_storage.entity.id_column, features_storage.entity.time_column]
 
@@ -84,7 +83,7 @@ class DeltaWriter(FeaturesWriterInterface):
         unique_ids_df = id_dataframes[0]
 
         for df in id_dataframes[1:]:
-            unique_ids_df.union(df)
+            unique_ids_df = unique_ids_df.unionByName(df)
 
         unique_ids_df = unique_ids_df.distinct()
         joined_df = unique_ids_df.cache()
