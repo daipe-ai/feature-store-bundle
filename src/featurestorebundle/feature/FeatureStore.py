@@ -26,12 +26,12 @@ class FeatureStore:
         return self.__get_features(table_identifier, feature_names)
 
     def __get_features(self, table_identifier: str, feature_names: List[str]):
-        registered_feature_list = self.__feature_manager.get_features(table_identifier)
+        registered_feature_names_list = self.__feature_manager.get_feature_names(table_identifier)
 
         if feature_names is None:
-            feature_names = registered_feature_list.get_names()
+            feature_names = registered_feature_names_list
 
-        unregistered_features = set(feature_names) - set(registered_feature_list.get_names())
+        unregistered_features = set(feature_names) - set(registered_feature_names_list)
 
         if unregistered_features != set():
             raise Exception(f"Features {','.join(unregistered_features)} not registered")

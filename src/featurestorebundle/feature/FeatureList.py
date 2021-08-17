@@ -1,4 +1,5 @@
-from typing import List
+from typing import List, Dict
+
 from featurestorebundle.feature.Feature import Feature
 
 
@@ -6,24 +7,26 @@ class FeatureList:
     def __init__(self, features: List[Feature]):
         self.__features = features
 
-    def get_all(self):
+    def get_all(self) -> List[Feature]:
         return self.__features
 
-    def is_empty(self):
-        return self.__features == []
+    def empty(self):
+        return not self.__features
 
     def get_names(self):
         return [feature.name for feature in self.__features]
 
-    def get_feature_by_name(self, feature_name: str) -> Feature:
-        for feature in self.__features:
-            if feature.name == feature_name:
-                return feature
+    def get_unregistered(self, registered_feature_names: List[str]) -> "FeatureList":
+        def registered(instance: Feature, registered_names: List[str]):
+            return instance.name in registered_names
 
-        raise Exception(f"Feature {feature_name} not found")
+        return FeatureList([feature for feature in self.get_all() if not registered(feature, registered_feature_names)])
 
-    def get_unregistered(self, registered_feature_names: list):
-        return FeatureList([feature for feature in self.__features if feature.name not in registered_feature_names])
-
-    def merge(self, new_feature_list: "FeatureList"):
+    def merge(self, new_feature_list: "FeatureList") -> "FeatureList":
         return FeatureList(self.__features + new_feature_list.get_all())
+
+    def get_metadata(self) -> List[List[str]]:
+        return [feature.get_metadata_list() for feature in self.__features]
+
+    def get_metadata_dicts(self) -> List[Dict[str, str]]:
+        return [feature.get_metadata_dict() for feature in self.__features]

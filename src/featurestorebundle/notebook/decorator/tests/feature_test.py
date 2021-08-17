@@ -9,12 +9,27 @@ from featurestorebundle.notebook.decorator.feature import feature
 os.environ["APP_ENV"] = "test"
 
 
+class FakeSchema:
+    json = {
+        "fields": [
+            {"name": "client_id", "type": "long"},
+            {"name": "run_date", "type": "long"},
+            {"name": "my_sample_feature", "type": "long"},
+        ],
+    }
+
+    @staticmethod
+    def jsonValue():  # noqa N802
+        return FakeSchema.json
+
+
 class FakeResult:
 
-    columns = ["client_id", "run_date"]
+    columns = ["client_id", "run_date", "my_sample_feature"]
 
     def __init__(self, value):
         self.value = value
+        self.schema = FakeSchema
 
 
 entity = Entity(

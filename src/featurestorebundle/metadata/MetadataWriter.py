@@ -1,21 +1,29 @@
-from delta.tables import DeltaTable
-from pyspark.sql import SparkSession, DataFrame
+from logging import Logger
 
-from featurestorebundle.entity.Entity import Entity
+from delta.tables import DeltaTable
+from pyspark.sql import SparkSession
+from pyspark.sql import types as t
+
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.metadata.MetadataExtractor import MetadataExtractor
+
+METADATA_PK = t.StructField("feature", t.StringType(), True)
+METADATA_COLUMNS = [
+    t.StructField("description", t.StringType(), True),
+    t.StructField("extra", t.MapType(t.StringType(), t.StringType(), True)),
+    t.StructField("feature_template", t.StringType(), True),
+    t.StructField("category", t.StringType(), True),
+    t.StructField("dtype", t.StringType(), True),
+]
+METADATA_SCHEMA = t.StructType([METADATA_PK] + METADATA_COLUMNS)
 
 
 class MetadataWriter:
-    def __init__(self, spark: SparkSession, metadata_extractor: MetadataExtractor):
+    def __init__(self, logger: Logger, spark: SparkSession):
+        self.__logger = logger
         self.__spark = spark
-        self.__metadata_extractor = metadata_extractor
 
-    def write_metadata(self, metadata_path: str, entity: Entity, feature_list: FeatureList, features_data: DataFrame):
-        metadata_columns = ["feature", "description", "category", "feature_template", "misc"]
-        metadata_df = self.__spark.createDataFrame(
-            self.__metadata_extractor.get_metadata(entity, feature_list, features_data.columns), metadata_columns
-        )
+    def write(self, metadata_path: str, feature_list: FeatureList):
+        metadata_df = self.__spark.createDataFrame(feature_list.get_metadata(), METADATA_SCHEMA)
 
         if not DeltaTable.isDeltaTable(self.__spark, metadata_path):
             metadata_df.write.format("delta").save(metadata_path)
@@ -23,14 +31,11 @@ class MetadataWriter:
 
         delta_table = DeltaTable.forPath(self.__spark, metadata_path)
 
-        update_set = {
-            "description": "source.description",
-            "category": "source.category",
-            "feature_template": "source.feature_template",
-            "misc": "source.misc",
-        }
+        update_set = {col.name: f"source.{col.name}" for col in METADATA_COLUMNS}
 
-        insert_set = {"feature": "source.feature", **update_set}
+        insert_set = {METADATA_PK.name: f"source.{METADATA_PK.name}", **update_set}
+
+        self.__logger.info(f"Writing metadata into {metadata_path}")
 
         (
             delta_table.alias("target")

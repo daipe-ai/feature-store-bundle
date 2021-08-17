@@ -35,13 +35,15 @@ class FeatureDataMerger:
         ]
 
         if len(data_column_names) != len(feature_names):
-            raise Exception(f"Number or dataframe columns ({len(data_column_names)}) != number of features defined ({len(feature_names)})")
+            raise Exception(
+                f"Number or dataframe columns ({len(data_column_names)}) != number of features instances matched ({len(feature_names)})"
+            )
 
         def build_update_set():
             update_set = {}
 
-            for i, feature_name in enumerate(feature_names):
-                update_set[feature_name] = f"source.{data_column_names[i]}"
+            for i, feature_instance_name in enumerate(feature_names):
+                update_set[feature_instance_name] = f"source.{data_column_names[i]}"
 
             return update_set
 
@@ -62,6 +64,8 @@ class FeatureDataMerger:
 
         delta_table = DeltaTable.forPath(self.__spark, target_table_path)
 
+        self.__logger.info(f"Writing feature data into {target_table_path}")
+
         (
             delta_table.alias("target")
             .merge(features_data.alias("source"), build_merge_condition())
@@ -70,7 +74,7 @@ class FeatureDataMerger:
             .execute()
         )
 
-        self.__metadata_writer.write_metadata(metadata_table_path, entity, feature_list, features_data)
+        self.__metadata_writer.write(metadata_table_path, feature_list)
 
     def __post_metadata_to_db(self, schema: t.StructType(), feature_list: FeatureList, entity: Entity):
         for field in schema[2:]:

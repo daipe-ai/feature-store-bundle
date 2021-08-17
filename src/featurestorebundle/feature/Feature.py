@@ -1,13 +1,15 @@
-from pyspark.sql.types import DataType
+from typing import Dict, List
+
+from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
 
 class Feature:
-    def __init__(self, name: str, description: str, dtype: DataType, category: str = None):
-
+    def __init__(self, name: str, description: str, dtype: str, extra: Dict, template: FeatureTemplate):
         self.__name = name
         self.__description = description
         self.__dtype = dtype
-        self.__category = category
+        self.__extra = extra
+        self.__template = template
 
     @property
     def name(self):
@@ -21,6 +23,15 @@ class Feature:
     def dtype(self):
         return self.__dtype
 
-    @property
-    def category(self):
-        return self.__category
+    def get_metadata_dict(self) -> Dict[str, str]:
+        return {
+            "name": self.__name,
+            "description": self.__description,
+            "extra": self.__extra,
+            "template": self.__template.name_template,
+            "category": self.__template.category,
+            "dtype": self.__dtype,
+        }
+
+    def get_metadata_list(self) -> List[str]:
+        return list(self.get_metadata_dict().values())
