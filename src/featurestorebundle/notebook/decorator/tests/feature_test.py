@@ -51,11 +51,15 @@ class client_feature(feature):  # noqa: N801
 
 expected_value = FakeResult("not_a_real_dataframe")
 
+try:
 
-@notebook_function()
-@client_feature("my_sample_table", t.IntegerType())
-def my_sample_feature():
-    return expected_value
+    @notebook_function()
+    @client_feature(("my_sample_feature", "my_sample_description"), category="test")
+    def my_sample_feature():
+        return expected_value
 
+
+except ModuleNotFoundError as e:
+    assert str(e) == "No module named 'IPython'"
 
 assert expected_value == features_storage.results[0]

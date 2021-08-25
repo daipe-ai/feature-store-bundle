@@ -6,6 +6,7 @@ from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMat
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
+from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 
 
 class feature(OutputDecorator):  # noqa: N801
@@ -23,6 +24,9 @@ class feature(OutputDecorator):  # noqa: N801
 
             feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
             self.__features_storage.add(result, feature_list)
+
+            metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
+            metadata_html_displayer.display(feature_list.get_metadata_dicts())
 
     def __check_primary_key_columns(self, result: DataFrame):
         if self.__entity.id_column not in result.columns:
