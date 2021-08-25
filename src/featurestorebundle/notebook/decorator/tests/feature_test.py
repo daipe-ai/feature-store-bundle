@@ -9,12 +9,27 @@ from featurestorebundle.notebook.decorator.feature import feature
 os.environ["APP_ENV"] = "test"
 
 
+class FakeSchema:
+    json = {
+        "fields": [
+            {"name": "client_id", "type": "long"},
+            {"name": "run_date", "type": "long"},
+            {"name": "my_sample_feature", "type": "long"},
+        ],
+    }
+
+    @staticmethod
+    def jsonValue():  # noqa N802
+        return FakeSchema.json
+
+
 class FakeResult:
 
-    columns = ["client_id", "run_date"]
+    columns = ["client_id", "run_date", "my_sample_feature"]
 
     def __init__(self, value):
         self.value = value
+        self.schema = FakeSchema
 
 
 entity = Entity(
@@ -36,11 +51,15 @@ class client_feature(feature):  # noqa: N801
 
 expected_value = FakeResult("not_a_real_dataframe")
 
+try:
 
-@notebook_function()
-@client_feature("my_sample_table", t.IntegerType())
-def my_sample_feature():
-    return expected_value
+    @notebook_function()
+    @client_feature(("my_sample_feature", "my_sample_description"), category="test")
+    def my_sample_feature():
+        return expected_value
 
+
+except ModuleNotFoundError as e:
+    assert str(e) == "No module named 'IPython'"
 
 assert expected_value == features_storage.results[0]

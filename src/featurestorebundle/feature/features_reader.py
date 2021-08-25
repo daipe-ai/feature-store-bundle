@@ -5,10 +5,12 @@ from featurestorebundle.feature.FeatureStore import FeatureStore
 
 
 @input_decorator_function
-def read_features(entity_name: str, feature_names: List[str] = None):
+def read_features(entity_name: str, feature_names: List[str] = None, historized: bool = False):
     def wrapper(container: ContainerInterface):
         feature_store: FeatureStore = container.get(FeatureStore)
 
-        return feature_store.get(entity_name, feature_names)
+        if historized:
+            return feature_store.get_historized(entity_name, feature_names)
+        return feature_store.get_latest(entity_name, feature_names)
 
     return wrapper

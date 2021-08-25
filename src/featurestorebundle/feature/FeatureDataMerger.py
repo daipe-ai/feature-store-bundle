@@ -6,13 +6,18 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from gql import gql, Client
 from logging import Logger
 
+from featurestorebundle.metadata.MetadataWriter import MetadataWriter
+
 
 class FeatureDataMerger:
-    def __init__(self, metadata_api_enabled: bool, logger: Logger, gql_client: Client, spark: SparkSession):
+    def __init__(
+        self, metadata_api_enabled: bool, logger: Logger, gql_client: Client, spark: SparkSession, metadata_writer: MetadataWriter
+    ):
         self.__metadata_api_enabled = metadata_api_enabled
         self.__logger = logger
         self.__gql_client = gql_client
         self.__spark = spark
+        self.__metadata_writer = metadata_writer
 
     def merge(
         self,
@@ -30,13 +35,15 @@ class FeatureDataMerger:
         ]
 
         if len(data_column_names) != len(feature_names):
-            raise Exception(f"Number or dataframe columns ({len(data_column_names)}) != number of features defined ({len(feature_names)})")
+            raise Exception(
+                f"Number or dataframe columns ({len(data_column_names)}) != number of features instances matched ({len(feature_names)})"
+            )
 
         def build_update_set():
             update_set = {}
 
-            for i, feature_name in enumerate(feature_names):
-                update_set[feature_name] = f"source.{data_column_names[i]}"
+            for i, feature_instance_name in enumerate(feature_names):
+                update_set[feature_instance_name] = f"source.{data_column_names[i]}"
 
             return update_set
 
@@ -57,6 +64,8 @@ class FeatureDataMerger:
 
         delta_table = DeltaTable.forPath(self.__spark, target_table_path)
 
+        self.__logger.info(f"Writing feature data into {target_table_path}")
+
         (
             delta_table.alias("target")
             .merge(features_data.alias("source"), build_merge_condition())
@@ -65,41 +74,7 @@ class FeatureDataMerger:
             .execute()
         )
 
-        self.__write_metadata(metadata_table_path, feature_list)
-
-    def __write_metadata(self, metadata_path: str, feature_list: FeatureList):
-        metadata_columns = ["feature", "description", "category"]
-        metadata = []
-
-        for feature in feature_list.get_all():
-            metadata.append([feature.name, feature.description, feature.category])
-
-        metadata_df = self.__spark.createDataFrame(metadata, metadata_columns)
-
-        if not DeltaTable.isDeltaTable(self.__spark, metadata_path):
-            metadata_df.write.format("delta").save(metadata_path)
-            return
-
-        delta_table = DeltaTable.forPath(self.__spark, metadata_path)
-
-        update_set = {
-            "description": "source.description",
-            "category": "source.category",
-        }
-
-        insert_set = {
-            "feature": "source.feature",
-            "description": "source.description",
-            "category": "source.category",
-        }
-
-        (
-            delta_table.alias("target")
-            .merge(metadata_df.alias("source"), "target.feature = source.feature")
-            .whenMatchedUpdate(set=update_set)
-            .whenNotMatchedInsert(values=insert_set)
-            .execute()
-        )
+        self.__metadata_writer.write(metadata_table_path, feature_list)
 
     def __post_metadata_to_db(self, schema: t.StructType(), feature_list: FeatureList, entity: Entity):
         for field in schema[2:]:

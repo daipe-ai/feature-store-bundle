@@ -47,7 +47,17 @@ services:
     arguments:
       - '@featurestorebundle.logger'
 
+  featurestorebundle.feature.FeatureTemplateMatcher:
+
   featurestorebundle.feature.FeatureStore:
+
+  featurestorebundle.metadata.MetadataWriter:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.metadata.MetadataHTMLDisplayer:
+
+  featurestorebundle.metadata.TimeWindowHandler:
 
   featurestorebundle.feature.TablePreparer:
 

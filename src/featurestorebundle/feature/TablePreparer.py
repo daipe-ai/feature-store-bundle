@@ -24,8 +24,8 @@ class TablePreparer:
         self.__register_features(table_identifier, current_feature_list)
 
     def __register_features(self, table_identifier: str, current_feature_list: FeatureList):
-        registered_feature_list = self.__features_manager.get_features(table_identifier)
-        unregistered_feature_list = current_feature_list.get_unregistered(registered_feature_list.get_names())
+        registered_feature_names = self.__features_manager.get_feature_names(table_identifier)
+        unregistered_features = current_feature_list.get_unregistered(registered_feature_names)
 
-        if not unregistered_feature_list.is_empty():
-            self.__features_manager.register(table_identifier, unregistered_feature_list)
+        if not unregistered_features.empty():
+            self.__features_manager.register(table_identifier, unregistered_features)

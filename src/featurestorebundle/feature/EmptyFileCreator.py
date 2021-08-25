@@ -1,5 +1,5 @@
 from pyspark.sql import SparkSession
-from delta import DeltaTable
+from delta.tables import DeltaTable
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.EmptyDataFrameCreator import EmptyDataFrameCreator
 
