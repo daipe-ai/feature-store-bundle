@@ -37,7 +37,7 @@ class feature(OutputDecorator):  # noqa: N801
 
     def __prepare_features(self, feature_template_matcher: FeatureTemplateMatcher, df: DataFrame, args: tuple) -> FeatureList:
         """
-        @[foo]_feature_writer(
+        @[foo]_feature(
             ("delayed_flights_pct_30d", "% of delayed flights in last 30 days"),
             ("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days")
         )
