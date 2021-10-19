@@ -1,15 +1,14 @@
 parameters:
   featurestorebundle:
     db_name_template: '%kernel.environment%_feature_store'
-    table_name_template: 'features_{entity}'
+    latest_table_name_template: 'features_{entity}_latest'
+    historized_table_name_template: 'features_{entity}_historized'
     base_path: 'dbfs:/%kernel.environment%_feature_store'
     latest_path_template: '%featurestorebundle.base_path%/latest/{entity}.delta'
     historized_path_template: '%featurestorebundle.base_path%/historized/{entity}.delta'
     archive_path_template: '%featurestorebundle.base_path%/archive/{entity}/{date}.delta'
+    join_batch_size: 10
     writer: delta
-    metadata_api:
-      enabled: False
-      url:
 
 services:
   featurestorebundle.logger:
@@ -21,26 +20,31 @@ services:
   featurestorebundle.db.TableNames:
     arguments:
       - '%featurestorebundle.db_name_template%'
-      - '%featurestorebundle.table_name_template%'
+      - '%featurestorebundle.latest_table_name_template%'
+      - '%featurestorebundle.historized_table_name_template%'
       - '%featurestorebundle.latest_path_template%'
       - '%featurestorebundle.historized_path_template%'
       - '%featurestorebundle.archive_path_template%'
 
-  featurestorebundle.delta.DeltaWriter:
+  featurestorebundle.delta.DeltaMergeConfigGenerator:
+
+  featurestorebundle.delta.DeltaDataHandler:
     arguments:
       - '@featurestorebundle.logger'
+
+  featurestorebundle.delta.DeltaWriter:
     tags:
       - {name: 'feature.writer', alias: 'delta'}
 
-  featurestorebundle.feature.EmptyTableCreator:
+  featurestorebundle.databricks.DatabricksFeatureStoreWriter:
+    tags:
+      - {name: 'feature.writer', alias: 'databricks'}
 
-  featurestorebundle.feature.EmptyFileCreator:
-
-  featurestorebundle.feature.EmptyDataFrameCreator:
-
-  featurestorebundle.feature.FeatureDataMerger:
+  featurestorebundle.databricks.DatabricksDataHandler:
     arguments:
       - '@featurestorebundle.logger'
+
+  featurestorebundle.feature.EmptyTableCreator:
 
   featurestorebundle.feature.FeatureManager:
     arguments:
@@ -54,8 +58,16 @@ services:
     arguments:
       - '@featurestorebundle.logger'
 
+  featurestorebundle.metadata.MetadataTablePreparer:
+
   featurestorebundle.metadata.MetadataHTMLDisplayer:
 
   featurestorebundle.metadata.TimeWindowHandler:
 
   featurestorebundle.feature.TablePreparer:
+
+  featurestorebundle.feature.FeaturesValidator:
+
+  featurestorebundle.feature.FeaturesPreparer:
+    arguments:
+      - '%featurestorebundle.join_batch_size%'

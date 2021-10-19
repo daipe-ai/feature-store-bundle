@@ -16,17 +16,17 @@ class FeatureStore:
         self.__table_names = table_names
 
     def get_latest(self, entity_name: str, feature_names: List[str] = None):
-        table_identifier = self.__table_names.get_latest_table_identifier(entity_name)
+        full_table_name = self.__table_names.get_latest_full_table_name(entity_name)
 
-        return self.__get_features(table_identifier, feature_names)
+        return self.__get_features(full_table_name, feature_names)
 
     def get_historized(self, entity_name: str, feature_names: List[str] = None):
-        table_identifier = self.__table_names.get_historized_table_identifier(entity_name)
+        full_table_name = self.__table_names.get_historized_full_table_name(entity_name)
 
-        return self.__get_features(table_identifier, feature_names)
+        return self.__get_features(full_table_name, feature_names)
 
-    def __get_features(self, table_identifier: str, feature_names: List[str]):
-        registered_feature_names_list = self.__feature_manager.get_feature_names(table_identifier)
+    def __get_features(self, full_table_name: str, feature_names: List[str]):
+        registered_feature_names_list = self.__feature_manager.get_feature_names(full_table_name)
 
         if feature_names is None:
             feature_names = registered_feature_names_list
@@ -36,4 +36,4 @@ class FeatureStore:
         if unregistered_features != set():
             raise Exception(f"Features {','.join(unregistered_features)} not registered")
 
-        return self.__feature_manager.get_values(table_identifier, feature_names)
+        return self.__feature_manager.get_values(full_table_name, feature_names)
