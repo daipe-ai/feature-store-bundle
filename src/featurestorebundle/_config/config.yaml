@@ -40,7 +40,6 @@ services:
 
   featurestorebundle.feature.FeatureDataMerger:
     arguments:
-      - '%featurestorebundle.metadata_api.enabled%'
       - '@featurestorebundle.logger'
 
   featurestorebundle.feature.FeatureManager:
