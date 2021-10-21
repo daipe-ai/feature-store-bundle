@@ -59,13 +59,3 @@ services:
   featurestorebundle.metadata.TimeWindowHandler:
 
   featurestorebundle.feature.TablePreparer:
-
-  featurestorebundle.gql.GraphQLTransport:
-    class: gql.transport.requests.RequestsHTTPTransport
-    arguments:
-      url: '%featurestorebundle.metadata_api.url%'
-
-  featurestorebundle.gql.GraphQLClient:
-    class: gql.client.Client
-    arguments:
-      transport: '@featurestorebundle.gql.GraphQLTransport'
