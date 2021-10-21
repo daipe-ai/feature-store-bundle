@@ -1,4 +1,7 @@
 import datetime as dt
+from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.metadata.MetadataWriter import MetadataWriter
 from logging import Logger
 from pyspark.sql import DataFrame
 
@@ -18,17 +21,21 @@ class DeltaWriter(FeaturesWriterInterface):
         table_preparer: TablePreparer,
         feature_data_merger: FeatureDataMerger,
         table_names: TableNames,
+        metadata_writer: MetadataWriter,
     ):
         self.__logger = logger
         self.__feature_store = feature_store
         self.__table_preparer = table_preparer
         self.__feature_data_merger = feature_data_merger
         self.__table_names = table_names
+        self.__metadata_writer = metadata_writer
 
     def write_latest(self, features_storage: FeaturesStorage, archive=False):
         features_data = self.prepare_features(features_storage)
         feature_list = features_storage.feature_list
         entity = features_storage.entity
+
+        self.__check_features_validity(entity, features_data, feature_list)
 
         table_identifier = self.__table_names.get_latest_table_identifier(entity.name)
         path = self.__table_names.get_latest_path(entity.name)
@@ -45,17 +52,19 @@ class DeltaWriter(FeaturesWriterInterface):
 
         self.__feature_data_merger.merge(
             entity,
-            feature_list,
             features_data,
             pk_columns,
             path,
-            metadata_path,
         )
+
+        self.__metadata_writer.write(metadata_path, feature_list)
 
     def write_historized(self, features_storage: FeaturesStorage):
         features_data = self.prepare_features(features_storage)
         feature_list = features_storage.feature_list
         entity = features_storage.entity
+
+        self.__check_features_validity(entity, features_data, feature_list)
 
         table_identifier = self.__table_names.get_historized_table_identifier(entity.name)
         path = self.__table_names.get_historized_path(entity.name)
@@ -66,12 +75,12 @@ class DeltaWriter(FeaturesWriterInterface):
 
         self.__feature_data_merger.merge(
             entity,
-            feature_list,
             features_data,
             pk_columns,
             path,
-            metadata_path,
         )
+
+        self.__metadata_writer.write(metadata_path, feature_list)
 
     def prepare_features(self, features_storage: FeaturesStorage) -> DataFrame:
         join_batch_size = 10
@@ -102,3 +111,12 @@ class DeltaWriter(FeaturesWriterInterface):
                 batch_counter = 0
 
         return joined_df
+
+    def __check_features_validity(self, entity: Entity, features_data: DataFrame, feature_list: FeatureList):
+        data_column_names = [
+            field.name for field in features_data.schema.fields if field.name not in [entity.id_column, entity.time_column]
+        ]
+        feature_names = feature_list.get_names()
+
+        if data_column_names != feature_names:
+            raise Exception(f"Dataframe columns of size ({len(data_column_names)}) != features matched of size ({len(feature_names)})")
