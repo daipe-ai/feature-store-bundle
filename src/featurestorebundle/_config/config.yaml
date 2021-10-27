@@ -7,6 +7,8 @@ parameters:
     historized_path_template: '%featurestorebundle.base_path%/historized/{entity}.delta'
     archive_path_template: '%featurestorebundle.base_path%/archive/{entity}/{date}.delta'
     writer: delta
+    metadata:
+      display_in_notebook: True
     metadata_api:
       enabled: False
       url:
@@ -20,15 +22,11 @@ services:
 
   featurestorebundle.db.TableNames:
     arguments:
-      - '%featurestorebundle.db_name_template%'
-      - '%featurestorebundle.table_name_template%'
       - '%featurestorebundle.latest_path_template%'
       - '%featurestorebundle.historized_path_template%'
       - '%featurestorebundle.archive_path_template%'
 
   featurestorebundle.delta.DeltaWriter:
-    arguments:
-      - '@featurestorebundle.logger'
     tags:
       - {name: 'feature.writer', alias: 'delta'}
 
@@ -43,8 +41,6 @@ services:
       - '@featurestorebundle.logger'
 
   featurestorebundle.feature.FeatureManager:
-    arguments:
-      - '@featurestorebundle.logger'
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 

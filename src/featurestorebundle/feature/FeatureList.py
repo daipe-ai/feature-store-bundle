@@ -1,4 +1,4 @@
-from typing import List, Dict
+from typing import List, Dict, Union
 
 from featurestorebundle.feature.Feature import Feature
 
@@ -25,8 +25,8 @@ class FeatureList:
     def merge(self, new_feature_list: "FeatureList") -> "FeatureList":
         return FeatureList(self.__features + new_feature_list.get_all())
 
-    def get_metadata(self) -> List[List[str]]:
+    def get_metadata(self) -> List[List[Union[Dict[str, str], str]]]:
         return [feature.get_metadata_list() for feature in self.__features]
 
-    def get_metadata_dicts(self) -> List[Dict[str, str]]:
+    def get_metadata_dicts(self) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         return [feature.get_metadata_dict() for feature in self.__features]

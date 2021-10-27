@@ -2,6 +2,10 @@ parameters:
   datalake:
     base_path: '/foo/bar'
 
+  featurestorebundle:
+    metadata:
+      display_in_notebook: False
+
 services:
   featurestorebundle.test.DummySparkFactory:
 

@@ -1,4 +1,3 @@
-from logging import Logger
 from typing import List
 from pyspark.sql import SparkSession
 
@@ -7,8 +6,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 
 
 class FeatureManager:
-    def __init__(self, logger: Logger, spark: SparkSession):
-        self.__logger = logger
+    def __init__(self, spark: SparkSession):
         self.__spark = spark
 
     def register(self, table_identifier: str, feature_list: FeatureList):
@@ -26,7 +24,7 @@ class FeatureManager:
 
         def find_separation_row(column_definitions):
             for i, row in enumerate(column_definitions):
-                if row.col_name == "" or row.col_name == "# Partition Information":
+                if row.col_name in ["", "# Partition Information"]:
                     return i
 
             return None

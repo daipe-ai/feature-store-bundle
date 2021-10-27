@@ -1,3 +1,4 @@
+from typing import Optional
 from daipecore.decorator.OutputDecorator import OutputDecorator
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
@@ -9,8 +10,10 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 
 
+# pylint: disable=invalid-name
 class feature(OutputDecorator):  # noqa: N801
-    def __init__(self, *args, entity: Entity, category: str = None, features_storage: FeaturesStorage = None):
+    # pylint: disable=super-init-not-called
+    def __init__(self, *args, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
         self._args = args
         self.__entity = entity
         self.__category = category
@@ -23,10 +26,12 @@ class feature(OutputDecorator):  # noqa: N801
             feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
 
             feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
-            self.__features_storage.add(result, feature_list)
+            if self.__features_storage is not None:
+                self.__features_storage.add(result, feature_list)
 
-            metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
-            metadata_html_displayer.display(feature_list.get_metadata_dicts())
+            if container.get_parameters().get("featurestorebundle.metadata.display_in_notebook") is True:
+                metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
+                metadata_html_displayer.display(feature_list.get_metadata_dicts())
 
     def __check_primary_key_columns(self, result: DataFrame):
         if self.__entity.id_column not in result.columns:
