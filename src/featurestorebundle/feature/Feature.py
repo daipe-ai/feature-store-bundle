@@ -1,4 +1,4 @@
-from typing import Dict, List
+from typing import Dict, List, Union
 
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
@@ -23,7 +23,7 @@ class Feature:
     def dtype(self):
         return self.__dtype
 
-    def get_metadata_dict(self) -> Dict[str, str]:
+    def get_metadata_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
         return {
             "name": self.__name,
             "description": self.__description,
@@ -33,5 +33,5 @@ class Feature:
             "dtype": self.__dtype,
         }
 
-    def get_metadata_list(self) -> List[str]:
+    def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:
         return list(self.get_metadata_dict().values())

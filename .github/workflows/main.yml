@@ -38,6 +38,9 @@ jobs:
           source ~/.poetry/env
           poe black-check
           poe flake8
+          poe pylint
+          sed -i "s,/app/,,g" .pyre_configuration
+          pyre check
 
       - name: crlf
         run: |

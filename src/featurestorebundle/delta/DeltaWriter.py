@@ -2,7 +2,6 @@ import datetime as dt
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.metadata.MetadataWriter import MetadataWriter
-from logging import Logger
 from pyspark.sql import DataFrame
 
 from featurestorebundle.feature.FeatureStore import FeatureStore
@@ -16,14 +15,12 @@ from featurestorebundle.db.TableNames import TableNames
 class DeltaWriter(FeaturesWriterInterface):
     def __init__(
         self,
-        logger: Logger,
         feature_store: FeatureStore,
         table_preparer: TablePreparer,
         feature_data_merger: FeatureDataMerger,
         table_names: TableNames,
         metadata_writer: MetadataWriter,
     ):
-        self.__logger = logger
         self.__feature_store = feature_store
         self.__table_preparer = table_preparer
         self.__feature_data_merger = feature_data_merger

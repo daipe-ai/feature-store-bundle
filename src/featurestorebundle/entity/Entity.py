@@ -2,7 +2,7 @@ from pyspark.sql.types import DataType
 
 
 class Entity:
-    def __init__(self, name: str, id_column: str, id_column_type: DataType, time_column: str = None, time_column_type: DataType = None):
+    def __init__(self, name: str, id_column: str, id_column_type: DataType, time_column: str, time_column_type: DataType):
 
         self.name = name
         self.id_column = id_column

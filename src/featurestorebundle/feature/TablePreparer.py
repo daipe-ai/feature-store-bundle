@@ -1,5 +1,3 @@
-from pyspark.sql import SparkSession
-from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.EmptyFileCreator import EmptyFileCreator
 from featurestorebundle.feature.FeatureList import FeatureList
@@ -9,13 +7,9 @@ from featurestorebundle.feature.FeatureManager import FeatureManager
 class TablePreparer:
     def __init__(
         self,
-        table_names: TableNames,
-        spark: SparkSession,
         empty_file_creator: EmptyFileCreator,
         features_manager: FeatureManager,
     ):
-        self.__table_names = table_names
-        self.__spark = spark
         self.__empty_file_creator = empty_file_creator
         self.__features_manager = features_manager
 

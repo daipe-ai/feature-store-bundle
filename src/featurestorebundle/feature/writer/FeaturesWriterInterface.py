@@ -4,7 +4,7 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 
 class FeaturesWriterInterface(ABC):
     @abstractmethod
-    def write_latest(self, features_storage: FeaturesStorage):
+    def write_latest(self, features_storage: FeaturesStorage, archive=False):
         pass
 
     @abstractmethod

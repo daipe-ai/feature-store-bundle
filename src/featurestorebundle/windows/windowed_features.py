@@ -14,6 +14,7 @@ __PERIODS = {
     "w": __WEEK,
 }
 
+# pylint: disable=invalid-name
 __time_window_column_template = "is_time_window_{time_window}"
 
 

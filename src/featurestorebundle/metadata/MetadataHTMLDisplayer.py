@@ -1,13 +1,14 @@
 from typing import List, Dict, Union
+import IPython
 
 
 class MetadataHTMLDisplayer:
-    def display(self, metadata: List[Dict[str, str]]):
+    def display(self, metadata: List[Dict[str, Union[str, Dict[str, str]]]]):
         display_html = self.__get_display_html()
         html = self.__get_html(metadata)
         display_html(html)
 
-    def __get_html(self, metadata: List[Dict[str, str]]) -> str:
+    def __get_html(self, metadata: List[Dict[str, Union[str, Dict[str, str]]]]) -> str:
         html = f"""
         <!doctype html>
               <html lang="en">
@@ -36,6 +37,7 @@ class MetadataHTMLDisplayer:
         return html
 
     def __get_table_row(self, metadata_dict: Dict[str, Union[str, Dict[str, str]]]) -> str:
+        # pyre-fixme[16]:
         return f"""
         <tr>
             <td>{metadata_dict["name"]}</td>
@@ -47,8 +49,6 @@ class MetadataHTMLDisplayer:
         """
 
     def __get_display_html(self):
-        import IPython
-
         ipython = IPython.get_ipython()
 
         if not hasattr(ipython, "user_ns") or "displayHTML" not in ipython.user_ns:

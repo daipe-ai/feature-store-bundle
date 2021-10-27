@@ -1,11 +1,11 @@
-from typing import List
+from typing import List, Optional
 from injecta.container.ContainerInterface import ContainerInterface
 from daipecore.function.input_decorator_function import input_decorator_function
 from featurestorebundle.feature.FeatureStore import FeatureStore
 
 
 @input_decorator_function
-def read_features(entity_name: str, feature_names: List[str] = None, historized: bool = False):
+def read_features(entity_name: str, feature_names: Optional[List[str]] = None, historized: bool = False):
     def wrapper(container: ContainerInterface):
         feature_store: FeatureStore = container.get(FeatureStore)
 
