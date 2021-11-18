@@ -17,7 +17,7 @@ class FeaturePattern:
         return self.__feature_template
 
     def get_match(self, feature_name: str) -> re.Match:
-        return self.__pattern.match(feature_name)
+        return self.__pattern.fullmatch(feature_name)
 
     def get_groups_as_dict(self, match: re.Match) -> Dict[str, str]:
         return {placeholder: match.group(placeholder) for placeholder in self.__placeholders}
