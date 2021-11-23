@@ -15,12 +15,17 @@ __PERIODS = {
 }
 
 __time_window_column_template = "is_time_window_{time_window}"
+__future_time_window_column_template = "is_future_time_window_{time_window}"
 
 
 def _is_past_time_window(target_date: Column, window_argument_date: Column, time_window) -> Column:
     period = __PERIODS[time_window[-1]] * int(time_window[:-1])
     delta = target_date - window_argument_date
     return (0 <= delta) & (delta <= period)
+
+
+def _is_future_time_window(target_date: Column, window_argument_date: Column, time_window) -> Column:
+    return _is_past_time_window(window_argument_date, target_date, time_window)
 
 
 def __resolve_column_type(df: DataFrame, window_col: str) -> Column:
@@ -70,5 +75,15 @@ def with_time_windows(df: DataFrame, window_col: str, target_date_column: Column
     return __with_time_windows(df, window_col, target_date_column, time_windows, _is_past_time_window, __time_window_column_template)
 
 
+def with_future_time_windows(df: DataFrame, window_col: str, target_date_column: Column, time_windows: List) -> DataFrame:
+    return __with_time_windows(
+        df, window_col, target_date_column, time_windows, _is_future_time_window, __future_time_window_column_template
+    )
+
+
 def windowed(column: Column, time_window: str, default_value: Any = 0) -> Column:
     return __windowed(__time_window_column_template, column, time_window, default_value)
+
+
+def future_windowed(column: Column, time_window: str, default_value: Any = 0) -> Column:
+    return __windowed(__future_time_window_column_template, column, time_window, default_value)
