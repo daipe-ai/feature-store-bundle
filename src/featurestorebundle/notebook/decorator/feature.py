@@ -22,16 +22,16 @@ class feature(OutputDecorator):  # noqa: N801
     def process_result(self, result: DataFrame, container: ContainerInterface):
         self.__check_primary_key_columns(result)
 
-        if self.__features_storage:
-            feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
+        feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
 
-            feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
-            if self.__features_storage is not None:
-                self.__features_storage.add(result, feature_list)
+        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
 
-            if container.get_parameters().get("featurestorebundle.metadata.display_in_notebook") is True:
-                metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
-                metadata_html_displayer.display(feature_list.get_metadata_dicts())
+        if container.get_parameters().get("featurestorebundle.metadata.display_in_notebook") is True:
+            metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
+            metadata_html_displayer.display(feature_list.get_metadata_dicts())
+
+        if self.__features_storage is not None:
+            self.__features_storage.add(result, feature_list)
 
     def __check_primary_key_columns(self, result: DataFrame):
         if self.__entity.id_column not in result.columns:
