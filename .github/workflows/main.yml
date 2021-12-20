@@ -11,3 +11,5 @@ jobs:
   release:
     needs: build
     uses: pyfony/pyfony-package-ci-cd/.github/workflows/release.yml@v1
+    secrets:
+      PYPI_PUBLISH: ${{ secrets.PYPI_PUBLISH }}
