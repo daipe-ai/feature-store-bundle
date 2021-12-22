@@ -30,6 +30,8 @@ services:
     tags:
       - {name: 'feature.writer', alias: 'delta'}
 
+  featurestorebundle.delta.FeaturesPreparer:
+
   featurestorebundle.feature.EmptyTableCreator:
 
   featurestorebundle.feature.EmptyFileCreator:
