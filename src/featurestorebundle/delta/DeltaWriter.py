@@ -1,9 +1,9 @@
 import datetime as dt
+from featurestorebundle.delta.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.metadata.MetadataWriter import MetadataWriter
 from pyspark.sql import DataFrame
-
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.feature.FeatureDataMerger import FeatureDataMerger
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
@@ -15,12 +15,14 @@ from featurestorebundle.db.TableNames import TableNames
 class DeltaWriter(FeaturesWriterInterface):
     def __init__(
         self,
+        features_preparer: FeaturesPreparer,
         feature_store: FeatureStore,
         table_preparer: TablePreparer,
         feature_data_merger: FeatureDataMerger,
         table_names: TableNames,
         metadata_writer: MetadataWriter,
     ):
+        self.__features_preparer = features_preparer
         self.__feature_store = feature_store
         self.__table_preparer = table_preparer
         self.__feature_data_merger = feature_data_merger
@@ -28,10 +30,11 @@ class DeltaWriter(FeaturesWriterInterface):
         self.__metadata_writer = metadata_writer
 
     def write_latest(self, features_storage: FeaturesStorage, archive=False):
-        features_data = self.prepare_features(features_storage)
-        feature_list = features_storage.feature_list
-        entity = features_storage.entity
+        features_data = self.__features_preparer.prepare(features_storage)
 
+        self.write_dataframe_latest(features_data, features_storage.feature_list, features_storage.entity, archive)
+
+    def write_dataframe_latest(self, features_data: DataFrame, feature_list: FeatureList, entity: Entity, archive=False):
         self.__check_features_validity(entity, features_data, feature_list)
 
         table_identifier = self.__table_names.get_latest_table_identifier(entity.name)
@@ -57,10 +60,11 @@ class DeltaWriter(FeaturesWriterInterface):
         self.__metadata_writer.write(metadata_path, feature_list)
 
     def write_historized(self, features_storage: FeaturesStorage):
-        features_data = self.prepare_features(features_storage)
-        feature_list = features_storage.feature_list
-        entity = features_storage.entity
+        features_data = self.__features_preparer.prepare(features_storage)
 
+        self.write_dataframe_historized(features_data, features_storage.feature_list, features_storage.entity)
+
+    def write_dataframe_historized(self, features_data: DataFrame, feature_list: FeatureList, entity: Entity):
         self.__check_features_validity(entity, features_data, feature_list)
 
         table_identifier = self.__table_names.get_historized_table_identifier(entity.name)
@@ -78,36 +82,6 @@ class DeltaWriter(FeaturesWriterInterface):
         )
 
         self.__metadata_writer.write(metadata_path, feature_list)
-
-    def prepare_features(self, features_storage: FeaturesStorage) -> DataFrame:
-        join_batch_size = 10
-        batch_counter = 0
-
-        if not features_storage.results:
-            raise Exception("There are no features to write.")
-
-        pk_columns = [features_storage.entity.id_column, features_storage.entity.time_column]
-
-        id_dataframes = [df.select(pk_columns) for df in features_storage.results]
-
-        unique_ids_df = id_dataframes[0]
-
-        for df in id_dataframes[1:]:
-            unique_ids_df = unique_ids_df.unionByName(df)
-
-        unique_ids_df = unique_ids_df.distinct()
-        joined_df = unique_ids_df.cache()
-
-        for df in features_storage.results:
-            batch_counter += 1
-
-            joined_df = joined_df.join(df, on=pk_columns, how="left")
-
-            if batch_counter == join_batch_size:
-                joined_df = joined_df.persist()
-                batch_counter = 0
-
-        return joined_df
 
     def __check_features_validity(self, entity: Entity, features_data: DataFrame, feature_list: FeatureList):
         data_column_names = [
