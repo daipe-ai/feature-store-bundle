@@ -56,7 +56,7 @@ line-length = 140
 black = "black src"
 black-check = "black --check src"
 flake8 = "flake8 --ignore=E501,W503 src"
-pylint = "pylint --rcfile=.pylintrc --module-rgx='.+' src"
+pylint = "pylint --rcfile=.pylintrc --module-rgx=.+ src"
 
 [build-system]
 requires = ["poetry-core"]
