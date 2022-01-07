@@ -29,7 +29,7 @@ class FeatureManager:
 
             return None
 
-        feature_rows = column_definitions[2 : find_separation_row(column_definitions)]  # noqa: E203
+        feature_rows = column_definitions[2 : find_separation_row(column_definitions)]
         return [row.col_name for row in feature_rows]
 
     def get_values(self, table_identifier: str, feature_names: List[str]):

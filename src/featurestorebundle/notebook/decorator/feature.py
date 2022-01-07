@@ -11,7 +11,7 @@ from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDispla
 
 
 # pylint: disable=invalid-name
-class feature(OutputDecorator):  # noqa: N801
+class feature(OutputDecorator):
     # pylint: disable=super-init-not-called
     def __init__(self, *args, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
         self._args = args
