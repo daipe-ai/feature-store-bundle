@@ -20,7 +20,7 @@ class FakeSchema:
 
     # pylint: disable=invalid-name
     @staticmethod
-    def jsonValue():  # noqa N802
+    def jsonValue():
         return FakeSchema.json
 
 
@@ -46,7 +46,7 @@ features_storage = FeaturesStorage(entity)
 
 # pylint: disable=invalid-name
 @DecoratedDecorator
-class client_feature(feature):  # noqa: N801
+class client_feature(feature):
     def __init__(self, *args, category=None):
         super().__init__(*args, entity=entity, category=category, features_storage=features_storage)
 
