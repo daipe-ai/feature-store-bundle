@@ -26,7 +26,7 @@ class feature(OutputDecorator):
 
         feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
 
-        if container.get_parameters().get("featurestorebundle.metadata.display_in_notebook") is True:
+        if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
             metadata_html_displayer.display(feature_list.get_metadata_dicts())
 
