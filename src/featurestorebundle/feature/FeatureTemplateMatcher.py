@@ -10,6 +10,10 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.metadata.TimeWindowHandler import TimeWindowHandler
 
 
+class TemplateMatchingError(Exception):
+    pass
+
+
 class FeatureTemplateMatcher:
     def __init__(self, time_window_handler: TimeWindowHandler):
         self.__time_window_handler = time_window_handler
@@ -25,7 +29,7 @@ class FeatureTemplateMatcher:
 
         if unmatched_patterns:
             patterns = ", ".join(f'"{pattern}"' for pattern in unmatched_patterns)
-            raise Exception(f"Templates {patterns} did not match any columns.")
+            raise TemplateMatchingError(f"Templates {patterns} did not match any columns.")
 
         return FeatureList(features)
 
@@ -44,7 +48,7 @@ class FeatureTemplateMatcher:
 
             if "time_window" in metadata:
                 time_window = metadata["time_window"]
-                self.__time_window_handler.is_valid(time_window, name)
+                self.__time_window_handler.is_valid(time_window, name, feature_pattern)
 
             description = feature_template.description_template.format(
                 **{
@@ -55,4 +59,4 @@ class FeatureTemplateMatcher:
 
             return Feature(name, description, dtype, metadata, feature_template)
 
-        raise Exception(f"Column '{name}' could not be matched by any template.")
+        raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
