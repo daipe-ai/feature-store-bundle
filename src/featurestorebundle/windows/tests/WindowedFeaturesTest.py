@@ -13,17 +13,17 @@ class WindowedFeaturesTest(unittest.TestCase):
         timestamp = get_unix_timestamp("2021-11-18")
         arg_timestamp = get_unix_timestamp("2021-10-17")
 
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "30d"))
-        self.assertTrue(_is_past_time_window(timestamp, arg_timestamp, "60d"))
-        self.assertTrue(_is_past_time_window(timestamp, arg_timestamp, "90d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "30d"))
+        self.assertTrue(is_past_time_window(timestamp, arg_timestamp, "60d"))
+        self.assertTrue(is_past_time_window(timestamp, arg_timestamp, "90d"))
 
     def test_wrong_order_time_windows(self):
         arg_timestamp = get_unix_timestamp("2021-11-18")
         timestamp = get_unix_timestamp("2021-10-17")
 
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "30d"))
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "60d"))
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "90d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "30d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "60d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "90d"))
 
 
 if __name__ == "__main__":
