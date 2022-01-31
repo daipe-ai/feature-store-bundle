@@ -1,5 +1,4 @@
 import os
-import pyspark.sql.types as t
 from daipecore.decorator.DecoratedDecorator import DecoratedDecorator
 from daipecore.decorator.notebook_function import notebook_function
 from featurestorebundle.entity.Entity import Entity
@@ -36,9 +35,9 @@ class FakeResult:
 entity = Entity(
     name="client_test",
     id_column="client_id",
-    id_column_type=t.StringType(),
+    id_column_type="string",
     time_column="run_date",
-    time_column_type=t.DateType(),
+    time_column_type="date",
 )
 
 features_storage = FeaturesStorage(entity)

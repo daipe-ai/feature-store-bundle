@@ -10,8 +10,8 @@ class EmptyTableCreator:
         def build_create_entity_table_string(entity: Entity):
             return (
                 f"CREATE TABLE IF NOT EXISTS {table_name}\n"
-                f'({entity.id_column} {entity.id_column_type.typeName()} NOT NULL COMMENT "Entity id column",\n'
-                f'{entity.time_column} {entity.time_column_type.typeName()} NOT NULL COMMENT "Compute time column")\n'
+                f'({entity.id_column} {entity.id_column_type} NOT NULL COMMENT "Entity id column",\n'
+                f'{entity.time_column} {entity.time_column_type} NOT NULL COMMENT "Compute time column")\n'
                 f"USING DELTA\n"
                 f"LOCATION '{path}'\n"
                 f'COMMENT "The table contains entity {entity.name} features"\n'
