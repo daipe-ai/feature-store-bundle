@@ -32,6 +32,10 @@ class FakeResult:
         self.value = value
         self.schema = FakeSchema
 
+    # pylint: disable=unused-argument
+    def select(self, *args, **kwargs):
+        return self
+
 
 entity = Entity(
     name="client_test",

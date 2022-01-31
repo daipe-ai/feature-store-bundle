@@ -131,7 +131,7 @@ python-dotenv = ">=0.13.0,<1.0.0"
 
 [[package]]
 name = "daipe-core"
-version = "1.2.1"
+version = "1.4.2"
 description = "Daipe framework core"
 category = "main"
 optional = false
@@ -930,7 +930,7 @@ console-bundle = [
     {file = "console_bundle-0.5.1-py3-none-any.whl", hash = "sha256:bf9ffa3bc530754111dc18b50a78d25d6532c763628cc19c028acb9e170ec3b0"},
 ]
 daipe-core = [
-    {file = "daipe_core-1.2.1-py3-none-any.whl", hash = "sha256:97a61e5a0eade1d6e1c818ffc2b68d68a16731a83bdefa584775ba96e60fec83"},
+    {file = "daipe_core-1.4.2-py3-none-any.whl", hash = "sha256:e641dd46e0be75e408997f12f5426a787a06b1998c2b7b1e1025f27f81eb6e0d"},
 ]
 dataclasses-json = [
     {file = "dataclasses-json-0.5.6.tar.gz", hash = "sha256:1f60be3405dee30b86ffbf6a436db8ba5efaeeb676bfda358e516a97aa7dfce4"},
