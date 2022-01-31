@@ -28,7 +28,7 @@ class FeatureTemplateMatcher:
         features = [self.__get_feature(col["name"], col["type"], feature_patterns, unmatched_patterns) for col in feature_columns]
 
         if unmatched_patterns:
-            patterns = ", ".join(f'"{pattern}"' for pattern in unmatched_patterns)
+            patterns = ", ".join(f'"{pattern.feature_template}"' for pattern in unmatched_patterns)
             raise TemplateMatchingError(f"Templates {patterns} did not match any columns.")
 
         return FeatureList(features)
