@@ -11,7 +11,7 @@ class WidgetsFactory:
         self.__widgets = widgets
 
     def create(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_window if default_time_window is None else default_time_window
+        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
 
         self.__widgets.remove_all()
 
@@ -31,14 +31,14 @@ class WidgetsFactory:
             self.__widgets.add_select("entity", entities_list, default_value=entities_list[0])
 
     def create_for_run_date(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_window if default_time_window is None else default_time_window
+        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
 
         self.__widgets.add_text("run_date", self.__defaults.run_date)
 
         self.create_time_window(default_time_window)
 
     def create_for_target(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_window if default_time_window is None else default_time_window
+        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
 
         self.create_time_window(default_time_window)
 
