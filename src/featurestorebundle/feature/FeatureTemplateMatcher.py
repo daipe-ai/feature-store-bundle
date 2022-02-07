@@ -11,6 +11,10 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.windows.windowed_features import PERIODS
 
 
+class TimeWindowFormatError(Exception):
+    pass
+
+
 class TemplateMatchingError(Exception):
     pass
 
@@ -47,14 +51,21 @@ class FeatureTemplateMatcher:
             time_window = metadata.get("time_window", None)
 
             if time_window is not None:
-                self.__check_time_window(time_window, name)
+                self.__check_time_window(feature_pattern, time_window, name)
 
             return Feature.from_template(feature_template, name, dtype, metadata)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 
-    def __check_time_window(self, time_window: str, feature_name: str):
-        if not time_window[:-1].isdigit():
-            raise Exception(f"In feature '{feature_name}', time_window={time_window[:-1]} is not a positive integer.")
-        if not time_window[-1] in PERIODS:
-            raise Exception(f"In feature '{feature_name}', time_window period '{time_window[-1]}' is not from {', '.join(PERIODS.keys())}")
+    def __check_time_window(self, feature_pattern: FeaturePattern, time_window: str, feature_name: str):
+        time_window_value = time_window[:-1]
+        time_window_period = time_window[-1]
+
+        if not time_window_value.isdigit():
+            raise TimeWindowFormatError(
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window_value} which is not a positive integer. Check that your templates adhere to the rules at https://docs.daipe.ai/feature-store/templates/"
+            )
+        if time_window_period not in PERIODS:
+            raise TimeWindowFormatError(
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window} with period '{time_window_period}' is not from supported periods: {', '.join(PERIODS.keys())}"
+            )
