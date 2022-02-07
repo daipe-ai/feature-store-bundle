@@ -11,6 +11,10 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.windows.windowed_features import PERIODS
 
 
+class TemplateMatchingError(Exception):
+    pass
+
+
 class FeatureTemplateMatcher:
     def get_features(self, entity: Entity, feature_templates: List[FeatureTemplate], df: DataFrame) -> FeatureList:
         pk_columns = [entity.id_column, entity.time_column]
@@ -22,8 +26,8 @@ class FeatureTemplateMatcher:
         features = [self.__get_feature(col["name"], col["type"], feature_patterns, unmatched_patterns) for col in feature_columns]
 
         if unmatched_patterns:
-            patterns = ", ".join(f'"{pattern}"' for pattern in unmatched_patterns)
-            raise Exception(f"Templates {patterns} did not match any columns.")
+            patterns = ", ".join(f'"{pattern.feature_template}"' for pattern in unmatched_patterns)
+            raise TemplateMatchingError(f"Templates {patterns} did not match any columns.")
 
         return FeatureList(features)
 
@@ -47,7 +51,7 @@ class FeatureTemplateMatcher:
 
             return Feature.from_template(feature_template, name, dtype, metadata)
 
-        raise Exception(f"Column '{name}' could not be matched by any template.")
+        raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 
     def __check_time_window(self, time_window: str, feature_name: str):
         if not time_window[:-1].isdigit():

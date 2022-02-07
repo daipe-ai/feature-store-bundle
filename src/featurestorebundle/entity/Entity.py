@@ -1,11 +1,14 @@
-from pyspark.sql.types import DataType
+from dataclasses import dataclass
+from typing import List
 
 
+@dataclass(repr=True, frozen=True)
 class Entity:
-    def __init__(self, name: str, id_column: str, id_column_type: DataType, time_column: str, time_column_type: DataType):
+    name: str
+    id_column: str
+    id_column_type: str
+    time_column: str
+    time_column_type: str
 
-        self.name = name
-        self.id_column = id_column
-        self.id_column_type = id_column_type
-        self.time_column = time_column
-        self.time_column_type = time_column_type
+    def get_primary_key(self) -> List[str]:
+        return [self.id_column, self.time_column]

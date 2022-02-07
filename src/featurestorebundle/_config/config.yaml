@@ -12,6 +12,9 @@ parameters:
     metadata_api:
       enabled: False
       url:
+    entities:
+    widgets:
+      defaults:
 
 services:
   featurestorebundle.logger:
@@ -59,3 +62,8 @@ services:
   featurestorebundle.metadata.DescriptionFiller:
 
   featurestorebundle.feature.TablePreparer:
+
+  featurestorebundle.widgets.WidgetsFactory:
+    arguments:
+      - '%featurestorebundle.widgets.defaults%'
+      - '%featurestorebundle.entities%'
