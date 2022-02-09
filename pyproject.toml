@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "feature-store-bundle"
-version = "1.3.0b4"
+version = "1.4.0"
 description = "Feature Store for the Daipe AI Platform"
 readme = "README.md"
 repository = "https://github.com/daipe-ai/feature-store-bundle"
