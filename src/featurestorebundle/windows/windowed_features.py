@@ -8,7 +8,7 @@ __HOUR = 60 * 60
 __DAY = 24 * __HOUR
 __WEEK = 7 * __DAY
 
-__PERIODS = {
+PERIODS = {
     "h": __HOUR,
     "d": __DAY,
     "w": __WEEK,
@@ -19,7 +19,7 @@ __time_window_column_template = "is_time_window_{time_window}"
 
 
 def _is_past_time_window(target_date: Column, window_argument_date: Column, time_window) -> Column:
-    period = __PERIODS[time_window[-1]] * int(time_window[:-1])
+    period = PERIODS[time_window[-1]] * int(time_window[:-1])
     delta = target_date - window_argument_date
     return (0 <= delta) & (delta <= period)
 

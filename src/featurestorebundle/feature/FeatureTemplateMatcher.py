@@ -7,7 +7,12 @@ from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
-from featurestorebundle.metadata.TimeWindowHandler import TimeWindowHandler
+
+from featurestorebundle.windows.windowed_features import PERIODS
+
+
+class TimeWindowFormatError(Exception):
+    pass
 
 
 class TemplateMatchingError(Exception):
@@ -15,9 +20,6 @@ class TemplateMatchingError(Exception):
 
 
 class FeatureTemplateMatcher:
-    def __init__(self, time_window_handler: TimeWindowHandler):
-        self.__time_window_handler = time_window_handler
-
     def get_features(self, entity: Entity, feature_templates: List[FeatureTemplate], df: DataFrame) -> FeatureList:
         pk_columns = [entity.id_column, entity.time_column]
 
@@ -46,17 +48,24 @@ class FeatureTemplateMatcher:
             unmatched_patterns.discard(feature_pattern)
             metadata = feature_pattern.get_groups_as_dict(match)
 
-            if "time_window" in metadata:
-                time_window = metadata["time_window"]
-                self.__time_window_handler.is_valid(time_window, name, feature_pattern)
+            time_window = metadata.get("time_window", None)
 
-            description = feature_template.description_template.format(
-                **{
-                    key: (self.__time_window_handler.to_text(val) if key == "time_window" else val.replace("_", " "))
-                    for key, val in metadata.items()
-                }
-            )
+            if time_window is not None:
+                self.__check_time_window(feature_pattern, time_window, name)
 
-            return Feature(name, description, dtype, metadata, feature_template)
+            return Feature.from_template(feature_template, name, dtype, metadata)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
+
+    def __check_time_window(self, feature_pattern: FeaturePattern, time_window: str, feature_name: str):
+        time_window_value = time_window[:-1]
+        time_window_period = time_window[-1]
+
+        if not time_window_value.isdigit():
+            raise TimeWindowFormatError(
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window_value} which is not a positive integer. Check that your templates adhere to the rules at https://docs.daipe.ai/feature-store/templates/"
+            )
+        if time_window_period not in PERIODS:
+            raise TimeWindowFormatError(
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window} with period '{time_window_period}' is not from supported periods: {', '.join(PERIODS.keys())}"
+            )

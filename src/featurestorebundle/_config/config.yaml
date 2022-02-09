@@ -32,6 +32,8 @@ services:
   featurestorebundle.delta.DeltaWriter:
     tags:
       - {name: 'feature.writer', alias: 'delta'}
+      -
+  featurestorebundle.feature.ChangesCalculator:
 
   featurestorebundle.delta.FeaturesPreparer:
 
@@ -57,7 +59,7 @@ services:
 
   featurestorebundle.metadata.MetadataHTMLDisplayer:
 
-  featurestorebundle.metadata.TimeWindowHandler:
+  featurestorebundle.metadata.DescriptionFiller:
 
   featurestorebundle.feature.TablePreparer:
 

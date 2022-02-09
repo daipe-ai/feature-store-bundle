@@ -131,7 +131,7 @@ python-dotenv = ">=0.13.0,<1.0.0"
 
 [[package]]
 name = "daipe-core"
-version = "1.2.1"
+version = "1.4.2"
 description = "Daipe framework core"
 category = "main"
 optional = false
@@ -222,7 +222,7 @@ sortedcontainers = ">=2.0,<3.0"
 
 [[package]]
 name = "ipython"
-version = "7.31.1"
+version = "7.30.1"
 description = "IPython: Productive Interactive Computing"
 category = "dev"
 optional = false
@@ -930,7 +930,7 @@ console-bundle = [
     {file = "console_bundle-0.5.1-py3-none-any.whl", hash = "sha256:bf9ffa3bc530754111dc18b50a78d25d6532c763628cc19c028acb9e170ec3b0"},
 ]
 daipe-core = [
-    {file = "daipe_core-1.2.1-py3-none-any.whl", hash = "sha256:97a61e5a0eade1d6e1c818ffc2b68d68a16731a83bdefa584775ba96e60fec83"},
+    {file = "daipe_core-1.4.2-py3-none-any.whl", hash = "sha256:e641dd46e0be75e408997f12f5426a787a06b1998c2b7b1e1025f27f81eb6e0d"},
 ]
 dataclasses-json = [
     {file = "dataclasses-json-0.5.6.tar.gz", hash = "sha256:1f60be3405dee30b86ffbf6a436db8ba5efaeeb676bfda358e516a97aa7dfce4"},
@@ -955,8 +955,8 @@ intervaltree = [
     {file = "intervaltree-3.1.0.tar.gz", hash = "sha256:902b1b88936918f9b2a19e0e5eb7ccb430ae45cde4f39ea4b36932920d33952d"},
 ]
 ipython = [
-    {file = "ipython-7.31.1-py3-none-any.whl", hash = "sha256:55df3e0bd0f94e715abd968bedd89d4e8a7bce4bf498fb123fed4f5398fea874"},
-    {file = "ipython-7.31.1.tar.gz", hash = "sha256:b5548ec5329a4bcf054a5deed5099b0f9622eb9ea51aaa7104d215fece201d8c"},
+    {file = "ipython-7.30.1-py3-none-any.whl", hash = "sha256:fc60ef843e0863dd4e24ab2bb5698f071031332801ecf8d1aeb4fb622056545c"},
+    {file = "ipython-7.30.1.tar.gz", hash = "sha256:cb6aef731bf708a7727ab6cde8df87f0281b1427d41e65d62d4b68934fa54e97"},
 ]
 isort = [
     {file = "isort-5.10.1-py3-none-any.whl", hash = "sha256:6f62d78e2f89b4500b080fe3a81690850cd254227f27f75c3a0c491a1f351ba7"},
