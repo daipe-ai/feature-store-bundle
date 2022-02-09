@@ -54,8 +54,6 @@ class FeatureList:
             time_window = match.group("time_window")
             name = first_part_name + "_{time_window}" + second_part_name
 
-            print(name)
-
             if name not in result:
                 result[name] = ([change_feature], [time_window])
             else:
