@@ -1,36 +1,77 @@
 from typing import List, Optional
-from featurestorebundle.feature.FeatureManager import FeatureManager
-from featurestorebundle.db.TableNames import TableNames
+from datetime import date
+from pyspark.sql import DataFrame
+from featurestorebundle.entity.EntityGetter import EntityGetter
+from featurestorebundle.feature.reader.FeaturesReaderInterface import FeaturesReaderInterface
+from featurestorebundle.metadata.reader.MetadataReaderInterface import MetadataReaderInterface
+from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
+from featurestorebundle.delta.feature.DeltaRainbowTableManager import DeltaRainbowTableManager
+from featurestorebundle.delta.feature.FeaturesFilteringManager import FeaturesFilteringManager
+from featurestorebundle.delta.target.TargetsFilteringManager import TargetsFilteringManager
 
 
 class FeatureStore:
     def __init__(
         self,
-        feature_manager: FeatureManager,
-        table_names: TableNames,
+        features_reader: FeaturesReaderInterface,
+        metadata_reader: MetadataReaderInterface,
+        targets_reader: TargetsReaderInterface,
+        rainbow_table_manager: DeltaRainbowTableManager,
+        features_filtering_manager: FeaturesFilteringManager,
+        targets_filtering_manager: TargetsFilteringManager,
+        entity_getter: EntityGetter,
     ):
-        self.__feature_manager = feature_manager
-        self.__table_names = table_names
+        self.__features_reader = features_reader
+        self.__metadata_reader = metadata_reader
+        self.__targets_reader = targets_reader
+        self.__rainbow_table_manager = rainbow_table_manager
+        self.__features_filtering_manager = features_filtering_manager
+        self.__targets_filtering_manager = targets_filtering_manager
+        self.__entity_getter = entity_getter
 
-    def get_latest(self, entity_name: str, feature_names: Optional[List[str]] = None):
-        table_identifier = self.__table_names.get_latest_table_identifier(entity_name)
+    def get_latest(self, entity_name: str, features: Optional[List[str]] = None) -> DataFrame:
+        features = features or []
+        feature_store = self.__features_reader.read(entity_name)
+        rainbow_table = self.__rainbow_table_manager.read(entity_name)
 
-        return self.__get_features(table_identifier, feature_names)
+        return self.__features_filtering_manager.get_latest(feature_store, rainbow_table, features)
 
-    def get_historized(self, entity_name: str, feature_names: Optional[List[str]] = None):
-        table_identifier = self.__table_names.get_historized_table_identifier(entity_name)
+    def get_for_target(
+        self,
+        entity_name: str,
+        target_name: str,
+        target_date_from: Optional[date] = None,
+        target_date_to: Optional[date] = None,
+        time_diff: Optional[str] = None,
+        features: Optional[List[str]] = None,
+        skip_incomplete_rows: bool = False,
+    ) -> DataFrame:
+        features = features or []
+        entity = self.__entity_getter.get_by_name(entity_name)
+        feature_store = self.__features_reader.read(entity_name)
+        target_store = self.__targets_reader.read(entity_name)
+        rainbow_table = self.__rainbow_table_manager.read(entity_name)
+        targets = self.__targets_filtering_manager.get_targets(
+            entity, target_store, target_name, target_date_from, target_date_to, time_diff
+        )
 
-        return self.__get_features(table_identifier, feature_names)
+        return self.__features_filtering_manager.get_for_target(feature_store, rainbow_table, targets, features, skip_incomplete_rows)
 
-    def __get_features(self, table_identifier: str, feature_names: Optional[List[str]]):
-        registered_feature_names_list = self.__feature_manager.get_feature_names(table_identifier)
+    def get_targets(
+        self,
+        entity_name: str,
+        target_name: str,
+        date_from: Optional[date] = None,
+        date_to: Optional[date] = None,
+        time_diff: Optional[str] = None,
+    ) -> DataFrame:
+        entity = self.__entity_getter.get_by_name(entity_name)
+        target_store = self.__targets_reader.read(entity_name)
 
-        if feature_names is None:
-            feature_names = registered_feature_names_list
+        return self.__targets_filtering_manager.get_targets(entity, target_store, target_name, date_from, date_to, time_diff)
 
-        unregistered_features = set(feature_names) - set(registered_feature_names_list)
-
-        if unregistered_features != set():
-            raise Exception(f"Features {','.join(unregistered_features)} not registered")
-
-        return self.__feature_manager.get_values(table_identifier, feature_names)
+    def get_metadata(
+        self,
+        entity_name: Optional[str] = None,
+    ) -> DataFrame:
+        return self.__metadata_reader.read(entity_name)

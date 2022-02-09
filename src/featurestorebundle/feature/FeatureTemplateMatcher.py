@@ -27,7 +27,9 @@ class FeatureTemplateMatcher:
         feature_patterns = [FeaturePattern(feature_template) for feature_template in feature_templates]
         unmatched_patterns = set(feature_patterns)
 
-        features = [self.__get_feature(col["name"], col["type"], feature_patterns, unmatched_patterns) for col in feature_columns]
+        features = [
+            self.__get_feature(entity.name, col["name"], col["type"], feature_patterns, unmatched_patterns) for col in feature_columns
+        ]
 
         if unmatched_patterns:
             patterns = ", ".join(f'"{pattern.feature_template}"' for pattern in unmatched_patterns)
@@ -36,7 +38,7 @@ class FeatureTemplateMatcher:
         return FeatureList(features)
 
     def __get_feature(
-        self, name: str, dtype: str, feature_patterns: List[FeaturePattern], unmatched_patterns: Set[FeaturePattern]
+        self, entity: str, name: str, dtype: str, feature_patterns: List[FeaturePattern], unmatched_patterns: Set[FeaturePattern]
     ) -> Feature:
         for feature_pattern in feature_patterns:
             feature_template = feature_pattern.feature_template
@@ -53,7 +55,7 @@ class FeatureTemplateMatcher:
             if time_window is not None:
                 self.__check_time_window(feature_pattern, time_window, name)
 
-            return Feature.from_template(feature_template, name, dtype, metadata)
+            return Feature.from_template(feature_template, entity, name, dtype, metadata)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 

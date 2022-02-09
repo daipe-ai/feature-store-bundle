@@ -6,7 +6,8 @@ from featurestorebundle.metadata.DescriptionFiller import DescriptionFiller
 
 
 class Feature:
-    def __init__(self, name: str, description: str, dtype: str, extra: Dict, template: FeatureTemplate):
+    def __init__(self, entity: str, name: str, description: str, dtype: str, extra: Dict, template: FeatureTemplate):
+        self.__entity = entity
         self.__name = name
         self.__description = description
         self.__dtype = dtype
@@ -14,10 +15,14 @@ class Feature:
         self.__template = template
 
     @classmethod
-    def from_template(cls, feature_template: FeatureTemplate, name: str, dtype: str, metadata: Dict[str, str]):
+    def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, metadata: Dict[str, str]):
         filler = DescriptionFiller()
         description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in metadata.items()})
-        return cls(name, description, dtype, metadata, feature_template)
+        return cls(entity, name, description, dtype, metadata, feature_template)
+
+    @property
+    def entity(self):
+        return self.__entity
 
     @property
     def name(self):
@@ -41,6 +46,7 @@ class Feature:
 
     def get_metadata_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
         return {
+            "entity": self.__entity,
             "name": self.__name,
             "description": self.__description,
             "extra": self.__extra,

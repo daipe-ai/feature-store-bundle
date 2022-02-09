@@ -1,17 +1,28 @@
 parameters:
   featurestorebundle:
-    db_name_template: '%kernel.environment%_feature_store'
-    table_name_template: 'features_{entity}'
+    db_name: '%kernel.environment%_feature_store'
     base_path: 'dbfs:/%kernel.environment%_feature_store'
-    latest_path_template: '%featurestorebundle.base_path%/latest/{entity}.delta'
-    historized_path_template: '%featurestorebundle.base_path%/historized/{entity}.delta'
-    archive_path_template: '%featurestorebundle.base_path%/archive/{entity}/{date}.delta'
-    writer: delta
+    feature:
+      table_name_template: 'features_{entity}'
+      path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
+      rainbow_path_template: '%featurestorebundle.base_path%/rainbow/{entity}.delta'
+      backend: delta_path # available: delta_table, delta_path, databricks
     metadata:
+      table_name_template: 'features_metadata'
+      path_template: '%featurestorebundle.base_path%/metadata/metadata.delta'
+      backend: delta_path # available: delta_table, delta_path
       display_in_notebook: True
-    metadata_api:
-      enabled: False
-      url:
+    target:
+      entity_targets_table_name_template: 'targets_{entity}'
+      entity_targets_path_template: '%featurestorebundle.base_path%/targets/{entity}.delta'
+      backend: delta_path # available: delta_table, delta_path
+    orchestration:
+      checkpoint_feature_results: False
+      checkpoint_before_merge: True
+      checkpoint_after_join: True
+      features_join:
+         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
+         batch_size: 1
     entities:
     widgets:
       defaults:
@@ -25,45 +36,163 @@ services:
 
   featurestorebundle.db.TableNames:
     arguments:
-      - '%featurestorebundle.latest_path_template%'
-      - '%featurestorebundle.historized_path_template%'
-      - '%featurestorebundle.archive_path_template%'
+      - '%featurestorebundle.db_name%'
+      - '%featurestorebundle.feature.table_name_template%'
+      - '%featurestorebundle.feature.path_template%'
+      - '%featurestorebundle.feature.rainbow_path_template%'
+      - '%featurestorebundle.metadata.table_name_template%'
+      - '%featurestorebundle.metadata.path_template%'
+      - '%featurestorebundle.target.entity_targets_table_name_template%'
+      - '%featurestorebundle.target.entity_targets_path_template%'
 
-  featurestorebundle.delta.DeltaWriter:
-    tags:
-      - {name: 'feature.writer', alias: 'delta'}
-      -
-  featurestorebundle.feature.ChangesCalculator:
+  featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator:
 
-  featurestorebundle.delta.FeaturesPreparer:
+  featurestorebundle.delta.feature.writer.DeltaFeaturesRegistrator:
 
-  featurestorebundle.feature.EmptyTableCreator:
+  featurestorebundle.delta.feature.writer.DeltaTableFeaturesPreparer:
 
-  featurestorebundle.feature.EmptyFileCreator:
+  featurestorebundle.delta.feature.writer.DeltaPathFeaturesPreparer:
 
-  featurestorebundle.feature.EmptyDataFrameCreator:
-
-  featurestorebundle.feature.FeatureDataMerger:
+  featurestorebundle.delta.feature.writer.DeltaFeaturesDataHandler:
     arguments:
       - '@featurestorebundle.logger'
 
-  featurestorebundle.feature.FeatureManager:
+  featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
+    tags:
+      - {name: 'feature.writer', alias: 'delta_table'}
+
+  featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
+    tags:
+      - {name: 'feature.writer', alias: 'delta_path'}
+
+  featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
+    tags:
+      - {name: 'feature.writer', alias: 'databricks'}
+
+  featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreDataHandler:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.feature.writer.FeaturesWriter:
+    arguments:
+      - !tagged_aliased ['feature.writer', '%featurestorebundle.feature.backend%']
+
+  featurestorebundle.delta.feature.reader.DeltaTableFeaturesReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.reader', alias: 'delta_table'}
+
+  featurestorebundle.delta.feature.reader.DeltaPathFeaturesReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.reader', alias: 'delta_path'}
+
+  featurestorebundle.databricks.feature.reader.DatabricksFeatureStoreReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.reader', alias: 'databricks'}
+
+  featurestorebundle.delta.EmptyDataFrameCreator:
+
+  featurestorebundle.delta.TableExistenceChecker:
+
+  featurestorebundle.delta.PathExistenceChecker:
+
+  featurestorebundle.delta.TableCreator:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.delta.PathCreator:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.delta.feature.DeltaRainbowTableManager:
+
+  featurestorebundle.delta.feature.FeaturesFilteringManager:
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 
-  featurestorebundle.feature.FeatureStore:
+  featurestorebundle.feature.ChangesCalculator:
 
-  featurestorebundle.metadata.MetadataWriter:
+  featurestorebundle.feature.FeatureStore:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+      - !tagged_aliased ['metadata.reader', '%featurestorebundle.metadata.backend%']
+      - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
+
+  featurestorebundle.delta.metadata.writer.DeltaTableMetadataWriter:
+    tags:
+      - {name: 'metadata.writer', alias: 'delta_table'}
+
+  featurestorebundle.delta.metadata.writer.DeltaPathMetadataWriter:
+    tags:
+      - {name: 'metadata.writer', alias: 'delta_path'}
+
+  featurestorebundle.delta.metadata.reader.DeltaTableMetadataReader:
     arguments:
       - '@featurestorebundle.logger'
+    tags:
+      - {name: 'metadata.reader', alias: 'delta_table'}
+
+  featurestorebundle.delta.metadata.reader.DeltaPathMetadataReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'metadata.reader', alias: 'delta_path'}
+
+  featurestorebundle.delta.metadata.writer.DeltaMetadataHandler:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.delta.metadata.writer.DeltaTableMetadataPreparer:
+
+  featurestorebundle.delta.metadata.writer.DeltaPathMetadataPreparer:
+
+  featurestorebundle.delta.target.reader.DeltaTableTargetsReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'target.reader', alias: 'delta_table'}
+
+  featurestorebundle.delta.target.reader.DeltaPathTargetsReader:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'target.reader', alias: 'delta_path'}
+
+  featurestorebundle.delta.target.TargetsFilteringManager:
 
   featurestorebundle.metadata.MetadataHTMLDisplayer:
 
   featurestorebundle.metadata.DescriptionFiller:
 
-  featurestorebundle.feature.TablePreparer:
+  featurestorebundle.feature.FeaturesValidator:
+
+  featurestorebundle.delta.feature.FeaturesPreparer:
+    arguments:
+      - '@featurestorebundle.logger'
+      - '%featurestorebundle.orchestration.features_join.method%'
+      - '%featurestorebundle.orchestration.features_join.batch_size%'
+      - '%featurestorebundle.orchestration.checkpoint_after_join%'
+      - '%featurestorebundle.orchestration.checkpoint_before_merge%'
 
   featurestorebundle.widgets.WidgetsFactory:
     arguments:
       - '%featurestorebundle.widgets.defaults%'
+      - '%featurestorebundle.entities%'
+
+  featurestorebundle.entity.EntityGetter:
+    arguments:
       - '%featurestorebundle.entities%'

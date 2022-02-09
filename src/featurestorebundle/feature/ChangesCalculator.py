@@ -9,14 +9,14 @@ from featurestorebundle.feature.FeatureList import FeatureList, MasterFeature
 
 
 class ChangesCalculator:
-    def get_changes(self, master_features: List[MasterFeature]) -> Tuple[List[Column], FeatureList]:
+    def get_changes(self, master_features: List[MasterFeature], entity: str) -> Tuple[List[Column], FeatureList]:
         change_columns = []
         change_features = []
 
         for master_feature in master_features:
             combinations = list(itertools.combinations(master_feature.time_windows, 2))
             change_columns.extend([self.__change_column(master_feature.name, low, high) for low, high in combinations])
-            change_features.extend([self.__change_feature(master_feature.features[0], lo, hi) for lo, hi in combinations])
+            change_features.extend([self.__change_feature(master_feature.features[0], lo, hi, entity) for lo, hi in combinations])
 
         return change_columns, FeatureList(change_features)
 
@@ -29,10 +29,10 @@ class ChangesCalculator:
 
         return (column_ratio * time_window_ratio).alias(f"{feature_name}_change_{low}_{high}")
 
-    def __change_feature(self, feature: Feature, low: str, high: str) -> Feature:
+    def __change_feature(self, feature: Feature, low: str, high: str, entity: str) -> Feature:
         metadata = feature.extra
 
         metadata = {**metadata, "time_window": f"change_{low}_{high}"}
 
         name = feature.template.name_template.format(**metadata)
-        return Feature.from_template(feature.template, name, "double", metadata)
+        return Feature.from_template(feature.template, entity, name, "double", metadata)
