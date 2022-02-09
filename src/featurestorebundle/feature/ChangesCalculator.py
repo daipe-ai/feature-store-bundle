@@ -22,8 +22,8 @@ class ChangesCalculator:
 
     def __change_column(self, feature_name: str, low: str, high: str) -> Column:
         time_window_ratio = int(high[:-1]) / int(low[:-1])
-        low_col = f.col(f"{feature_name}_{low}")
-        high_col = f.col(f"{feature_name}_{high}")
+        low_col = f.col(feature_name.format(time_window=low))
+        high_col = f.col(feature_name.format(time_window=high))
 
         column_ratio = f.when((low_col == 0) & (high_col == 0), 0).otherwise(low_col / high_col)
 

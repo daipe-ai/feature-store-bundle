@@ -22,6 +22,7 @@ class feature(OutputDecorator):  # noqa: N801
         self.__entity = entity
         self.__category = category
         self.__features_storage = features_storage
+        self.__feature_list = None
 
     def modify_result(self, result, container: ContainerInterface):
         self.__check_primary_key_columns(result)
@@ -30,16 +31,17 @@ class feature(OutputDecorator):  # noqa: N801
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
         feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
 
-        result, feature_list = self.__process_changes(changes_calculator, feature_list, result)
-
-        if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
-            metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
-            metadata_html_displayer.display(feature_list.get_metadata_dicts())
-
-        if self.__features_storage is not None:
-            self.__features_storage.add(result, feature_list)
+        result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
         return result
+
+    def process_result(self, result, container: ContainerInterface):
+        if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
+            metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
+            metadata_html_displayer.display(self.__feature_list.get_metadata_dicts())
+
+        if self.__features_storage is not None:
+            self.__features_storage.add(result, self.__feature_list)
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame

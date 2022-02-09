@@ -4,7 +4,7 @@ from typing import List
 from featurestorebundle.feature.Feature import Feature
 
 
-@dataclass(frozen=True)
+@dataclass(frozen=True, eq=True)
 class MasterFeature:
     name: str
     features: List[Feature]
