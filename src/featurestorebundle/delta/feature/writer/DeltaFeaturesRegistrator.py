@@ -20,7 +20,7 @@ class DeltaFeaturesRegistrator:
         unregistered_features = feature_list.get_unregistered(registered_feature_names)
 
         if not unregistered_features.empty():
-            self.__spark.sql(build_add_columns_string(table_identifier, feature_list))
+            self.__spark.sql(build_add_columns_string(table_identifier, unregistered_features))
 
     def __get_feature_names(self, table_identifier: str) -> List[str]:
         column_definitions = self.__spark.sql(f"DESCRIBE TABLE {table_identifier}").collect()
