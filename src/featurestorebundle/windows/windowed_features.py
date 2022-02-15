@@ -18,13 +18,13 @@ PERIODS = {
 __time_window_column_template = "is_time_window_{time_window}"
 
 
-def _is_past_time_window(target_date: Column, window_argument_date: Column, time_window) -> Column:
+def _is_past_time_window(run_date: Column, date_to_substract: Column, time_window: str) -> Column:
     period = PERIODS[time_window[-1]] * int(time_window[:-1])
-    delta = target_date - window_argument_date
+    delta = run_date - date_to_substract
     return (0 <= delta) & (delta <= period)
 
 
-def __resolve_column_type(df: DataFrame, window_col: str) -> Column:
+def resolve_column_type(df: DataFrame, window_col: str) -> Column:
     dtypes = dict(df.dtypes)
 
     if window_col not in dtypes:
@@ -43,17 +43,17 @@ def __resolve_column_type(df: DataFrame, window_col: str) -> Column:
 
 def __with_time_windows(
     df: DataFrame,
-    window_col: str,
-    target_date_column: Column,
-    time_windows: List,
+    run_date: str,
+    date_to_substract: str,
+    time_windows: List[str],
     is_time_window_function: Callable,
     time_window_column_template: str,
 ) -> DataFrame:
-    window_argument_date = __resolve_column_type(df, window_col)
-    target_date = target_date_column.cast("long")
+    run_date_col = resolve_column_type(df, run_date)
+    date_to_substract_col = resolve_column_type(df, date_to_substract)
 
     time_window_columns = [
-        is_time_window_function(target_date, window_argument_date, time_window).alias(
+        is_time_window_function(run_date_col, date_to_substract_col, time_window).alias(
             time_window_column_template.format(time_window=time_window)
         )
         for time_window in time_windows
@@ -67,8 +67,8 @@ def __windowed(time_window_column_template: str, column: Column, time_window: st
     return f.when(f.col(time_window_col_name), column).otherwise(f.lit(default_value))
 
 
-def with_time_windows(df: DataFrame, window_col: str, target_date_column: Column, time_windows: List) -> DataFrame:
-    return __with_time_windows(df, window_col, target_date_column, time_windows, _is_past_time_window, __time_window_column_template)
+def with_time_windows(df: DataFrame, run_date: str, date_to_substract: str, time_windows: List) -> DataFrame:
+    return __with_time_windows(df, run_date, date_to_substract, time_windows, _is_past_time_window, __time_window_column_template)
 
 
 def windowed(column: Column, time_window: str, default_value: Any = 0) -> Column:
