@@ -18,9 +18,9 @@ PERIODS = {
 __time_window_column_template = "is_time_window_{time_window}"
 
 
-def _is_past_time_window(timestamp: Column, time_column_to_be_substracted: Column, time_window: str) -> Column:
+def _is_past_time_window(timestamp: Column, time_column_to_be_subtracted: Column, time_window: str) -> Column:
     period = PERIODS[time_window[-1]] * int(time_window[:-1])
-    delta = timestamp - time_column_to_be_substracted
+    delta = timestamp - time_column_to_be_subtracted
     return (0 <= delta) & (delta <= period)
 
 
@@ -50,10 +50,10 @@ def __with_time_windows(
     time_window_column_template: str,
 ) -> DataFrame:
     timestamp_col = resolve_column_type(df, timestamp)
-    time_column_to_be_substracted = resolve_column_type(df, time_column_name)
+    time_column_to_be_subtracted = resolve_column_type(df, time_column_name)
 
     time_window_columns = [
-        is_time_window_function(timestamp_col, time_column_to_be_substracted, time_window).alias(
+        is_time_window_function(timestamp_col, time_column_to_be_subtracted, time_window).alias(
             time_window_column_template.format(time_window=time_window)
         )
         for time_window in time_windows
