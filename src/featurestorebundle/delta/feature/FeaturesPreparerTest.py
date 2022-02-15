@@ -19,8 +19,8 @@ class FeaturesPreparerTest(PySparkTestCase):
             name="client_test",
             id_column="client_id",
             id_column_type=t.StringType(),
-            time_column="run_date",
-            time_column_type=t.DateType(),
+            time_column="timestamp",
+            time_column_type=t.TimestampType(),
         )
 
         self.__container = bootstrapped_container.init("test")
@@ -320,7 +320,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         self.compare_dataframes(feature_store_after_merge, expected_feature_store, self.__feature_store_merge_columns)
         self.compare_dataframes(rainbow_table_after_merge, expected_rainbow_table, self.__rainbow_table_merge_columns)
 
-    def test_dynamic_run_date(self):
+    def test_dynamic_timestamp(self):
         features_storage = FeaturesStorage(self.__entity)
         feature_store = self.spark.createDataFrame([], get_feature_store_initial_schema(self.__entity))
         rainbow_table = self.spark.createDataFrame([], get_rainbow_table_schema())

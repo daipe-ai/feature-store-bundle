@@ -13,7 +13,7 @@ class FakeSchema:
     json = {
         "fields": [
             {"name": "client_id", "type": "long"},
-            {"name": "run_date", "type": "long"},
+            {"name": "timestamp", "type": "timestamp"},
             {"name": "my_sample_feature", "type": "long"},
         ],
     }
@@ -26,7 +26,7 @@ class FakeSchema:
 
 class FakeResult:
 
-    columns = ["client_id", "run_date", "my_sample_feature"]
+    columns = ["client_id", "timestamp", "my_sample_feature"]
 
     def __init__(self, value):
         self.value = value
@@ -41,8 +41,8 @@ entity = Entity(
     name="client_test",
     id_column="client_id",
     id_column_type=t.StringType(),
-    time_column="run_date",
-    time_column_type=t.DateType(),
+    time_column="timestamp",
+    time_column_type=t.TimestampType(),
 )
 
 features_storage = FeaturesStorage(entity)
