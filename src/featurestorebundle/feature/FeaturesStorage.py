@@ -2,6 +2,7 @@ from typing import List
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.windows.WindowedDataFrame import WindowedDataFrame
 
 
 class FeaturesStorage:
@@ -27,5 +28,9 @@ class FeaturesStorage:
         return self.__feature_list
 
     def add(self, result: DataFrame, feature_list: FeatureList):
-        self.__results.append(result)
+        # Delta merge requires the type to be exactly DataFrame
+        if isinstance(result, WindowedDataFrame):
+            self.__results.append(result.df)
+        else:
+            self.__results.append(result)
         self.__feature_list = self.__feature_list.merge(feature_list)
