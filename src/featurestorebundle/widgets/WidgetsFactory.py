@@ -20,7 +20,7 @@ class WidgetsFactory:
         self.create_target_name()
 
         if self.__widgets.get_value("target_name") == "<no target>":
-            self.create_for_run_date(default_time_window)
+            self.create_for_timestamp(default_time_window)
         else:
             self.create_for_target(default_time_window)
 
@@ -30,10 +30,10 @@ class WidgetsFactory:
         if len(entities_list) > 1:
             self.__widgets.add_select("entity", entities_list, default_value=entities_list[0])
 
-    def create_for_run_date(self, default_time_window: Optional[str] = None):
+    def create_for_timestamp(self, default_time_window: Optional[str] = None):
         default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
 
-        self.__widgets.add_text("run_date", self.__defaults.run_date)
+        self.__widgets.add_text("timestamp", self.__defaults.timestamp)
 
         self.create_time_window(default_time_window)
 

@@ -41,8 +41,8 @@ class EntityGetter:
             entity_name,
             id_column,
             self._types_map[id_column_type],
-            "run_date",
-            t.DateType(),
+            "timestamp",
+            t.TimestampType(),
         )
 
     def __find_entity_by_name(self, entity_name: str) -> Box:
