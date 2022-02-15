@@ -57,40 +57,40 @@ class WindowedFeaturesTest(PySparkTestCase):
         self.assertEqual(reference.collect(), result.collect())
 
     def test_future_time_windows(self):
-        run_date = dt.date(2020, 2, 16)
+        timestamp = dt.date(2020, 2, 16)
         df_1 = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 17), run_date],
-                ["2", dt.date(2020, 2, 1), run_date],
-                ["3", dt.date(2020, 1, 15), run_date],
+                ["1", dt.date(2020, 2, 17), timestamp],
+                ["2", dt.date(2020, 2, 1), timestamp],
+                ["3", dt.date(2020, 1, 15), timestamp],
             ],
-            ["id", "date", "run_date"],
+            ["id", "date", "timestamp"],
         )
 
-        result = with_time_windows(df_1, "run_date", "date", ["14d", "30d"])
+        result = with_time_windows(df_1, "timestamp", "date", ["14d", "30d"])
         reference = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 17), run_date, False, False],
-                ["2", dt.date(2020, 2, 1), run_date, False, True],
-                ["3", dt.date(2020, 1, 15), run_date, False, False],
+                ["1", dt.date(2020, 2, 17), timestamp, False, False],
+                ["2", dt.date(2020, 2, 1), timestamp, False, True],
+                ["3", dt.date(2020, 1, 15), timestamp, False, False],
             ],
-            ["id", "date", "run_date", "is_time_window_14d", "is_time_window_30d"],
+            ["id", "date", "timestamp", "is_time_window_14d", "is_time_window_30d"],
         )
 
         self.assertEqual(reference.collect(), result.collect())
 
     def test_agg_time_windows(self):
-        entity = Entity("test", "id", t.StringType(), "run_date", t.DateType())
-        run_date = dt.date(2020, 2, 16)
+        entity = Entity("test", "id", t.StringType(), "timestamp", t.TimestampType())
+        timestamp = dt.date(2020, 2, 16)
         df_1 = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 15), 10, run_date],
-                ["1", dt.date(2020, 2, 1), 7, run_date],
-                ["1", dt.date(2020, 1, 18), 2, run_date],
-                ["2", dt.date(2020, 1, 17), 4, run_date],
-                ["2", dt.date(2020, 1, 15), 12, run_date],
+                ["1", dt.date(2020, 2, 15), 10, timestamp],
+                ["1", dt.date(2020, 2, 1), 7, timestamp],
+                ["1", dt.date(2020, 1, 18), 2, timestamp],
+                ["2", dt.date(2020, 1, 17), 4, timestamp],
+                ["2", dt.date(2020, 1, 15), 12, timestamp],
             ],
-            ["id", "date", "amount", "run_date"],
+            ["id", "date", "amount", "timestamp"],
         )
 
         wdf = WindowedDataFrame(df_1, entity, "date", ["14d", "30d"])
@@ -110,10 +110,10 @@ class WindowedFeaturesTest(PySparkTestCase):
         result = wdf.time_windowed(agg_features).sort("id")
         reference = self.spark.createDataFrame(
             [
-                ["1", run_date, 1, 10, 3, 19],
-                ["2", run_date, 0, None, 1, 4],
+                ["1", timestamp, 1, 10, 3, 19],
+                ["2", timestamp, 0, None, 1, 4],
             ],
-            ["id", "run_date", "count_14d", "sum_14d", "count_30d", "sum_30d"],
+            ["id", "timestamp", "count_14d", "sum_14d", "count_30d", "sum_30d"],
         )
 
         self.assertEqual(reference.collect(), result.collect())

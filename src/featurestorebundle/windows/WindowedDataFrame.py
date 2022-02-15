@@ -9,10 +9,10 @@ from featurestorebundle.windows.windowed_features import with_time_windows, _is_
 
 
 class WindowedDataFrame(DataFrame):
-    def __init__(self, df: DataFrame, entity: Entity, time_column_name: str, time_windows: List[str]):
+    def __init__(self, df: DataFrame, entity: Entity, time_column_name_to_be_subtracted_from_timestamp: str, time_windows: List[str]):
         super().__init__(df._jdf, df.sql_ctx)  # pyre-ignore[6]
         self.__entity = entity
-        self.__time_column_name = time_column_name
+        self.__time_column_name = time_column_name_to_be_subtracted_from_timestamp
         self.__time_windows = time_windows
 
     def __getattribute__(self, name):
