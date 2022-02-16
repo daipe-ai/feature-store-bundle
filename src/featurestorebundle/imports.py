@@ -14,7 +14,7 @@ from featurestorebundle.entity.getter import get_entity
 from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 # Decorator
-import featurestorebundle.notebook.decorator.feature_decorator_factory
+from featurestorebundle.notebook.decorator import feature_decorator_factory
 
 # Feature store
 from featurestorebundle.feature.FeatureStore import FeatureStore
