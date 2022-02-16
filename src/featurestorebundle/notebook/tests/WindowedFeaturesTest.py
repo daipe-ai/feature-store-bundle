@@ -7,9 +7,8 @@ from pyspark.sql import types as t, functions as f
 
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
-from featurestorebundle.windows.WindowedDataFrame import WindowedDataFrame
-from featurestorebundle.windows.functions import sum_windowed, count_windowed
-from featurestorebundle.windows.windowed_features import _is_past_time_window, with_time_windows
+from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
+from featurestorebundle.notebook.functions.time_windows import sum_windowed, count_windowed, is_past_time_window, with_time_windows
 
 
 def get_unix_timestamp(date_str: str):
@@ -21,17 +20,17 @@ class WindowedFeaturesTest(PySparkTestCase):
         timestamp = get_unix_timestamp("2021-11-18")
         arg_timestamp = get_unix_timestamp("2021-10-17")
 
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "30d"))
-        self.assertTrue(_is_past_time_window(timestamp, arg_timestamp, "60d"))
-        self.assertTrue(_is_past_time_window(timestamp, arg_timestamp, "90d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "30d"))
+        self.assertTrue(is_past_time_window(timestamp, arg_timestamp, "60d"))
+        self.assertTrue(is_past_time_window(timestamp, arg_timestamp, "90d"))
 
     def test_wrong_order_time_windows(self):
         arg_timestamp = get_unix_timestamp("2021-11-18")
         timestamp = get_unix_timestamp("2021-10-17")
 
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "30d"))
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "60d"))
-        self.assertFalse(_is_past_time_window(timestamp, arg_timestamp, "90d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "30d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "60d"))
+        self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "90d"))
 
     def test_simple_time_windows(self):
         timestamp = dt.date(2020, 2, 16)

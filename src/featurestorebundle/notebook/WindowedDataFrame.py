@@ -4,8 +4,7 @@ from typing import List, Callable, Optional
 from pyspark.sql import Column, DataFrame
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.windows.functions import WindowedColumn
-from featurestorebundle.windows.windowed_features import with_time_windows, _is_past_time_window, resolve_column_type
+from featurestorebundle.notebook.functions.time_windows import WindowedColumn, with_time_windows, is_past_time_window, resolve_column_type
 
 
 class WindowedDataFrame(DataFrame):
@@ -18,7 +17,7 @@ class WindowedDataFrame(DataFrame):
     def __getattribute__(self, name):
         attr = object.__getattribute__(self, name)
         if hasattr(attr, "__call__"):
-
+            # Always return WindowedDataFrame instead of DataFrame
             def wrapper(*args, **kwargs):
                 result = attr(*args, **kwargs)
                 if isinstance(result, DataFrame):
@@ -42,7 +41,7 @@ class WindowedDataFrame(DataFrame):
         return wdf.df
 
     def is_time_window(self, time_window: str) -> Column:
-        return _is_past_time_window(
+        return is_past_time_window(
             resolve_column_type(self.df, self.__entity.time_column),
             resolve_column_type(self.df, self.__time_column_name),
             time_window,

@@ -2,7 +2,7 @@ from typing import List
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.windows.WindowedDataFrame import WindowedDataFrame
+from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 
 
 class FeaturesStorage:

@@ -8,7 +8,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
-from featurestorebundle.windows.windowed_features import PERIODS
+from featurestorebundle.notebook.functions.time_windows import PERIODS
 
 
 class TimeWindowFormatError(Exception):
