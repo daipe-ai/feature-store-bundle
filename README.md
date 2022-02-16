@@ -21,7 +21,7 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator import feature_decorator_factory
 
 entity = get_entity()
-features_storage = FeaturesStorage()
+features_storage = FeaturesStorage(entity)
 
 feature_decorator = feature_decorator_factory.create(entity, features_storage)
 ```
