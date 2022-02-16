@@ -32,8 +32,9 @@ class feature(OutputDecorator):  # noqa
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
         feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
 
-        result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
+        result, changes_feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
+        self.__feature_list = feature_list.merge(changes_feature_list)
         return result
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
