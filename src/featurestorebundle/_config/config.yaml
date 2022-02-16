@@ -26,6 +26,7 @@ parameters:
     entities:
     widgets:
       defaults:
+    time_windows:
 
 services:
   featurestorebundle.logger:
