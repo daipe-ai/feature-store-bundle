@@ -550,7 +550,7 @@ python-versions = "*"
 
 [[package]]
 name = "pyfony-bundles"
-version = "0.4.3"
+version = "0.4.4"
 description = "Pyfony Framework bundles base package"
 category = "main"
 optional = false
@@ -889,7 +889,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.7"
-content-hash = "06f5f7491f57abad5baf163d0c53ac86835f8305ba2213f5ae4caa9deb6e46ac"
+content-hash = "3ed365b6aad2b398f0e87216ae8ac374043745249c1ce31600edbc5379ebf92e"
 
 [metadata.files]
 appdirs = [
@@ -1166,7 +1166,7 @@ py4j = [
     {file = "py4j-0.10.9.2.tar.gz", hash = "sha256:624f97c363b8dd84822bc666b12fa7f7d97824632b2ff3d852cc491359ce7615"},
 ]
 pyfony-bundles = [
-    {file = "pyfony_bundles-0.4.3-py3-none-any.whl", hash = "sha256:f56b3881dfeefea219f2fb184ce90845d08915bff082974e28745ab9b38c02b8"},
+    {file = "pyfony_bundles-0.4.4-py3-none-any.whl", hash = "sha256:1267fa2c6d12b50bdffe86cd0536154218ee86a099c56048b34c8368822097fc"},
 ]
 pyfony-core = [
     {file = "pyfony_core-0.8.0-py3-none-any.whl", hash = "sha256:2f5f676a73d7ad8c1426272681c4958f64d4f627fef75865663f41c30ba8b2c9"},

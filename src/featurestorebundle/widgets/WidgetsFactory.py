@@ -1,5 +1,3 @@
-from typing import Optional
-
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
@@ -10,9 +8,7 @@ class WidgetsFactory:
         self.__entities = entities
         self.__widgets = widgets
 
-    def create(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
-
+    def create(self):
         self.__widgets.remove_all()
 
         self.create_for_entity()
@@ -20,9 +16,9 @@ class WidgetsFactory:
         self.create_target_name()
 
         if self.__widgets.get_value("target_name") == "<no target>":
-            self.create_for_timestamp(default_time_window)
+            self.create_for_timestamp()
         else:
-            self.create_for_target(default_time_window)
+            self.create_for_target()
 
     def create_for_entity(self):
         entities_list = list(self.__entities)
@@ -30,18 +26,10 @@ class WidgetsFactory:
         if len(entities_list) > 1:
             self.__widgets.add_select("entity", entities_list, default_value=entities_list[0])
 
-    def create_for_timestamp(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
-
+    def create_for_timestamp(self):
         self.__widgets.add_text("timestamp", self.__defaults.timestamp)
 
-        self.create_time_window(default_time_window)
-
-    def create_for_target(self, default_time_window: Optional[str] = None):
-        default_time_window = self.__defaults.time_windows if default_time_window is None else default_time_window
-
-        self.create_time_window(default_time_window)
-
+    def create_for_target(self):
         self.__widgets.add_text("target_date_from", self.__defaults.target_date_from)
 
         self.__widgets.add_text("target_date_to", self.__defaults.target_date_to)
@@ -65,6 +53,3 @@ class WidgetsFactory:
             ],
             "<no target>",
         )
-
-    def create_time_window(self, default_time_window: str):
-        self.__widgets.add_text("time_window", default_time_window)

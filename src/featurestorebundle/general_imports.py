@@ -23,3 +23,6 @@ from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 
 # Changes
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
+
+# Decorator input functions
+from featurestorebundle.notebook.functions.input_functions import with_timestamps
