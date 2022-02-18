@@ -1,6 +1,6 @@
 from logging import Logger
 from datetime import datetime as dt
-from typing import Optional, List, Callable
+from typing import Optional, List, Callable, Union
 
 from pyspark.sql import DataFrame, functions as f
 
@@ -28,17 +28,21 @@ def make_windowed(
 
 
 @input_decorator_function
-def add_timestamps(input_decorator: InputDecorator, entity: Entity) -> Callable[[ContainerInterface], DataFrame]:
+def with_timestamps(input_data: Union[InputDecorator, DataFrame], entity: Entity) -> Callable[[ContainerInterface], DataFrame]:
     def wrapper(container: ContainerInterface) -> DataFrame:
+        df = input_data.result if isinstance(input_data, InputDecorator) else input_data
+
         widgets: Widgets = container.get(Widgets)
         logger: Logger = container.get("featurestorebundle.logger")
 
-        timestamp = widgets.get_value("timestamp")
+        timestamp = dt.strptime(widgets.get_value("timestamp"), "%Y%m%d")
         target_name = widgets.get_value("target_name")
 
         if target_name == "<no target>":
             logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
-            return input_decorator.result.withColumn(entity.time_column, f.lit(timestamp).cast(entity.time_column_type))
+            columns = df.columns
+            columns.remove(entity.id_column)
+            return df.select(entity.id_column, f.lit(timestamp).alias(entity.time_column), *columns)
 
         feature_store: FeatureStore = container.get(FeatureStore)
 
@@ -56,6 +60,6 @@ def add_timestamps(input_decorator: InputDecorator, entity: Entity) -> Callable[
         )
 
         logger.info("Joining targets with the input data")
-        return input_decorator.result.join(targets, on=[entity.id_column], how="inner")
+        return df.join(targets, on=[entity.id_column], how="inner")
 
     return wrapper
