@@ -1,5 +1,5 @@
 from functools import partial
-from typing import List, Callable, Optional
+from typing import List, Callable, Optional, Union
 
 from pyspark.sql import Column, DataFrame
 
@@ -49,7 +49,7 @@ class WindowedDataFrame(DataFrame):
 
     def time_windowed(
         self,
-        agg_columns_function: Callable[[str], List[WindowedColumn]] = lambda x: [],
+        agg_columns_function: Callable[[str], List[Union[WindowedColumn, Column]]] = lambda x: [],
         non_agg_columns_function: Callable[[str], List[Column]] = lambda x: [],
         extra_group_keys: Optional[List[str]] = None,
         unnest_structs: bool = False,
@@ -99,7 +99,7 @@ class WindowedDataFrame(DataFrame):
 
         return df.select(*non_structs, *map(lambda struct: f"{struct}.*", structs)) if unnest_structs else df
 
-    def __get_agg_cols(self, agg_columns_function: Callable[[str], List[WindowedColumn]]):
+    def __get_agg_cols(self, agg_columns_function: Callable[[str], List[Union[WindowedColumn, Column]]]):
         do_time_windows = False
 
         def resolve_partial(window: str, partial_col: Callable[[str], WindowedColumn]):
