@@ -127,3 +127,11 @@ def avg_windowed(name: str, col: Column, default_value=None) -> WindowedColumn:
 
 def first_windowed(name: str, col: Column, default_value=None) -> WindowedColumn:
     return windowed_column(f.first)(name, col, default_value)
+
+
+def collect_set_windowed(name: str, col: Column, default_value=None) -> WindowedColumn:
+    return windowed_column(f.collect_set)(name, col, default_value)
+
+
+def collect_list_windowed(name: str, col: Column, default_value=None) -> WindowedColumn:
+    return windowed_column(f.collect_list)(name, col, default_value)
