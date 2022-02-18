@@ -12,6 +12,8 @@ from featurestorebundle.notebook.functions.time_windows import (
     mean_windowed,
     avg_windowed,
     first_windowed,
+    collect_list_windowed,
+    collect_set_windowed,
     windowed_column,
     WindowedColumn,
 )
