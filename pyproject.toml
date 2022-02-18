@@ -26,7 +26,7 @@ packages = [
 [tool.poetry.dependencies]
 python = "^3.7"
 daipe-core = "^1.4.2"
-pyfony-bundles = "0.4.*"
+pyfony-bundles = "~0.4.4"
 
 [tool.poetry.dev-dependencies]
 pyspark = {url = "https://daipe-packages.s3.eu-central-1.amazonaws.com/pyspark-3.2.0-py2.py3-none-any.whl"}
