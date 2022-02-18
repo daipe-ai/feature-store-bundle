@@ -1,11 +1,14 @@
 from box import Box
 from daipecore.widgets.Widgets import Widgets
+from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
+from featurestorebundle.delta.target.schema import get_target_id_column_name
 
 
 class WidgetsFactory:
-    def __init__(self, defaults: Box, entities: Box, widgets: Widgets):
+    def __init__(self, defaults: Box, entities: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
         self.__entities = entities
+        self.__targets_reader = targets_reader
         self.__widgets = widgets
 
     def create(self):
@@ -37,19 +40,13 @@ class WidgetsFactory:
         self.__widgets.add_text("number_of_time_units", self.__defaults.number_of_time_units)
 
     def create_target_name(self):
+        targets = [
+            getattr(row, get_target_id_column_name())
+            for row in self.__targets_reader.read_enum().select(get_target_id_column_name()).collect()
+        ]
+
         self.__widgets.add_select(
             "target_name",
-            [
-                "<no target>",
-                "Date of report of change of female name",
-                "First mortgage payment",
-                "First loan payment",
-                "Date of opening the investment account",
-                "Last payment date for the veterinarian",
-                "First payment date of unemployment benefits",
-                "First payment date of maternity leave",
-                "First payment date of alimony",
-                "First payment date of paternity leave",
-            ],
+            ["<no target>"] + targets,
             "<no target>",
         )

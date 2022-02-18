@@ -19,7 +19,7 @@ class TargetsFilteringManager:
     ) -> DataFrame:
         id_column = get_id_column_name(entity)
         time_column = get_time_column_name(entity)
-        target_id_column = get_target_id_column_name(entity)
+        target_id_column = get_target_id_column_name()
 
         df = targets.filter(f.col(target_id_column) == target_id)
 

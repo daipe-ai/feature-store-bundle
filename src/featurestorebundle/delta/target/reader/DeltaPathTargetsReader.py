@@ -16,9 +16,14 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
         self.__spark = spark
         self.__table_names = table_names
 
-    def read(self, entity: str) -> DataFrame:
-        path = self.__table_names.get_entity_targets_path(entity)
+    def read(self, entity_name: str) -> DataFrame:
+        path = self.__table_names.get_targets_path(entity_name)
 
-        self.__logger.info(f"Reading targets for entity {entity} from path {path}")
+        self.__logger.info(f"Reading targets for entity {entity_name} from path {path}")
+
+        return self.__spark.read.format("delta").load(path)
+
+    def read_enum(self) -> DataFrame:
+        path = self.__table_names.get_targets_enum_path()
 
         return self.__spark.read.format("delta").load(path)

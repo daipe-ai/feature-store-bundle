@@ -66,10 +66,6 @@ disable = [
 ]
 good-names = ["e", "i", "k", "n", "f", "v", "df", "sc"]
 
-[tool.pytest.ini_options]
-testpaths = ["src"]
-python_files = ["*_test.py", "*Test.py"]
-
 [tool.poe.tasks]
 black = "black src"
 black-check = "black --check src"
