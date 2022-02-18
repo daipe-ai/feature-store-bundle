@@ -3,6 +3,7 @@
 # General helper functions
 from featurestorebundle.notebook.functions.general import (
     column,
+    array_contains_all,
     array_contains_any,
     most_common,
 )
