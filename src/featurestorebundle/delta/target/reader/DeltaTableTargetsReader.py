@@ -16,9 +16,14 @@ class DeltaTableTargetsReader(TargetsReaderInterface):
         self.__spark = spark
         self.__table_names = table_names
 
-    def read(self, entity: str) -> DataFrame:
-        full_table_name = self.__table_names.get_entity_targets_full_table_name(entity)
+    def read(self, entity_name: str) -> DataFrame:
+        full_table_name = self.__table_names.get_targets_full_table_name(entity_name)
 
-        self.__logger.info(f"Reading targets for entity {entity} from table {full_table_name}")
+        self.__logger.info(f"Reading targets for entity {entity_name} from table {full_table_name}")
+
+        return self.__spark.read.table(full_table_name)
+
+    def read_enum(self) -> DataFrame:
+        full_table_name = self.__table_names.get_targets_enum_full_table_name()
 
         return self.__spark.read.table(full_table_name)
