@@ -2,6 +2,7 @@
 
 # Time windows functionality
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
+from featurestorebundle.notebook.functions.input_functions import make_windowed
 from featurestorebundle.notebook.functions.time_windows import (
     sum_windowed,
     count_windowed,
