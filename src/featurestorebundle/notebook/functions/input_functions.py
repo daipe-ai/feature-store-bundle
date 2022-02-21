@@ -1,5 +1,5 @@
 from logging import Logger
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from typing import Optional, List, Callable, Union
 
 from pyspark.sql import DataFrame, functions as f
@@ -12,6 +12,7 @@ from injecta.container.ContainerInterface import ContainerInterface
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
+from featurestorebundle.notebook.functions.time_windows import get_max_time_window
 
 
 @input_decorator_function
@@ -28,7 +29,9 @@ def make_windowed(
 
 
 @input_decorator_function
-def with_timestamps(input_data: Union[InputDecorator, DataFrame], entity: Entity) -> Callable[[ContainerInterface], DataFrame]:
+def with_timestamps(
+    input_data: Union[InputDecorator, DataFrame], entity: Entity, comparison_col_name: str, custom_time_windows: Optional[List[str]] = None
+) -> Callable[[ContainerInterface], DataFrame]:
     def wrapper(container: ContainerInterface) -> DataFrame:
         df = input_data.result if isinstance(input_data, InputDecorator) else input_data
 
@@ -36,13 +39,21 @@ def with_timestamps(input_data: Union[InputDecorator, DataFrame], entity: Entity
         logger: Logger = container.get("featurestorebundle.logger")
 
         timestamp = dt.strptime(widgets.get_value("timestamp"), "%Y%m%d")
+        default_time_windows = container.get_parameters().featurestorebundle.time_windows
+        time_windows = default_time_windows if custom_time_windows is None else custom_time_windows
+
+        min_timestamp = timestamp - timedelta(seconds=get_max_time_window(time_windows)[1])
         target_name = widgets.get_value("target_name")
 
         if target_name == "<no target>":
             logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
             columns = df.columns
             columns.remove(entity.id_column)
-            return df.select(entity.id_column, f.lit(timestamp).alias(entity.time_column), *columns)
+            return (
+                df.select(entity.id_column, f.lit(timestamp).alias(entity.time_column), *columns)
+                .filter(f.col(comparison_col_name) >= min_timestamp)
+                .filter(f.col(comparison_col_name) <= timestamp)
+            )
 
         feature_store: FeatureStore = container.get(FeatureStore)
 

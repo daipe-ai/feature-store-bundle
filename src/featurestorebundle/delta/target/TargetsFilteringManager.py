@@ -5,6 +5,7 @@ from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.delta.target.schema import get_target_id_column_name, get_id_column_name, get_time_column_name
+from featurestorebundle.notebook.functions.time_windows import PERIOD_NAMES
 
 
 class TargetsFilteringManager:
@@ -40,15 +41,7 @@ class TargetsFilteringManager:
         if not matches:
             raise Exception("Invalid time format try something like '7d' for seven days")
 
-        periods = {
-            "s": "SECONDS",
-            "m": "MINUTES",
-            "h": "HOURS",
-            "d": "DAYS",
-            "w": "WEEKS",
-        }
-
         integer_part = matches[1]
         period_part = matches[2]
 
-        return df.withColumn(time_column, f.col(time_column) + f.expr(f"INTERVAL {integer_part} {periods[period_part]}"))
+        return df.withColumn(time_column, f.col(time_column) + f.expr(f"INTERVAL {integer_part} {PERIOD_NAMES[period_part]}"))
