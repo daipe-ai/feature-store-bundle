@@ -1,18 +1,13 @@
-from logging import Logger
-from datetime import datetime as dt, timedelta
 from typing import Optional, List, Callable, Union
 
-from pyspark.sql import DataFrame, functions as f
-
-from daipecore.widgets.Widgets import Widgets
 from daipecore.decorator.InputDecorator import InputDecorator
 from daipecore.function.input_decorator_function import input_decorator_function
 from injecta.container.ContainerInterface import ContainerInterface
+from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
-from featurestorebundle.notebook.functions.time_windows import get_max_time_window
+from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder
 
 
 @input_decorator_function
@@ -33,44 +28,20 @@ def with_timestamps(
     input_data: Union[InputDecorator, DataFrame], entity: Entity, comparison_col_name: str, custom_time_windows: Optional[List[str]] = None
 ) -> Callable[[ContainerInterface], DataFrame]:
     def wrapper(container: ContainerInterface) -> DataFrame:
+        timestamp_adder: TimestampAdder = container.get(TimestampAdder)
+
         df = input_data.result if isinstance(input_data, InputDecorator) else input_data
+        return timestamp_adder.add(df, entity, comparison_col_name, custom_time_windows)
 
-        widgets: Widgets = container.get(Widgets)
-        logger: Logger = container.get("featurestorebundle.logger")
+    return wrapper
 
-        timestamp = dt.strptime(widgets.get_value("timestamp"), "%Y%m%d")
-        default_time_windows = container.get_parameters().featurestorebundle.time_windows
-        time_windows = default_time_windows if custom_time_windows is None else custom_time_windows
 
-        min_timestamp = timestamp - timedelta(seconds=get_max_time_window(time_windows)[1])
-        target_name = widgets.get_value("target_name")
+@input_decorator_function
+def with_timestamps_no_filter(input_data: Union[InputDecorator, DataFrame], entity: Entity) -> Callable[[ContainerInterface], DataFrame]:
+    def wrapper(container: ContainerInterface) -> DataFrame:
+        timestamp_adder: TimestampAdder = container.get(TimestampAdder)
 
-        if target_name == "<no target>":
-            logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
-            columns = df.columns
-            columns.remove(entity.id_column)
-            return (
-                df.select(entity.id_column, f.lit(timestamp).alias(entity.time_column), *columns)
-                .filter(f.col(comparison_col_name) >= min_timestamp)
-                .filter(f.col(comparison_col_name) <= timestamp)
-            )
-
-        feature_store: FeatureStore = container.get(FeatureStore)
-
-        time_shift = widgets.get_value("number_of_time_units")
-        target_date_from = dt.strptime(widgets.get_value("target_date_from"), "%Y%m%d")
-        target_date_to = dt.strptime(widgets.get_value("target_date_to"), "%Y%m%d")
-
-        logger.info(f"Loading targets for selected target={target_name}")
-        targets = feature_store.get_targets(
-            entity.name,
-            target_name,
-            target_date_from,
-            target_date_to,
-            time_shift,
-        )
-
-        logger.info("Joining targets with the input data")
-        return df.join(targets, on=[entity.id_column], how="inner")
+        df = input_data.result if isinstance(input_data, InputDecorator) else input_data
+        return timestamp_adder.add_without_filters(df, entity)
 
     return wrapper
