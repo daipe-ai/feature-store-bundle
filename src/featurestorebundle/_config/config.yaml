@@ -208,3 +208,8 @@ services:
   featurestorebundle.entity.EntityGetter:
     arguments:
       - '%featurestorebundle.entities%'
+
+  featurestorebundle.notebook.services.TimestampAdder:
+    arguments:
+      - '%featurestorebundle.time_windows%'
+      - '@featurestorebundle.logger'
