@@ -1,7 +1,7 @@
 from functools import partial
 
 from pyspark.sql import Column, functions as f
-from typing import List, Callable, Any, Union
+from typing import List, Callable, Any, Union, Tuple
 
 from pyspark.sql import DataFrame
 
@@ -19,8 +19,25 @@ PERIODS = {
     "w": __WEEK,
 }
 
+PERIOD_NAMES = {
+    "s": "SECONDS",
+    "m": "MINUTES",
+    "h": "HOURS",
+    "d": "DAYS",
+    "w": "WEEKS",
+}
+
 # pylint: disable=invalid-name
 _time_window_column_template = "is_time_window_{time_window}"
+
+
+def time_window_to_seconds(time_window: str) -> int:
+    return int(time_window[:-1]) * PERIODS[time_window[-1]]
+
+
+def get_max_time_window(time_windows: List[str]) -> Tuple[str, int]:
+    result = {time_window: time_window_to_seconds(time_window) for time_window in time_windows}
+    return max(result.items(), key=lambda x: x[1])
 
 
 def is_past_time_window(timestamp: Column, time_column_to_be_subtracted: Column, time_window: str) -> Column:
