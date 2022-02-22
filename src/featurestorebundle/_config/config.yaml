@@ -24,13 +24,17 @@ parameters:
         name: 'targets_enum'
         path: '%featurestorebundle.base_path%/targets/targets_enum.delta'
       backend: delta_path # available: delta_table, delta_path
+    checkpoint:
+      default_checkpoint_dir: 'dbfs:/tmp/checkpoints'
     orchestration:
+      num_parallel: 1
       checkpoint_feature_results: False
       checkpoint_before_merge: True
       checkpoint_after_join: True
       features_join:
          method: 'union_with_window' # available: union_with_window, left_with_checkpointing
          batch_size: 1
+      stages:
     entities:
     widgets:
       defaults:
@@ -213,3 +217,18 @@ services:
     arguments:
       - '%featurestorebundle.time_windows%'
       - '@featurestorebundle.logger'
+
+  featurestorebundle.orchestration.DatabricksOrchestrator:
+    arguments:
+      - '@featurestorebundle.logger'
+      - '%featurestorebundle.orchestration.stages%'
+      - '%featurestorebundle.orchestration.num_parallel%'
+
+  featurestorebundle.orchestration.NotebookTasksFactory:
+
+  featurestorebundle.orchestration.Serializator:
+
+  featurestorebundle.checkpoint.CheckpointDirSetter:
+    arguments:
+      - '@featurestorebundle.logger'
+      - '%featurestorebundle.checkpoint.default_checkpoint_dir%'

@@ -7,6 +7,7 @@ from pyspark.sql import functions as f
 from pyspark.sql.window import Window
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.delta.feature.schema import get_rainbow_table_hash_column, get_rainbow_table_features_column
 
 
@@ -18,12 +19,14 @@ class FeaturesPreparer:
         join_batch_size: int,
         checkpoint_after_join: bool,
         checkpoint_before_merge: bool,
+        checkpoint_dir_setter: CheckpointDirSetter,
     ):
         self.__logger = logger
         self.__join_method = join_method
         self.__join_batch_size = join_batch_size
         self.__checkpoint_after_join = checkpoint_after_join
         self.__checkpoint_before_merge = checkpoint_before_merge
+        self.__checkpoint_dir_setter = checkpoint_dir_setter
 
     def prepare(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
         entity = features_storage.entity
@@ -33,6 +36,8 @@ class FeaturesPreparer:
 
         if self.__checkpoint_before_merge:
             self.__logger.info("Checkpointing features data before merge")
+
+            self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
 
             base_dataframe = base_dataframe.checkpoint()
 
@@ -120,6 +125,8 @@ class FeaturesPreparer:
         if self.__checkpoint_after_join:
             self.__logger.info("Checkpointing features data after join")
 
+            self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
+
             joined_results = joined_results.checkpoint()
 
             self.__logger.info("Checkpointing done")
@@ -131,6 +138,8 @@ class FeaturesPreparer:
         id_dataframes = [df.select(join_columns) for df in dfs]
         unique_ids_df = reduce(lambda df1, df2: df1.unionByName(df2), id_dataframes).distinct().cache()
         joined_df = unique_ids_df
+
+        self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
 
         for df in dfs:
             join_batch_counter += 1

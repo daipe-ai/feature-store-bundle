@@ -1,7 +1,10 @@
 parameters:
   datalake:
     base_path: '/foo/bar'
-
+  databricksbundle:
+    databricks_connect:
+      connection:
+        token: 123
   featurestorebundle:
     metadata:
       display_in_notebook: False

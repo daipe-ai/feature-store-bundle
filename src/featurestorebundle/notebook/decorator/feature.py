@@ -1,7 +1,7 @@
 from typing import Optional, Tuple
 from daipecore.decorator.OutputDecorator import OutputDecorator
+from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
-from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
@@ -12,6 +12,8 @@ from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
+from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
+from featurestorebundle.orchestration.Serializator import Serializator
 
 
 # pylint: disable=invalid-name
@@ -37,20 +39,32 @@ class feature(OutputDecorator):  # noqa
         return result
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
-        spark: SparkSession = container.get(SparkSession)
-
-        if not spark.sparkContext.getCheckpointDir():
-            spark.sparkContext.setCheckpointDir("dbfs:/tmp/checkpoints")
+        widgets: Widgets = container.get(Widgets)
+        checkpoint_dir_setter: CheckpointDirSetter = container.get(CheckpointDirSetter)
+        serializator: Serializator = container.get(Serializator)
 
         if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
             metadata_html_displayer.display(self.__feature_list.get_metadata_dicts())
 
         if container.get_parameters().featurestorebundle.orchestration.checkpoint_feature_results is True:
+            checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
             result = result.checkpoint()
 
         if self.__features_storage is not None:
             self.__features_storage.add(result, self.__feature_list)
+
+        if self.__orchestration_id_widget_exists(widgets):
+            orchestration_id = widgets.get_value("daipe_features_orchestration_id")
+            serializator.serialize(result, self.__feature_list, orchestration_id)
+
+    def __orchestration_id_widget_exists(self, widgets: Widgets) -> bool:
+        try:
+            widgets.get_value("daipe_features_orchestration_id")
+            return True
+
+        except Exception:  # noqa pylint: disable=broad-except
+            return False
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame
