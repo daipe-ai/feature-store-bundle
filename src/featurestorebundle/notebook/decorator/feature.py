@@ -1,4 +1,4 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Iterable, Any, Union
 from daipecore.decorator.OutputDecorator import OutputDecorator
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import SparkSession
@@ -12,6 +12,8 @@ from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
+
+FeatureWithoutChange = Tuple[str, str, Any]
 
 
 # pylint: disable=invalid-name
@@ -34,7 +36,7 @@ class feature(OutputDecorator):  # noqa
 
         result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
-        return result
+        return self.__handle_nulls(result, self.__feature_list)
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         spark: SparkSession = container.get(SparkSession)
@@ -51,6 +53,10 @@ class feature(OutputDecorator):  # noqa
 
         if self.__features_storage is not None:
             self.__features_storage.add(result, self.__feature_list)
+
+    def __handle_nulls(self, df: DataFrame, feature_list: FeatureList):
+        fill_dict = {feature.name: feature.template.default_value for feature in feature_list.get_all()}
+        return df.fillna(fill_dict)
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame
@@ -69,15 +75,20 @@ class feature(OutputDecorator):  # noqa
         if self.__entity.time_column not in result.columns:
             raise Exception(f"{self.__entity.time_column} column is missing in the output dataframe")
 
-    def __prepare_features(self, feature_template_matcher: FeatureTemplateMatcher, df: DataFrame, args: tuple) -> FeatureList:
+    def __prepare_features(
+        self,
+        feature_template_matcher: FeatureTemplateMatcher,
+        df: DataFrame,
+        args: Iterable[Union[FeatureWithChange, FeatureWithoutChange]],
+    ) -> FeatureList:
         """
         @[foo]_feature(
-            ("delayed_flights_pct_30d", "% of delayed flights in last 30 days"),
-            ("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days")
+            ("delayed_flights_pct_30d", "% of delayed flights in last 30 days", 0),
+            FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", 0)
         )
         """
         feature_templates = [
-            FeatureWithChangeTemplate(arg.name_template, arg.description_template, category=self.__category)
+            FeatureWithChangeTemplate(arg.name_template, arg.description_template, arg.default_value, category=self.__category)
             if isinstance(arg, FeatureWithChange)
             else FeatureTemplate(*arg, category=self.__category)
             for arg in args

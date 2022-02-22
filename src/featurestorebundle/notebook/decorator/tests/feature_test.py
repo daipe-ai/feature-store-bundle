@@ -36,6 +36,10 @@ class FakeResult:
     def select(self, *args, **kwargs):
         return self
 
+    # pylint: disable=unused-argument
+    def fillna(self, *args, **kwargs):
+        return self
+
 
 entity = Entity(
     name="client_test",
@@ -60,7 +64,7 @@ expected_value = FakeResult("not_a_real_dataframe")
 try:
 
     @notebook_function()
-    @client_feature(("my_sample_feature", "my_sample_description"), category="test")
+    @client_feature(("my_sample_feature", "my_sample_description", 0), category="test")
     def my_sample_feature():
         return expected_value
 
