@@ -27,3 +27,4 @@ from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 
 # Decorator input functions
 from featurestorebundle.notebook.functions.input_functions import with_timestamps
+from featurestorebundle.notebook.functions.input_functions import with_timestamps_no_filter
