@@ -11,6 +11,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
+from featurestorebundle.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 
 FeatureWithoutChange = Tuple[str, str, Any]
@@ -30,13 +31,13 @@ class feature(OutputDecorator):  # noqa
         self.__check_primary_key_columns(result)
 
         feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
-
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
-        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
+        null_handler: NullHandler = container.get(NullHandler)
 
+        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
         result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
-        return self.__handle_nulls(result, self.__feature_list)
+        return null_handler.handle_nulls(result, self.__feature_list)
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         spark: SparkSession = container.get(SparkSession)
@@ -53,10 +54,6 @@ class feature(OutputDecorator):  # noqa
 
         if self.__features_storage is not None:
             self.__features_storage.add(result, self.__feature_list)
-
-    def __handle_nulls(self, df: DataFrame, feature_list: FeatureList):
-        fill_dict = {feature.name: feature.template.default_value for feature in feature_list.get_all()}
-        return df.fillna(fill_dict)
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame

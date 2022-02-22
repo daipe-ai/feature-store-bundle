@@ -213,3 +213,5 @@ services:
     arguments:
       - '%featurestorebundle.time_windows%'
       - '@featurestorebundle.logger'
+
+  featurestorebundle.feature.NullHandler:
