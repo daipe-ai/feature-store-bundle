@@ -12,13 +12,14 @@ from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder
 
 @input_decorator_function
 def make_windowed(
-    input_decorator: InputDecorator, entity: Entity, time_column: str, custom_time_windows: Optional[List[str]] = None
+    input_data: Union[InputDecorator, DataFrame], entity: Entity, time_column: str, custom_time_windows: Optional[List[str]] = None
 ) -> Callable[[ContainerInterface], WindowedDataFrame]:
     def wrapper(container: ContainerInterface) -> WindowedDataFrame:
         default_time_windows = container.get_parameters().featurestorebundle.time_windows
         time_windows = default_time_windows if custom_time_windows is None else custom_time_windows
 
-        return WindowedDataFrame(input_decorator.result, entity, time_column, time_windows)
+        df = input_data.result if isinstance(input_data, InputDecorator) else input_data
+        return WindowedDataFrame(df.result, entity, time_column, time_windows)
 
     return wrapper
 
