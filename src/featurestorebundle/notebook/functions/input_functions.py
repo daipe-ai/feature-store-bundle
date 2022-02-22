@@ -19,7 +19,7 @@ def make_windowed(
         time_windows = default_time_windows if custom_time_windows is None else custom_time_windows
 
         df = input_data.result if isinstance(input_data, InputDecorator) else input_data
-        return WindowedDataFrame(df.result, entity, time_column, time_windows)
+        return WindowedDataFrame(df, entity, time_column, time_windows)
 
     return wrapper
 
