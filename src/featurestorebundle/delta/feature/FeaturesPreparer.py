@@ -53,7 +53,7 @@ class FeaturesPreparer:
             *feature_list.get_names(),
         )
 
-        self.__null_handler.handle_nulls(features_data, feature_list)
+        features_data = self.__null_handler.handle_nulls(features_data, feature_list)
 
         rainbow_data = base_dataframe.select(
             get_rainbow_table_hash_column().name,
