@@ -27,7 +27,7 @@ class ChangesCalculator:
 
         column_ratio = f.when((low_col == 0) & (high_col == 0), 0).otherwise(low_col / high_col)
 
-        return (column_ratio * time_window_ratio).alias(f"{feature_name}_change_{low}_{high}")
+        return (column_ratio * time_window_ratio).alias(feature_name.format(time_window=f"change_{low}_{high}"))
 
     def __change_feature(self, feature: Feature, low: str, high: str, entity: str) -> Feature:
         metadata = feature.extra
