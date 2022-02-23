@@ -8,6 +8,7 @@ from pyspark.sql.window import Window
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.delta.feature.schema import get_rainbow_table_hash_column, get_rainbow_table_features_column
+from featurestorebundle.feature.NullHandler import NullHandler
 
 
 class FeaturesPreparer:
@@ -18,12 +19,14 @@ class FeaturesPreparer:
         join_batch_size: int,
         checkpoint_after_join: bool,
         checkpoint_before_merge: bool,
+        null_handler: NullHandler,
     ):
         self.__logger = logger
         self.__join_method = join_method
         self.__join_batch_size = join_batch_size
         self.__checkpoint_after_join = checkpoint_after_join
         self.__checkpoint_before_merge = checkpoint_before_merge
+        self.__null_handler = null_handler
 
     def prepare(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
         entity = features_storage.entity
@@ -44,6 +47,8 @@ class FeaturesPreparer:
             get_rainbow_table_hash_column().name,
             *feature_list.get_names(),
         )
+
+        self.__null_handler.handle_nulls(features_data, feature_list)
 
         rainbow_data = base_dataframe.select(
             get_rainbow_table_hash_column().name,
