@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any
+from typing import Any, Optional
 
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
@@ -10,5 +10,5 @@ class Feature:
     description_template: str
     fillna_with: Any
 
-    def create_template(self, category: str) -> FeatureTemplate:
+    def create_template(self, category: Optional[str]) -> FeatureTemplate:
         return FeatureTemplate(self.name_template, self.description_template, self.fillna_with, category)
