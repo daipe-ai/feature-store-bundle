@@ -1,16 +1,15 @@
-from typing import Optional, Tuple
+from typing import Optional, Tuple, Iterable
 from daipecore.decorator.OutputDecorator import OutputDecorator
 from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
-from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
-from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
+from featurestorebundle.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.orchestration.Serializator import Serializator
@@ -19,7 +18,7 @@ from featurestorebundle.orchestration.Serializator import Serializator
 # pylint: disable=invalid-name
 class feature(OutputDecorator):  # noqa
     # pylint: disable=super-init-not-called
-    def __init__(self, *args, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
+    def __init__(self, *args: Feature, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
         self._args = args
         self.__entity = entity
         self.__category = category
@@ -30,13 +29,13 @@ class feature(OutputDecorator):  # noqa
         self.__check_primary_key_columns(result)
 
         feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
-
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
-        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
+        null_handler: NullHandler = container.get(NullHandler)
 
+        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
         result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
-        return result
+        return null_handler.handle_nulls(result, self.__feature_list)
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         widgets: Widgets = container.get(Widgets)
@@ -83,18 +82,18 @@ class feature(OutputDecorator):  # noqa
         if self.__entity.time_column not in result.columns:
             raise Exception(f"{self.__entity.time_column} column is missing in the output dataframe")
 
-    def __prepare_features(self, feature_template_matcher: FeatureTemplateMatcher, df: DataFrame, args: tuple) -> FeatureList:
+    def __prepare_features(
+        self,
+        feature_template_matcher: FeatureTemplateMatcher,
+        df: DataFrame,
+        features: Iterable[Feature],
+    ) -> FeatureList:
         """
         @[foo]_feature(
-            ("delayed_flights_pct_30d", "% of delayed flights in last 30 days"),
-            ("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days")
+            Feature("delayed_flights_pct_30d", "% of delayed flights in last 30 days", fillna_with=0),
+            FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", fillna_with=0)
         )
         """
-        feature_templates = [
-            FeatureWithChangeTemplate(arg.name_template, arg.description_template, category=self.__category)
-            if isinstance(arg, FeatureWithChange)
-            else FeatureTemplate(*arg, category=self.__category)
-            for arg in args
-        ]
+        feature_templates = [feature.create_template(self.__category) for feature in features]
 
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)

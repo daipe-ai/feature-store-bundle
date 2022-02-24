@@ -1,6 +1,6 @@
 from typing import List
 from pyspark.sql import SparkSession
-from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 
 
@@ -9,7 +9,7 @@ class DeltaFeaturesRegistrator:
         self.__spark = spark
 
     def register(self, table_identifier: str, feature_list: FeatureList):
-        def build_add_column_string(feature: Feature):
+        def build_add_column_string(feature: FeatureInstance):
             return f'{feature.name} {feature.dtype} COMMENT "{feature.description}"'
 
         def build_add_columns_string(table_identifier, feature_list: FeatureList):

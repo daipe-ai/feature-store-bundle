@@ -3,7 +3,7 @@ from typing import List, Set
 from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
@@ -39,7 +39,7 @@ class FeatureTemplateMatcher:
 
     def __get_feature(
         self, entity: str, name: str, dtype: str, feature_patterns: List[FeaturePattern], unmatched_patterns: Set[FeaturePattern]
-    ) -> Feature:
+    ) -> FeatureInstance:
         for feature_pattern in feature_patterns:
             feature_template = feature_pattern.feature_template
             match = feature_pattern.get_match(name)
@@ -55,7 +55,7 @@ class FeatureTemplateMatcher:
             if time_window is not None:
                 self.__check_time_window(feature_pattern, time_window, name)
 
-            return Feature.from_template(feature_template, entity, name, dtype, metadata)
+            return FeatureInstance.from_template(feature_template, entity, name, dtype, metadata)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 

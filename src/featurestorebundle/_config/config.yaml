@@ -232,3 +232,5 @@ services:
     arguments:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
+
+  featurestorebundle.feature.NullHandler:
