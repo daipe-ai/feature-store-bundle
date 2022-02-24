@@ -53,7 +53,7 @@ class FeatureInstance:
             "template": self.__template.name_template,
             "category": self.__template.category,
             "dtype": self.__dtype,
-            "default_value": self.__template.default_value,
+            "default_value": str(self.__template.default_value),
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:
