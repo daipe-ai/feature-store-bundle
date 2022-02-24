@@ -1,3 +1,4 @@
+from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
@@ -15,6 +16,7 @@ from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataW
 class DeltaPathFeaturesWriter(FeaturesWriterInterface):
     def __init__(
         self,
+        logger: Logger,
         features_reader: FeaturesReaderInterface,
         metadata_writer: MetadataWriterInterface,
         delta_data_handler: DeltaFeaturesDataHandler,
@@ -25,6 +27,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
         features_validator: FeaturesValidator,
         table_names: TableNames,
     ):
+        self.__logger = logger
         self.__features_reader = features_reader
         self.__metadata_writer = metadata_writer
         self.__delta_data_handler = delta_data_handler
@@ -35,7 +38,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
         self.__features_validator = features_validator
         self.__table_names = table_names
 
-    def write(self, features_storage: FeaturesStorage):
+    def write(self, features_storage: FeaturesStorage, dry_run: bool = False):
         entity = features_storage.entity
         feature_list = features_storage.feature_list
         path = self.__table_names.get_features_path(entity.name)
@@ -48,6 +51,11 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
 
         self.__features_validator.validate(entity, features_data, feature_list)
         self.__features_path_preparer.prepare(path, entity, feature_list)
+
+        if dry_run:
+            self.__logger.warning("Dry run, skipping features write")
+            return
+
         self.__rainbow_table_manager.merge(entity.name, rainbow_data)
         self.__delta_data_handler.merge_to_delta_path(path, delta_merge_config)
         self.__metadata_writer.write(entity, feature_list)

@@ -31,6 +31,7 @@ class WidgetsFactory:
 
     def create_for_timestamp(self):
         self.__widgets.add_text("timestamp", self.__defaults.timestamp)
+        self.__widgets.add_select("dry_run", ["true", "false"], "false")
 
     def create_for_target(self):
         self.__widgets.add_text("target_date_from", self.__defaults.target_date_from)
@@ -38,6 +39,8 @@ class WidgetsFactory:
         self.__widgets.add_text("target_date_to", self.__defaults.target_date_to)
 
         self.__widgets.add_text("number_of_time_units", self.__defaults.number_of_time_units)
+
+        self.__widgets.add_select("dry_run", ["true", "false"], "false")
 
     def create_target_name(self):
         targets = [

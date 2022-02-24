@@ -6,5 +6,5 @@ class FeaturesWriter:
     def __init__(self, features_writer: FeaturesWriterInterface):
         self.__features_writer = features_writer
 
-    def write(self, features_storage: FeaturesStorage):
-        self.__features_writer.write(features_storage)
+    def write(self, features_storage: FeaturesStorage, dry_run: bool = False):
+        self.__features_writer.write(features_storage, dry_run)

@@ -32,8 +32,8 @@ parameters:
       checkpoint_before_merge: True
       checkpoint_after_join: True
       features_join:
-         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
-         batch_size: 1
+        method: 'union_with_window' # available: union_with_window, left_with_checkpointing
+        batch_size: 1
       stages:
     entities:
     widgets:
@@ -74,6 +74,7 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
     arguments:
+      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
@@ -81,6 +82,7 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
     arguments:
+      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
@@ -88,6 +90,7 @@ services:
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
     arguments:
+      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:

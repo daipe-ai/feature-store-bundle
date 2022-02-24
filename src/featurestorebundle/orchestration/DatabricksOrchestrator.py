@@ -29,7 +29,7 @@ class DatabricksOrchestrator:
         self.__serializator = serializator
         self.__features_writer = features_writer
 
-    def orchestrate(self):
+    def orchestrate(self, dry_run: bool = False):
         self.__logger.info("Starting features orchestration")
 
         for stage, notebooks in self.__orchestration_stages.items():
@@ -37,13 +37,13 @@ class DatabricksOrchestrator:
 
             notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
 
-            self.__orchestrate_stage(notebook_tasks)
+            self.__orchestrate_stage(notebook_tasks, dry_run)
 
             self.__logger.info(f"Stage {stage} done")
 
         self.__logger.info("Features orchestration done")
 
-    def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]):
+    def __orchestrate_stage(self, notebook_tasks: List[NotebookTask], dry_run: bool):
         orchestration_id = uuid.uuid4().hex
 
         futures = self.__submit_notebooks_parallel(notebook_tasks, orchestration_id)
@@ -54,7 +54,7 @@ class DatabricksOrchestrator:
 
         features_storage = self.__serializator.deserialize(orchestration_id)
 
-        self.__features_writer.write(features_storage)
+        self.__features_writer.write(features_storage, dry_run)
 
     def __submit_notebooks_parallel(self, notebooks: List[NotebookTask], orchestration_id: str):
         with ThreadPoolExecutor(max_workers=self.__num_parallel) as executor:

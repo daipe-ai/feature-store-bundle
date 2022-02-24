@@ -1,3 +1,4 @@
+from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
@@ -10,9 +11,11 @@ from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWr
 from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataWriterInterface
 
 
+# pylint: disable=too-many-instance-attributes
 class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
     def __init__(
         self,
+        logger: Logger,
         features_reader: FeaturesReaderInterface,
         metadata_writer: MetadataWriterInterface,
         databricks_data_handler: DatabricksFeatureStoreDataHandler,
@@ -21,6 +24,7 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         features_validator: FeaturesValidator,
         table_names: TableNames,
     ):
+        self.__logger = logger
         self.__features_reader = features_reader
         self.__metadata_writer = metadata_writer
         self.__databricks_data_handler = databricks_data_handler
@@ -29,7 +33,7 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         self.__features_validator = features_validator
         self.__table_names = table_names
 
-    def write(self, features_storage: FeaturesStorage):
+    def write(self, features_storage: FeaturesStorage, dry_run: bool = False):
         entity = features_storage.entity
         feature_list = features_storage.feature_list
         full_table_name = self.__table_names.get_features_full_table_name(entity.name)
@@ -41,6 +45,11 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         databricks_merge_config = DatabricksFeatureStoreMergeConfig(features_data, pk_columns)
 
         self.__features_validator.validate(entity, features_data, feature_list)
+
+        if dry_run:
+            self.__logger.warning("Dry run, skipping features write")
+            return
+
         self.__rainbow_table_manager.merge(entity.name, rainbow_data)
         self.__databricks_data_handler.merge_to_databricks_feature_store(full_table_name, databricks_merge_config)
         self.__metadata_writer.write(entity, feature_list)
