@@ -6,6 +6,7 @@ from pyspark.sql import functions as f
 
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList, MasterFeature
+from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
 
 class ChangesCalculator:
@@ -35,4 +36,5 @@ class ChangesCalculator:
         metadata = {**metadata, "time_window": f"change_{low}_{high}"}
 
         name = feature.template.name_template.format(**metadata)
-        return FeatureInstance.from_template(feature.template, entity, name, "double", metadata)
+        template = FeatureTemplate(feature.template.name_template, feature.template.description_template, 0.0, feature.template.category)
+        return FeatureInstance.from_template(template, entity, name, "double", metadata)
