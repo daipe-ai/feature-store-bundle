@@ -23,6 +23,7 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 
 # Changes
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 
 # Decorator input functions
