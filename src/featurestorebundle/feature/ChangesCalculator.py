@@ -4,7 +4,7 @@ from typing import List, Tuple
 from pyspark.sql import Column
 from pyspark.sql import functions as f
 
-from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList, MasterFeature
 
 
@@ -29,10 +29,10 @@ class ChangesCalculator:
 
         return (column_ratio * time_window_ratio).alias(feature_name.format(time_window=f"change_{low}_{high}"))
 
-    def __change_feature(self, feature: Feature, low: str, high: str, entity: str) -> Feature:
+    def __change_feature(self, feature: FeatureInstance, low: str, high: str, entity: str) -> FeatureInstance:
         metadata = feature.extra
 
         metadata = {**metadata, "time_window": f"change_{low}_{high}"}
 
         name = feature.template.name_template.format(**metadata)
-        return Feature.from_template(feature.template, entity, name, "double", metadata)
+        return FeatureInstance.from_template(feature.template, entity, name, "double", metadata)

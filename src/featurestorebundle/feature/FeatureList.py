@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Union
 
-from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.MasterFeature import MasterFeature
 
 
@@ -10,10 +10,10 @@ class UnsupportedChangeFeatureNameException(Exception):
 
 
 class FeatureList:
-    def __init__(self, features: List[Feature]):
+    def __init__(self, features: List[FeatureInstance]):
         self.__features = features
 
-    def get_all(self) -> List[Feature]:
+    def get_all(self) -> List[FeatureInstance]:
         return self.__features
 
     def empty(self):
@@ -23,7 +23,7 @@ class FeatureList:
         return [feature.name for feature in self.__features]
 
     def get_unregistered(self, registered_feature_names: List[str]) -> "FeatureList":
-        def registered(instance: Feature, registered_names: List[str]):
+        def registered(instance: FeatureInstance, registered_names: List[str]):
             return instance.name in registered_names
 
         return FeatureList([feature for feature in self.get_all() if not registered(feature, registered_feature_names)])

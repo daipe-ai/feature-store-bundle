@@ -4,7 +4,7 @@ import datetime as dt
 from pyspark.sql import types as t
 from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
@@ -43,8 +43,12 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)),
-                Feature(self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)),
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                ),
+                FeatureInstance(
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)
+                ),
             ]
         )
 
@@ -85,8 +89,12 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)),
-                Feature(self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)),
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                ),
+                FeatureInstance(
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)
+                ),
             ]
         )
 
@@ -101,7 +109,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_2 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 
@@ -156,7 +166,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 
@@ -216,7 +228,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 
@@ -276,7 +290,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 
@@ -289,7 +305,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_2 = FeatureList(
             [
-                Feature(self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)),
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                ),
             ]
         )
 
@@ -335,8 +353,12 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)),
-                Feature(self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)),
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                ),
+                FeatureInstance(
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)
+                ),
             ]
         )
 
@@ -349,7 +371,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_2 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 
@@ -392,8 +416,12 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_1 = FeatureList(
             [
-                Feature(self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)),
-                Feature(self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)),
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                ),
+                FeatureInstance(
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)
+                ),
             ]
         )
 
@@ -408,7 +436,9 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         feature_list_2 = FeatureList(
             [
-                Feature(self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)),
+                FeatureInstance(
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", None)
+                ),
             ]
         )
 

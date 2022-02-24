@@ -6,6 +6,7 @@ from pyspark.sql import types as t
 from daipecore.decorator.notebook_function import notebook_function
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.notebook.decorator import feature_decorator_factory
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
 
@@ -26,8 +27,8 @@ class NullHandlerTest(PySparkTestCase):
     def test_nulls_after_decorator(self):
         @notebook_function()
         @self.__feature_decorator(
-            ("f1", "f1 description", "default"),
-            ("f2", "f2 description", None),
+            Feature("f1", "f1 description", "default"),
+            Feature("f2", "f2 description", None),
         )
         def test():
             return self.spark.createDataFrame(

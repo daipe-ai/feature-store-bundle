@@ -1,9 +1,8 @@
-from dataclasses import dataclass
-from typing import Any
+from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 
 
-@dataclass(frozen=True)
-class FeatureWithChange:
-    name_template: str
-    description_template: str
-    default_value: Any
+class FeatureWithChange(Feature):
+    def create_template(self, category: str) -> FeatureTemplate:
+        return FeatureWithChangeTemplate(self.name_template, self.description_template, self.fillna_with, category)

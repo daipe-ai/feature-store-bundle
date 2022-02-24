@@ -6,6 +6,7 @@ from daipecore.decorator.notebook_function import notebook_function
 from pyspark.sql import functions as f, types as t
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList, UnsupportedChangeFeatureNameException
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
@@ -14,26 +15,36 @@ from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChan
 from featurestorebundle.feature.MasterFeature import MasterFeature
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 from featurestorebundle.notebook.decorator import feature_decorator_factory
-from featurestorebundle.notebook.functions.time_windows import sum_windowed
+from featurestorebundle.notebook.functions.time_windows import sum_windowed, count_windowed
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
 
 os.environ["APP_ENV"] = "test"
 
 
-class FeatureChangesTest(unittest.TestCase):
+class FeatureChangesTest(PySparkTestCase):
+    def setUp(self) -> None:
+        self.__entity = Entity(
+            name="client_test",
+            id_column="client_id",
+            id_column_type=t.StringType(),
+            time_column="timestamp",
+            time_column_type=t.TimestampType(),
+        )
+        self.__feature_decorator = feature_decorator_factory.create(self.__entity)
+
     def test_simple(self):
         feature_with_change_template = FeatureWithChangeTemplate("feature_{time_window}", "feature in {time_window}", 0)
         template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0)
 
         features_with_change = [
-            Feature("entity", "feature_14d", "feature in 14 days", "int", {"time_window": "14d"}, feature_with_change_template),
-            Feature("entity", "feature_30d", "feature in 30 days", "int", {"time_window": "30d"}, feature_with_change_template),
+            FeatureInstance("entity", "feature_14d", "feature in 14 days", "int", {"time_window": "14d"}, feature_with_change_template),
+            FeatureInstance("entity", "feature_30d", "feature in 30 days", "int", {"time_window": "30d"}, feature_with_change_template),
         ]
 
         feature_list = FeatureList(
             [
                 *features_with_change,
-                Feature("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
             ]
         )
 
@@ -46,10 +57,10 @@ class FeatureChangesTest(unittest.TestCase):
         template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0)
 
         features_with_change = [
-            Feature(
+            FeatureInstance(
                 "entity", "feature_14d_suffix", "feature suffix in 14 days", "int", {"time_window": "14d"}, feature_with_change_template
             ),
-            Feature(
+            FeatureInstance(
                 "entity", "feature_30d_suffix", "feature suffix in 30 days", "int", {"time_window": "30d"}, feature_with_change_template
             ),
         ]
@@ -57,7 +68,7 @@ class FeatureChangesTest(unittest.TestCase):
         feature_list = FeatureList(
             [
                 *features_with_change,
-                Feature("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
             ]
         )
 
@@ -70,14 +81,18 @@ class FeatureChangesTest(unittest.TestCase):
         template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0)
 
         features_with_change = [
-            Feature("entity", "14d_suffix", "feature suffix in 14 days", "int", {"time_window": "14d"}, feature_with_change_template),
-            Feature("entity", "30d_suffix", "feature suffix in 30 days", "int", {"time_window": "30d"}, feature_with_change_template),
+            FeatureInstance(
+                "entity", "14d_suffix", "feature suffix in 14 days", "int", {"time_window": "14d"}, feature_with_change_template
+            ),
+            FeatureInstance(
+                "entity", "30d_suffix", "feature suffix in 30 days", "int", {"time_window": "30d"}, feature_with_change_template
+            ),
         ]
 
         feature_list = FeatureList(
             [
                 *features_with_change,
-                Feature("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
             ]
         )
 

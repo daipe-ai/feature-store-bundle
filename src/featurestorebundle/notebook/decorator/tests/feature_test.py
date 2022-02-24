@@ -3,6 +3,7 @@ from pyspark.sql import types as t
 from daipecore.decorator.DecoratedDecorator import DecoratedDecorator
 from daipecore.decorator.notebook_function import notebook_function
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator.feature import feature
 
@@ -64,7 +65,7 @@ expected_value = FakeResult("not_a_real_dataframe")
 try:
 
     @notebook_function()
-    @client_feature(("my_sample_feature", "my_sample_description", 0), category="test")
+    @client_feature(Feature("my_sample_feature", "my_sample_description", 0), category="test")
     def my_sample_feature():
         return expected_value
 

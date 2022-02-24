@@ -1,28 +1,24 @@
-from typing import Optional, Tuple, Iterable, Any, Union
+from typing import Optional, Tuple, Iterable
 from daipecore.decorator.OutputDecorator import OutputDecorator
 from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
+from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
-from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
-from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.orchestration.Serializator import Serializator
 
-FeatureWithoutChange = Tuple[str, str, Any]
-
 
 # pylint: disable=invalid-name
 class feature(OutputDecorator):  # noqa
     # pylint: disable=super-init-not-called
-    def __init__(self, *args, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
+    def __init__(self, *args: Feature, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
         self._args = args
         self.__entity = entity
         self.__category = category
@@ -90,19 +86,14 @@ class feature(OutputDecorator):  # noqa
         self,
         feature_template_matcher: FeatureTemplateMatcher,
         df: DataFrame,
-        args: Iterable[Union[FeatureWithChange, FeatureWithoutChange]],
+        features: Iterable[Feature],
     ) -> FeatureList:
         """
         @[foo]_feature(
-            ("delayed_flights_pct_30d", "% of delayed flights in last 30 days", 0),
-            FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", 0)
+            Feature("delayed_flights_pct_30d", "% of delayed flights in last 30 days", fillna_with=0),
+            FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", fillna_with=0)
         )
         """
-        feature_templates = [
-            FeatureWithChangeTemplate(arg.name_template, arg.description_template, arg.default_value, category=self.__category)
-            if isinstance(arg, FeatureWithChange)
-            else FeatureTemplate(*arg, category=self.__category)
-            for arg in args
-        ]
+        feature_templates = [feature.create_template(self.__category) for feature in features]
 
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)
