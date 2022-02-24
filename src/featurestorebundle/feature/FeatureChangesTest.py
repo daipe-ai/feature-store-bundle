@@ -1,10 +1,23 @@
+import os
 import unittest
+import datetime as dt
 
-from featurestorebundle.feature.Feature import Feature
+from daipecore.decorator.notebook_function import notebook_function
+from pyspark.sql import functions as f, types as t
+
+from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList, UnsupportedChangeFeatureNameException
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.MasterFeature import MasterFeature
+from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
+from featurestorebundle.notebook.decorator import feature_decorator_factory
+from featurestorebundle.notebook.functions.time_windows import sum_windowed
+from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+
+os.environ["APP_ENV"] = "test"
 
 
 class FeatureChangesTest(unittest.TestCase):
@@ -69,6 +82,54 @@ class FeatureChangesTest(unittest.TestCase):
         )
 
         self.assertRaises(UnsupportedChangeFeatureNameException, feature_list.get_change_features)
+
+    def test_changes_values(self):
+        @notebook_function()
+        @self.__feature_decorator(
+            Feature("f1_count_{time_window}", "f1 count description {time_window}", 0),
+            FeatureWithChange("f1_sum_{time_window}", "f1 sum description {time_window}", 0),
+        )
+        def test():
+            df = self.spark.createDataFrame(
+                [
+                    ["1", dt.date(2020, 3, 2), dt.date(2020, 3, 1), 100],
+                    ["1", dt.date(2020, 3, 2), dt.date(2020, 2, 1), 300],
+                    ["1", dt.date(2020, 3, 2), dt.date(2020, 1, 1), 500],
+                ],
+                [self.__entity.id_column, self.__entity.time_column, "date", "f1"],
+            )
+            wdf = WindowedDataFrame(df, self.__entity, "date", ["20d", "40d"])
+
+            def agg_features(time_window: str):
+                return [
+                    count_windowed(
+                        f"f1_count_{time_window}",
+                        f.col("f1"),
+                    ),
+                    sum_windowed(
+                        f"f1_sum_{time_window}",
+                        f.col("f1"),
+                    ),
+                ]
+
+            return wdf.time_windowed(agg_features)
+
+        expected_df = self.spark.createDataFrame(
+            [
+                ["1", dt.date(2020, 3, 2), 1, 100, 2, 400, 0.5],
+            ],
+            [
+                self.__entity.id_column,
+                self.__entity.time_column,
+                "f1_count_20d",
+                "f1_sum_20d",
+                "f1_count_40d",
+                "f2_sum_40d",
+                "f1_sum_change_20d_40d",
+            ],
+        )
+
+        self.assertEqual(expected_df.collect(), test.result.collect())
 
 
 if __name__ == "__main__":
