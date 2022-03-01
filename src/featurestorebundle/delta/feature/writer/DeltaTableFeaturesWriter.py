@@ -1,4 +1,3 @@
-from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
@@ -14,7 +13,6 @@ from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataW
 class DeltaTableFeaturesWriter(FeaturesWriterInterface):
     def __init__(
         self,
-        logger: Logger,
         metadata_writer: MetadataWriterInterface,
         delta_data_handler: DeltaFeaturesDataHandler,
         features_table_preparer: DeltaTableFeaturesPreparer,
@@ -23,7 +21,6 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         features_validator: FeaturesValidator,
         table_names: TableNames,
     ):
-        self.__logger = logger
         self.__metadata_writer = metadata_writer
         self.__delta_data_handler = delta_data_handler
         self.__features_table_preparer = features_table_preparer
@@ -32,7 +29,7 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         self.__features_validator = features_validator
         self.__table_names = table_names
 
-    def write(self, features_storage: FeaturesStorage, dry_run: bool = False):
+    def write(self, features_storage: FeaturesStorage):
         entity = features_storage.entity
         feature_list = features_storage.feature_list
         full_table_name = self.__table_names.get_features_full_table_name(entity.name)
@@ -43,10 +40,6 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
 
         self.__features_validator.validate(entity, write_config.features_data, feature_list)
         self.__features_table_preparer.prepare(full_table_name, path, entity, feature_list)
-
-        if dry_run:
-            self.__logger.warning("Dry run, skipping features write")
-            return
 
         self.__rainbow_table_manager.merge(entity.name, write_config.rainbow_data)
         self.__delta_data_handler.merge_to_delta_table(full_table_name, write_config.delta_merge_config)

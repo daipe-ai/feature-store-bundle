@@ -4,5 +4,5 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 
 class FeaturesWriterInterface(ABC):
     @abstractmethod
-    def write(self, features_storage: FeaturesStorage, dry_run: bool = False):
+    def write(self, features_storage: FeaturesStorage):
         pass
