@@ -4,6 +4,7 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeaturesValidator import FeaturesValidator
 from featurestorebundle.delta.feature.DeltaRainbowTableManager import DeltaRainbowTableManager
 from featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreDataHandler import DatabricksFeatureStoreDataHandler
+from featurestorebundle.feature.reader.FeaturesReaderInterface import FeaturesReaderInterface
 from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWriterInterface
 from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataWriterInterface
 
@@ -12,6 +13,7 @@ from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataW
 class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
     def __init__(
         self,
+        features_reader: FeaturesReaderInterface,
         metadata_writer: MetadataWriterInterface,
         databricks_data_handler: DatabricksFeatureStoreDataHandler,
         rainbow_table_manager: DeltaRainbowTableManager,
@@ -19,6 +21,7 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         features_validator: FeaturesValidator,
         table_names: TableNames,
     ):
+        self.__features_reader = features_reader
         self.__metadata_writer = metadata_writer
         self.__databricks_data_handler = databricks_data_handler
         self.__rainbow_table_manager = rainbow_table_manager
@@ -32,7 +35,8 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         full_table_name = self.__table_names.get_features_full_table_name(entity.name)
         pk_columns = [entity.id_column]
 
-        write_config = self.__features_preparer.prepare(entity, features_storage, pk_columns)
+        feature_store = self.__features_reader.read_safe(entity.name)
+        write_config = self.__features_preparer.prepare(entity, feature_store, features_storage, pk_columns)
 
         self.__features_validator.validate(entity, write_config.features_data, feature_list)
 

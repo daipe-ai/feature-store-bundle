@@ -74,7 +74,6 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
     arguments:
-      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
@@ -82,7 +81,6 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
     arguments:
-      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
@@ -90,7 +88,6 @@ services:
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
     arguments:
-      - '@featurestorebundle.logger'
       - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
@@ -198,13 +195,18 @@ services:
 
   featurestorebundle.feature.FeaturesValidator:
 
-  featurestorebundle.delta.feature.FeaturesPreparer:
+  featurestorebundle.feature.CheckpointGuard:
+    arguments:
+      - '%featurestorebundle.orchestration.checkpoint_before_merge%'
+      - '%featurestorebundle.orchestration.checkpoint_after_join%'
+
+  featurestorebundle.feature.FeaturesPreparer:
+
+  featurestorebundle.delta.feature.FeaturesJoiner:
     arguments:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.orchestration.features_join.method%'
       - '%featurestorebundle.orchestration.features_join.batch_size%'
-      - '%featurestorebundle.orchestration.checkpoint_after_join%'
-      - '%featurestorebundle.orchestration.checkpoint_before_merge%'
 
   featurestorebundle.widgets.WidgetsFactory:
     arguments:

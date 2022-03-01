@@ -5,6 +5,7 @@ from featurestorebundle.feature.FeaturesValidator import FeaturesValidator
 from featurestorebundle.delta.feature.DeltaRainbowTableManager import DeltaRainbowTableManager
 from featurestorebundle.delta.feature.writer.DeltaFeaturesDataHandler import DeltaFeaturesDataHandler
 from featurestorebundle.delta.feature.writer.DeltaTableFeaturesPreparer import DeltaTableFeaturesPreparer
+from featurestorebundle.feature.reader.FeaturesReaderInterface import FeaturesReaderInterface
 from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWriterInterface
 from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataWriterInterface
 
@@ -13,6 +14,7 @@ from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataW
 class DeltaTableFeaturesWriter(FeaturesWriterInterface):
     def __init__(
         self,
+        features_reader: FeaturesReaderInterface,
         metadata_writer: MetadataWriterInterface,
         delta_data_handler: DeltaFeaturesDataHandler,
         features_table_preparer: DeltaTableFeaturesPreparer,
@@ -21,6 +23,7 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         features_validator: FeaturesValidator,
         table_names: TableNames,
     ):
+        self.__features_reader = features_reader
         self.__metadata_writer = metadata_writer
         self.__delta_data_handler = delta_data_handler
         self.__features_table_preparer = features_table_preparer
@@ -36,7 +39,8 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         path = self.__table_names.get_features_path(entity.name)
         pk_columns = [entity.id_column, entity.time_column]
 
-        write_config = self.__features_preparer.prepare(entity, features_storage, pk_columns)
+        feature_store = self.__features_reader.read_safe(entity.name)
+        write_config = self.__features_preparer.prepare(entity, feature_store, features_storage, pk_columns)
 
         self.__features_validator.validate(entity, write_config.features_data, feature_list)
         self.__features_table_preparer.prepare(full_table_name, path, entity, feature_list)
