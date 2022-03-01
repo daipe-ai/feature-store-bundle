@@ -1,18 +1,23 @@
 import hashlib
 from functools import reduce
-from typing import List, Tuple
 from logging import Logger
+from typing import List, Tuple
+
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
 from pyspark.sql.window import Window
-from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
-from featurestorebundle.feature.FeatureList import FeatureList
+
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
-from featurestorebundle.delta.feature.schema import get_rainbow_table_hash_column, get_rainbow_table_features_column
+from featurestorebundle.delta.feature.schema import (
+    get_rainbow_table_hash_column,
+    get_rainbow_table_features_column,
+)
+from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.NullHandler import NullHandler
 
 
-class FeaturesPreparer:
+class FeaturesJoiner:
     def __init__(
         self,
         logger: Logger,
@@ -31,7 +36,7 @@ class FeaturesPreparer:
         self.__null_handler = null_handler
         self.__checkpoint_dir_setter = checkpoint_dir_setter
 
-    def prepare(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
+    def join(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
         entity = features_storage.entity
         feature_list = features_storage.feature_list
 
