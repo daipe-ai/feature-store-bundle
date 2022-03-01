@@ -12,6 +12,7 @@ from featurestorebundle.delta.feature.schema import (
     get_rainbow_table_hash_column,
     get_rainbow_table_features_column,
 )
+from featurestorebundle.feature.CheckpointGuard import CheckpointGuard
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.NullHandler import NullHandler
@@ -23,18 +24,16 @@ class FeaturesJoiner:
         logger: Logger,
         join_method: str,
         join_batch_size: int,
-        checkpoint_after_join: bool,
-        checkpoint_before_merge: bool,
         null_handler: NullHandler,
         checkpoint_dir_setter: CheckpointDirSetter,
+        checkpoint_guard: CheckpointGuard,
     ):
         self.__logger = logger
         self.__join_method = join_method
         self.__join_batch_size = join_batch_size
-        self.__checkpoint_after_join = checkpoint_after_join
-        self.__checkpoint_before_merge = checkpoint_before_merge
         self.__null_handler = null_handler
         self.__checkpoint_dir_setter = checkpoint_dir_setter
+        self.__checkpoint_guard = checkpoint_guard
 
     def join(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
         entity = features_storage.entity
@@ -42,7 +41,7 @@ class FeaturesJoiner:
 
         base_dataframe = self.__prepare_base_dataframe(features_storage, feature_store, rainbow_table)
 
-        if self.__checkpoint_before_merge:
+        if self.__checkpoint_guard.should_checkpoint_before_merge():
             self.__logger.info("Checkpointing features data before merge")
 
             self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
@@ -132,7 +131,7 @@ class FeaturesJoiner:
 
         joined_results = join_method(results, pk_columns)
 
-        if self.__checkpoint_after_join:
+        if self.__checkpoint_guard.should_checkpoint_after_join():
             self.__logger.info("Checkpointing features data after join")
 
             self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
