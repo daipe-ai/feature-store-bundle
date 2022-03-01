@@ -1,3 +1,4 @@
+from featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreMergeConfig import DatabricksFeatureStoreMergeConfig
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
@@ -37,9 +38,10 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
 
         feature_store = self.__features_reader.read_safe(entity.name)
         write_config = self.__features_preparer.prepare(entity, feature_store, features_storage, pk_columns)
+        databricks_merge_config = DatabricksFeatureStoreMergeConfig(write_config.features_data, write_config.pk_columns)
 
         self.__features_validator.validate(entity, write_config.features_data, feature_list)
 
         self.__rainbow_table_manager.merge(entity.name, write_config.rainbow_data)
-        self.__databricks_data_handler.merge_to_databricks_feature_store(full_table_name, write_config.databricks_merge_config)
+        self.__databricks_data_handler.merge_to_databricks_feature_store(full_table_name, databricks_merge_config)
         self.__metadata_writer.write(entity, feature_list)

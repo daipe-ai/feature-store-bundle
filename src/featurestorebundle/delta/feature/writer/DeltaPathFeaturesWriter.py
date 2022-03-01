@@ -1,4 +1,5 @@
 from featurestorebundle.db.TableNames import TableNames
+from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator import DeltaFeaturesMergeConfigGenerator
 from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeaturesValidator import FeaturesValidator
@@ -40,10 +41,11 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
 
         feature_store = self.__features_reader.read_safe(entity.name)
         write_config = self.__features_preparer.prepare(entity, feature_store, features_storage, pk_columns)
+        merge_config = DeltaFeaturesMergeConfigGenerator().generate(entity, write_config.features_data, pk_columns)
 
         self.__features_validator.validate(entity, write_config.features_data, feature_list)
         self.__features_path_preparer.prepare(path, entity, feature_list)
 
         self.__rainbow_table_manager.merge(entity.name, write_config.rainbow_data)
-        self.__delta_data_handler.merge_to_delta_path(path, write_config.delta_merge_config)
+        self.__delta_data_handler.merge_to_delta_path(path, merge_config)
         self.__metadata_writer.write(entity, feature_list)

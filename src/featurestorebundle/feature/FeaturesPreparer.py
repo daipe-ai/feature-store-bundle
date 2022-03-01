@@ -3,7 +3,6 @@ from typing import List
 
 from pyspark.sql import DataFrame
 
-from featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreMergeConfig import DatabricksFeatureStoreMergeConfig
 from featurestorebundle.delta.feature.DeltaRainbowTableManager import DeltaRainbowTableManager
 from featurestorebundle.delta.feature.FeaturesJoiner import FeaturesJoiner
 from featurestorebundle.entity.Entity import Entity
@@ -14,7 +13,7 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 class WriteConfig:
     features_data: DataFrame
     rainbow_data: DataFrame
-    databricks_merge_config: DatabricksFeatureStoreMergeConfig
+    pk_columns: List[str]
 
 
 class FeaturesPreparer:
@@ -25,5 +24,4 @@ class FeaturesPreparer:
     def prepare(self, entity: Entity, feature_store_df: DataFrame, features_storage: FeaturesStorage, pk_columns: List[str]):
         rainbow_table = self.__rainbow_table_manager.read_safe(entity.name)
         features_data, rainbow_data = self.__features_joiner.join(features_storage, feature_store_df, rainbow_table)
-        databricks_merge_config = DatabricksFeatureStoreMergeConfig(features_data, pk_columns)
-        return WriteConfig(features_data, rainbow_data, databricks_merge_config)
+        return WriteConfig(features_data, rainbow_data, pk_columns)
