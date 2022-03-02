@@ -1,5 +1,5 @@
 import uuid
-from typing import List
+from typing import List, Optional, Dict
 from logging import Logger
 from box import Box
 from pyspark.dbutils import DBUtils
@@ -13,6 +13,7 @@ from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
+from featurestorebundle.widgets.DryRunHandler import DryRunHandler
 
 # pylint: disable=too-many-instance-attributes
 class DatabricksOrchestrator:
@@ -26,6 +27,7 @@ class DatabricksOrchestrator:
         serializator: Serializator,
         features_writer: FeaturesWriter,
         features_preparer: FeaturesPreparer,
+        dry_run_handler: DryRunHandler,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -35,11 +37,16 @@ class DatabricksOrchestrator:
         self.__serializator = serializator
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
+        self.__dry_run_handler = dry_run_handler
 
-    def orchestrate(self):
+    def orchestrate(self, stages: Optional[Dict[str, List[str]]] = None):
+        stages = self.__orchestration_stages if stages is None else stages
+
         self.__logger.info("Starting features orchestration")
+        if self.__dry_run_handler.is_dry_run():
+            self.__logger.info("Orchestration dry run, features will not be written")
 
-        for stage, notebooks in self.__orchestration_stages.items():
+        for stage, notebooks in stages.items():
             self.__logger.info(f"Running stage {stage}")
 
             notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
