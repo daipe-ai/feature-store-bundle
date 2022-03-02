@@ -12,10 +12,10 @@ class CheckpointGuard:
         self.__widgets = widgets
 
     def should_checkpoint_before_merge(self):
-        return self.__checkpoint_before_merge and self.__is_dry_run()
+        return self.__checkpoint_before_merge and not self.__is_dry_run()
 
     def should_checkpoint_after_join(self):
-        return self.__checkpoint_after_join and self.__is_dry_run()
+        return self.__checkpoint_after_join and not self.__is_dry_run()
 
     def __is_dry_run(self):
         try:
