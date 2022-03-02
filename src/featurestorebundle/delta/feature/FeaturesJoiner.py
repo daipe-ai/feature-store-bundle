@@ -12,7 +12,7 @@ from featurestorebundle.delta.feature.schema import (
     get_rainbow_table_hash_column,
     get_rainbow_table_features_column,
 )
-from featurestorebundle.feature.CheckpointGuard import CheckpointGuard
+from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.NullHandler import NullHandler

@@ -192,9 +192,8 @@ services:
 
   featurestorebundle.feature.FeaturesValidator:
 
-  featurestorebundle.feature.CheckpointGuard:
+  featurestorebundle.checkpoint.CheckpointGuard:
     arguments:
-      - '@featurestorebundle.logger'
       - '%featurestorebundle.orchestration.checkpoint_before_merge%'
       - '%featurestorebundle.orchestration.checkpoint_after_join%'
 
@@ -239,3 +238,7 @@ services:
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
 
   featurestorebundle.feature.NullHandler:
+
+  featurestorebundle.widgets.DryRunHandler:
+    arguments:
+      - '@featurestorebundle.logger'
