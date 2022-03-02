@@ -5,6 +5,8 @@ from box import Box
 from pyspark.dbutils import DBUtils
 from concurrent.futures import ThreadPoolExecutor
 
+from pyspark.sql import DataFrame
+
 from featurestorebundle.delta.EmptyDataFrameCreator import EmptyDataFrameCreator
 from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema
 from featurestorebundle.entity.getter import get_entity
@@ -54,16 +56,19 @@ class DatabricksOrchestrator:
 
         self.__logger.info("Features orchestration done")
 
-    def prepare_dataframe(self, notebooks: List[str]):
+    def prepare_dataframe(self, notebooks: List[str]) -> DataFrame:
+        self.__logger.info("Running notebooks")
+
         notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
         features_storage = self.__orchestrate_stage(notebook_tasks)
         entity = get_entity()
-        self.__features_preparer.prepare(
+
+        return self.__features_preparer.prepare(
             entity,
             self.__empty_dataframe_creator.create(get_feature_store_initial_schema(entity)),
             features_storage,
             entity.get_primary_key(),
-        )
+        ).features_data
 
     def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]) -> FeaturesStorage:
         orchestration_id = uuid.uuid4().hex
