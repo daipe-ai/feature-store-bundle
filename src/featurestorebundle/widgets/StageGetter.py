@@ -1,9 +1,9 @@
 from typing import Dict, List
 
 from daipecore.function.input_decorator_function import input_decorator_function
-from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 from py4j.protocol import Py4JError
+from pyspark.dbutils import DBUtils
 
 from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
@@ -11,9 +11,9 @@ from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 @input_decorator_function
 def get_stages():
     def wrapper(container: ContainerInterface) -> Dict[str, List[str]]:
-        widgets: Widgets = container.get(Widgets)
+        dbutils: DBUtils = container.get(DBUtils)
         try:
-            notebooks_str = widgets.get_value("notebooks")
+            notebooks_str = dbutils.widgets.get("notebooks")
         except Py4JError:
             notebooks_str = WidgetsFactory.all_notebooks_placeholder
 
@@ -21,7 +21,10 @@ def get_stages():
             return container.get_parameters().featurestorebundle.orchestration.stages
 
         notebooks_list = notebooks_str.split(",")
-        notebooks_list.remove(WidgetsFactory.all_notebooks_placeholder)
+        if WidgetsFactory.all_notebooks_placeholder in notebooks_list:
+            raise Exception(
+                f"`{WidgetsFactory.all_notebooks_placeholder}` together with selected notebooks is not a valid option. Please select either `{WidgetsFactory.all_notebooks_placeholder}` only or a subset of notebooks"
+            )
 
         stages = {}
         for stage_notebook in notebooks_list:
