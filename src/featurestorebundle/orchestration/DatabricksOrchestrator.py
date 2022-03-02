@@ -7,9 +7,6 @@ from concurrent.futures import ThreadPoolExecutor
 
 from pyspark.sql import DataFrame
 
-from featurestorebundle.delta.EmptyDataFrameCreator import EmptyDataFrameCreator
-from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema
-from featurestorebundle.entity.getter import get_entity
 from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
@@ -29,7 +26,6 @@ class DatabricksOrchestrator:
         serializator: Serializator,
         features_writer: FeaturesWriter,
         features_preparer: FeaturesPreparer,
-        empty_dataframe_creator: EmptyDataFrameCreator,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -39,7 +35,6 @@ class DatabricksOrchestrator:
         self.__serializator = serializator
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
-        self.__empty_dataframe_creator = empty_dataframe_creator
 
     def orchestrate(self):
         self.__logger.info("Starting features orchestration")
@@ -61,13 +56,9 @@ class DatabricksOrchestrator:
 
         notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
         features_storage = self.__orchestrate_stage(notebook_tasks)
-        entity = get_entity()
 
         return self.__features_preparer.prepare(
-            entity,
-            self.__empty_dataframe_creator.create(get_feature_store_initial_schema(entity)),
             features_storage,
-            entity.get_primary_key(),
         ).features_data
 
     def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]) -> FeaturesStorage:

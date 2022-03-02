@@ -74,21 +74,18 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_table'}
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_path'}
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'databricks'}
@@ -202,6 +199,8 @@ services:
       - '%featurestorebundle.orchestration.checkpoint_after_join%'
 
   featurestorebundle.feature.FeaturesPreparer:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
 
   featurestorebundle.delta.feature.FeaturesJoiner:
     arguments:
