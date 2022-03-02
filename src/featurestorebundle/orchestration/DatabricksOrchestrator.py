@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Tuple
 from logging import Logger
 from box import Box
 from pyspark.dbutils import DBUtils
@@ -53,15 +53,15 @@ class DatabricksOrchestrator:
 
         self.__logger.info("Features orchestration done")
 
-    def prepare_dataframe(self, notebooks: List[str]) -> DataFrame:
+    def _prepare_dataframes(self, notebooks: List[str]) -> Tuple[DataFrame, DataFrame]:
         self.__logger.info("Running notebooks")
 
         notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
         features_storage = self.__orchestrate_stage(notebook_tasks)
 
-        return self.__features_preparer.prepare(
-            features_storage,
-        ).features_data
+        config = self.__features_preparer.prepare(features_storage)
+
+        return config.features_data, config.rainbow_data
 
     def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]) -> FeaturesStorage:
         orchestration_id = uuid.uuid4().hex
