@@ -3,6 +3,8 @@ from daipecore.decorator.OutputDecorator import OutputDecorator
 from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
+
+from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
 from featurestorebundle.feature.Feature import Feature
@@ -41,12 +43,13 @@ class feature(OutputDecorator):  # noqa
         widgets: Widgets = container.get(Widgets)
         checkpoint_dir_setter: CheckpointDirSetter = container.get(CheckpointDirSetter)
         serializator: Serializator = container.get(Serializator)
+        checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
 
         if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
             metadata_html_displayer.display(self.__feature_list.get_metadata_dicts())
 
-        if container.get_parameters().featurestorebundle.orchestration.checkpoint_feature_results is True:
+        if checkpoint_guard.should_checkpoint_result() is True:
             checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
             result = result.checkpoint()
 

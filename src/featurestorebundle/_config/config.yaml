@@ -194,6 +194,7 @@ services:
 
   featurestorebundle.checkpoint.CheckpointGuard:
     arguments:
+      - '%featurestorebundle.orchestration.checkpoint_feature_results%'
       - '%featurestorebundle.orchestration.checkpoint_before_merge%'
       - '%featurestorebundle.orchestration.checkpoint_after_join%'
 
