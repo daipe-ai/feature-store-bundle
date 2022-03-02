@@ -13,6 +13,7 @@ from featurestorebundle.entity.getter import get_entity
 
 # Widgets
 from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
+from featurestorebundle.widgets.StageGetter import get_stages, get_stage
 
 # Decorator
 from featurestorebundle.notebook.decorator import feature_decorator_factory

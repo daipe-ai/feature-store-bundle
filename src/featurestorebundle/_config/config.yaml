@@ -211,6 +211,7 @@ services:
     arguments:
       - '%featurestorebundle.widgets.defaults%'
       - '%featurestorebundle.entities%'
+      - '%featurestorebundle.orchestration.stages%'
       - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
 
   featurestorebundle.entity.EntityGetter:
