@@ -29,11 +29,11 @@ parameters:
     orchestration:
       num_parallel: 1
       checkpoint_feature_results: False
-      checkpoint_before_merge: True
-      checkpoint_after_join: True
+      checkpoint_before_merge: False
+      checkpoint_after_join: False
       features_join:
-         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
-         batch_size: 1
+        method: 'union_with_window' # available: union_with_window, left_with_checkpointing
+        batch_size: 1
       stages:
     entities:
     widgets:
@@ -74,21 +74,18 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_table'}
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_path'}
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
       - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'databricks'}
@@ -195,18 +192,27 @@ services:
 
   featurestorebundle.feature.FeaturesValidator:
 
-  featurestorebundle.delta.feature.FeaturesPreparer:
+  featurestorebundle.checkpoint.CheckpointGuard:
+    arguments:
+      - '%featurestorebundle.orchestration.checkpoint_feature_results%'
+      - '%featurestorebundle.orchestration.checkpoint_before_merge%'
+      - '%featurestorebundle.orchestration.checkpoint_after_join%'
+
+  featurestorebundle.feature.FeaturesPreparer:
+    arguments:
+      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+
+  featurestorebundle.delta.feature.FeaturesJoiner:
     arguments:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.orchestration.features_join.method%'
       - '%featurestorebundle.orchestration.features_join.batch_size%'
-      - '%featurestorebundle.orchestration.checkpoint_after_join%'
-      - '%featurestorebundle.orchestration.checkpoint_before_merge%'
 
   featurestorebundle.widgets.WidgetsFactory:
     arguments:
       - '%featurestorebundle.widgets.defaults%'
       - '%featurestorebundle.entities%'
+      - '%featurestorebundle.orchestration.stages%'
       - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
 
   featurestorebundle.entity.EntityGetter:

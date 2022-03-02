@@ -1,13 +1,18 @@
 from box import Box
 from daipecore.widgets.Widgets import Widgets
+
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
 
 class WidgetsFactory:
-    def __init__(self, defaults: Box, entities: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
+    all_notebooks_placeholder = "<all>"
+    no_targets_placeholder = "<no target>"
+
+    def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
         self.__entities = entities
+        self.__stages = stages
         self.__targets_reader = targets_reader
         self.__widgets = widgets
 
@@ -18,7 +23,7 @@ class WidgetsFactory:
 
         self.create_target_name()
 
-        if self.__widgets.get_value("target_name") == "<no target>":
+        if self.__widgets.get_value("target_name") == WidgetsFactory.no_targets_placeholder:
             self.create_for_timestamp()
         else:
             self.create_for_target()
@@ -47,6 +52,12 @@ class WidgetsFactory:
 
         self.__widgets.add_select(
             "target_name",
-            ["<no target>"] + targets,
-            "<no target>",
+            [WidgetsFactory.no_targets_placeholder] + targets,
+            WidgetsFactory.no_targets_placeholder,
         )
+
+    def create_for_notebooks(self):
+        stages = [WidgetsFactory.all_notebooks_placeholder]
+        for stage, notebooks in self.__stages.items():
+            stages.extend([f"{stage}: {notebook}" for notebook in notebooks])
+        self.__widgets.add_multiselect("notebooks", stages, [WidgetsFactory.all_notebooks_placeholder])

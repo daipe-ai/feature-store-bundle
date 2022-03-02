@@ -1,15 +1,20 @@
 import uuid
-from typing import List
+from typing import List, Optional, Dict, Tuple
 from logging import Logger
 from box import Box
 from pyspark.dbutils import DBUtils
 from concurrent.futures import ThreadPoolExecutor
+
+from pyspark.sql import DataFrame
+
+from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
+from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 
-
+# pylint: disable=too-many-instance-attributes
 class DatabricksOrchestrator:
     def __init__(
         self,
@@ -20,6 +25,7 @@ class DatabricksOrchestrator:
         notebook_tasks_factory: NotebookTasksFactory,
         serializator: Serializator,
         features_writer: FeaturesWriter,
+        features_preparer: FeaturesPreparer,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -28,22 +34,36 @@ class DatabricksOrchestrator:
         self.__notebook_tasks_factory = notebook_tasks_factory
         self.__serializator = serializator
         self.__features_writer = features_writer
+        self.__features_preparer = features_preparer
 
-    def orchestrate(self):
+    def orchestrate(self, stages: Optional[Dict[str, List[str]]] = None):
+        stages = self.__orchestration_stages if stages is None else stages
+
         self.__logger.info("Starting features orchestration")
 
-        for stage, notebooks in self.__orchestration_stages.items():
+        for stage, notebooks in stages.items():
             self.__logger.info(f"Running stage {stage}")
 
             notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
 
-            self.__orchestrate_stage(notebook_tasks)
+            features_storage = self.__orchestrate_stage(notebook_tasks)
+            self.__features_writer.write(features_storage)
 
             self.__logger.info(f"Stage {stage} done")
 
         self.__logger.info("Features orchestration done")
 
-    def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]):
+    def _prepare_dataframes(self, notebooks: List[str]) -> Tuple[DataFrame, DataFrame]:
+        self.__logger.info("Running notebooks")
+
+        notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
+        features_storage = self.__orchestrate_stage(notebook_tasks)
+
+        config = self.__features_preparer.prepare(features_storage)
+
+        return config.features_data, config.rainbow_data
+
+    def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]) -> FeaturesStorage:
         orchestration_id = uuid.uuid4().hex
 
         futures = self.__submit_notebooks_parallel(notebook_tasks, orchestration_id)
@@ -54,7 +74,7 @@ class DatabricksOrchestrator:
 
         features_storage = self.__serializator.deserialize(orchestration_id)
 
-        self.__features_writer.write(features_storage)
+        return features_storage
 
     def __submit_notebooks_parallel(self, notebooks: List[NotebookTask], orchestration_id: str):
         with ThreadPoolExecutor(max_workers=self.__num_parallel) as executor:

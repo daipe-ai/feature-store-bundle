@@ -7,7 +7,7 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
-from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
+from featurestorebundle.delta.feature.FeaturesJoiner import FeaturesJoiner
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema, get_rainbow_table_schema
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
@@ -24,7 +24,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         self.__container = bootstrapped_container.init("test")
-        self.__features_preparer: FeaturesPreparer = self.__container.get(FeaturesPreparer)
+        self.__features_preparer: FeaturesJoiner = self.__container.get(FeaturesJoiner)
         self.__feature_store_merge_columns = [self.__entity.id_column, self.__entity.time_column]
         self.__rainbow_table_merge_columns = ["features_hash"]
 
@@ -54,7 +54,7 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         features_storage.add(df_1, feature_list_1)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -118,7 +118,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         features_storage.add(df_1, feature_list_1)
         features_storage.add(df_2, feature_list_2)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -174,7 +174,7 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         features_storage.add(df_1, feature_list_1)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         feature_store_after_merge = self.delta_merge(feature_store, features_data, self.__feature_store_merge_columns)
         rainbow_table_after_merge = self.delta_merge(rainbow_table, rainbow_data, self.__rainbow_table_merge_columns)
@@ -236,7 +236,7 @@ class FeaturesPreparerTest(PySparkTestCase):
 
         features_storage.add(df_1, feature_list_1)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         feature_store_after_merge = self.delta_merge(feature_store, features_data, self.__feature_store_merge_columns)
         rainbow_table_after_merge = self.delta_merge(rainbow_table, rainbow_data, self.__rainbow_table_merge_columns)
@@ -314,7 +314,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         features_storage.add(df_1, feature_list_1)
         features_storage.add(df_2, feature_list_2)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         feature_store_after_merge = self.delta_merge(feature_store, features_data, self.__feature_store_merge_columns)
         rainbow_table_after_merge = self.delta_merge(rainbow_table, rainbow_data, self.__rainbow_table_merge_columns)
@@ -380,7 +380,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         features_storage.add(df_1, feature_list_1)
         features_storage.add(df_2, feature_list_2)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -445,7 +445,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         features_storage.add(df_1, feature_list_1)
         features_storage.add(df_2, feature_list_2)
 
-        features_data, rainbow_data = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, rainbow_data = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
 
         expected_features_data = self.spark.createDataFrame(
             [

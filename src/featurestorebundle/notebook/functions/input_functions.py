@@ -17,9 +17,12 @@ class WrongColumnTypeError(Exception):
 def __check_time_column_type(df: DataFrame, time_column_name: str):
     dtypes_dict = dict(df.dtypes)
 
+    if time_column_name not in dtypes_dict:
+        raise Exception(f"Column `{time_column_name}` is not present in the input DataFrame")
+
     if dtypes_dict[time_column_name] not in ["date", "timestamp"]:
         raise WrongColumnTypeError(
-            f"Colum {time_column_name} is neither of DateType or of TimestampType. Please convert it or use another appropriate column."
+            f"Column `{time_column_name}` is neither of DateType or of TimestampType. Please convert it or use another appropriate column"
         )
 
 

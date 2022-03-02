@@ -6,7 +6,7 @@ from pyfonycore.bootstrap import bootstrapped_container
 from pyspark.sql import types as t
 from daipecore.decorator.notebook_function import notebook_function
 
-from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
+from featurestorebundle.delta.feature.FeaturesJoiner import FeaturesJoiner
 from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema, get_rainbow_table_schema
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.Feature import Feature
@@ -21,7 +21,7 @@ os.environ["APP_ENV"] = "test"
 class NullHandlerTest(PySparkTestCase):
     def setUp(self) -> None:
         self.__container = bootstrapped_container.init("test")
-        self.__features_preparer: FeaturesPreparer = self.__container.get(FeaturesPreparer)
+        self.__features_preparer: FeaturesJoiner = self.__container.get(FeaturesJoiner)
 
         self.__entity = Entity(
             name="client_test",
@@ -105,7 +105,7 @@ class NullHandlerTest(PySparkTestCase):
         feature_store = self.spark.createDataFrame([], get_feature_store_initial_schema(self.__entity))
         rainbow_table = self.spark.createDataFrame([], get_rainbow_table_schema())
 
-        features_data, _ = self.__features_preparer.prepare(features_storage, feature_store, rainbow_table)
+        features_data, _ = self.__features_preparer.join(features_storage, feature_store, rainbow_table)
         features_data = features_data.drop("features_hash")
 
         expected_df = self.spark.createDataFrame(
