@@ -5,9 +5,10 @@ from featurestorebundle.delta.target.schema import get_target_id_column_name
 
 
 class WidgetsFactory:
-    def __init__(self, defaults: Box, entities: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
+    def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
         self.__entities = entities
+        self.__stages = stages
         self.__targets_reader = targets_reader
         self.__widgets = widgets
 
@@ -51,5 +52,8 @@ class WidgetsFactory:
             "<no target>",
         )
 
-    def create_for_dry_run(self):
-        self.__widgets.add_select("dry_run", ["true", "false"], "false")
+    def create_for_notebooks(self):
+        stages = ["<all>"]
+        for stage, notebooks in self.__stages.items():
+            stages.extend([f"{stage}: {notebook}" for notebook in notebooks])
+        self.__widgets.add_multiselect("notebooks", stages, ["<all>"])
