@@ -238,7 +238,3 @@ services:
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
 
   featurestorebundle.feature.NullHandler:
-
-  featurestorebundle.widgets.DryRunHandler:
-    arguments:
-      - '@featurestorebundle.logger'
