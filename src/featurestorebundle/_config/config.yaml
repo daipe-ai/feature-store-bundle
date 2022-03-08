@@ -35,6 +35,7 @@ parameters:
         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
         batch_size: 1
       stages:
+      post_actions:
     entities:
     widgets:
       defaults:
@@ -229,6 +230,11 @@ services:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.orchestration.stages%'
       - '%featurestorebundle.orchestration.num_parallel%'
+
+  featurestorebundle.orchestration.PostActionsRunner:
+    arguments:
+      - '@featurestorebundle.logger'
+      - '%featurestorebundle.orchestration.post_actions%'
 
   featurestorebundle.orchestration.NotebookTasksFactory:
 
