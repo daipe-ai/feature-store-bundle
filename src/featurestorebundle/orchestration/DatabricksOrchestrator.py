@@ -12,7 +12,9 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
 from featurestorebundle.orchestration.Serializator import Serializator
+from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
+
 
 # pylint: disable=too-many-instance-attributes
 class DatabricksOrchestrator:
@@ -26,6 +28,7 @@ class DatabricksOrchestrator:
         serializator: Serializator,
         features_writer: FeaturesWriter,
         features_preparer: FeaturesPreparer,
+        post_actions_runner: PostActionsRunner,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -35,6 +38,7 @@ class DatabricksOrchestrator:
         self.__serializator = serializator
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
+        self.__post_actions_runner = post_actions_runner
 
     def orchestrate(self, stages: Optional[Dict[str, List[str]]] = None):
         stages = self.__orchestration_stages if stages is None else stages
@@ -52,6 +56,8 @@ class DatabricksOrchestrator:
             self.__logger.info(f"Stage {stage} done")
 
         self.__logger.info("Features orchestration done")
+
+        self.__post_actions_runner.run()
 
     def _prepare_dataframes(self, notebooks: List[str]) -> Tuple[DataFrame, DataFrame]:
         self.__logger.info("Running notebooks")
