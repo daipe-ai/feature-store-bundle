@@ -1,4 +1,4 @@
-from datetime import datetime as dt
+from datetime import datetime as dt, timedelta
 from logging import Logger
 from typing import List, Optional
 
@@ -7,14 +7,18 @@ from pyspark.sql import DataFrame, functions as f
 
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
-from featurestorebundle.notebook.functions.time_windows import get_max_time_window
+from featurestorebundle.notebook.functions.time_windows import get_max_time_window, parse_time_window
+from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
 class TimestampAdder:
     date_format = "%Y-%m-%d"
     legacy_date_format = "%Y%m%d"
 
-    def __init__(self, default_time_windows: List[str], logger: Logger, widgets: Widgets, feature_store: FeatureStore):
+    def __init__(
+        self, timestamp_shift: str, default_time_windows: List[str], logger: Logger, widgets: Widgets, feature_store: FeatureStore
+    ):
+        self.__timestamp_shift = parse_time_window(timestamp_shift)
         self.__default_time_windows = default_time_windows
         self.__logger = logger
         self.__widgets = widgets
@@ -23,7 +27,11 @@ class TimestampAdder:
     def add_without_filters(self, df: DataFrame, entity: Entity):
         target_name = self.__widgets.get_value("target_name")
 
-        return self.__add_timestamps(df, entity) if target_name == "<no target>" else self.__add_targets(target_name, df, entity)
+        return (
+            self.__add_timestamps(df, entity)
+            if target_name == WidgetsFactory.no_targets_placeholder
+            else self.__add_targets(target_name, df, entity)
+        )
 
     def add(self, df: DataFrame, entity: Entity, comparison_col_name: str, custom_time_windows: Optional[List[str]]) -> DataFrame:
         time_windows = self.__default_time_windows if custom_time_windows is None else custom_time_windows
@@ -64,9 +72,10 @@ class TimestampAdder:
 
     def __parse_date(self, date_str: str) -> dt:
         try:
-            return dt.strptime(date_str, TimestampAdder.date_format)
+            result = dt.strptime(date_str, TimestampAdder.date_format)
         except ValueError:
-            return self.__parse_legacy_date(date_str)
+            result = self.__parse_legacy_date(date_str)
+        return result + timedelta(**self.__timestamp_shift)
 
     def __parse_legacy_date(self, date_str: str) -> dt:
         try:

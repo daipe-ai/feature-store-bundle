@@ -27,6 +27,7 @@ parameters:
     checkpoint:
       default_checkpoint_dir: 'dbfs:/tmp/checkpoints'
     orchestration:
+      timestamp_shift: '-0d'
       num_parallel: 1
       checkpoint_feature_results: False
       checkpoint_before_merge: False
@@ -222,6 +223,7 @@ services:
 
   featurestorebundle.notebook.services.TimestampAdder:
     arguments:
+      - '%featurestorebundle.orchestration.timestamp_shift%'
       - '%featurestorebundle.time_windows%'
       - '@featurestorebundle.logger'
 
