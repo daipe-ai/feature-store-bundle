@@ -1,7 +1,7 @@
 from functools import partial
 
 from pyspark.sql import Column, functions as f
-from typing import List, Callable, Union, Tuple
+from typing import List, Callable, Union, Tuple, Dict
 
 from pyspark.sql import DataFrame
 
@@ -29,6 +29,13 @@ PERIOD_NAMES = {
 
 # pylint: disable=invalid-name
 _time_window_column_template = "is_time_window_{time_window}"
+
+
+def parse_time_window(time_window: str) -> Dict[str, int]:
+    result = {}
+    period_name = PERIOD_NAMES[time_window[-1]].lower()
+    result[period_name] = int(time_window[:-1])
+    return result
 
 
 def time_window_to_seconds(time_window: str) -> int:
