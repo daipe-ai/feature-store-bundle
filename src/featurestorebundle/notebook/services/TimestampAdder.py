@@ -11,6 +11,9 @@ from featurestorebundle.notebook.functions.time_windows import get_max_time_wind
 
 
 class TimestampAdder:
+    date_format = "%Y-%m-%d"
+    legacy_date_format = "%Y%m%d"
+
     def __init__(self, default_time_windows: List[str], logger: Logger, widgets: Widgets, feature_store: FeatureStore):
         self.__default_time_windows = default_time_windows
         self.__logger = logger
@@ -35,7 +38,7 @@ class TimestampAdder:
         )
 
     def __add_timestamps(self, df: DataFrame, entity: Entity) -> DataFrame:
-        timestamp = dt.strptime(self.__widgets.get_value("timestamp"), "%Y%m%d")
+        timestamp = self.__parse_date(self.__widgets.get_value("timestamp"))
         self.__logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
 
         columns = df.columns
@@ -44,8 +47,8 @@ class TimestampAdder:
 
     def __add_targets(self, target_name: str, df: DataFrame, entity: Entity) -> DataFrame:
         time_shift = self.__widgets.get_value("number_of_time_units")
-        target_date_from = dt.strptime(self.__widgets.get_value("target_date_from"), "%Y%m%d")
-        target_date_to = dt.strptime(self.__widgets.get_value("target_date_to"), "%Y%m%d")
+        target_date_from = self.__parse_date(self.__widgets.get_value("target_date_from"))
+        target_date_to = self.__parse_date(self.__widgets.get_value("target_date_to"))
         self.__logger.info(f"Loading targets for selected target={target_name}")
 
         targets = self.__feature_store.get_targets(
@@ -58,3 +61,21 @@ class TimestampAdder:
 
         self.__logger.info("Joining targets with the input data")
         return df.join(targets, on=[entity.id_column], how="inner")
+
+    def __parse_date(self, date_str: str) -> dt:
+        try:
+            return dt.strptime(date_str, TimestampAdder.date_format)
+        except ValueError:
+            return self.__parse_legacy_date(date_str)
+
+    def __parse_legacy_date(self, date_str: str) -> dt:
+        try:
+            timestamp = dt.strptime(date_str, TimestampAdder.legacy_date_format)
+            self.__logger.warning(
+                f"Timestamp widget value `{date_str}` is in a deprecated format please use `{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}` instead"
+            )
+            return timestamp
+        except ValueError as value_error:
+            raise Exception(
+                f"Timestamp widget value `{date_str}` does not match either `{TimestampAdder.date_format}` or `{TimestampAdder.legacy_date_format}`"
+            ) from value_error
