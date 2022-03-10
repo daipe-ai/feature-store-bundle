@@ -22,8 +22,8 @@ class FeaturesPreparer:
         self.__rainbow_table_manager = rainbow_table_manager
         self.__features_joiner = features_joiner
 
-    def prepare(self, features_storage: FeaturesStorage) -> WriteConfig:
+    def prepare(self, features_storage: FeaturesStorage, checkpoint: bool = True) -> WriteConfig:
         feature_store_df = self.__features_reader.read_safe(features_storage.entity.name)
         rainbow_table = self.__rainbow_table_manager.read_safe(features_storage.entity.name)
-        features_data, rainbow_data = self.__features_joiner.join(features_storage, feature_store_df, rainbow_table)
+        features_data, rainbow_data = self.__features_joiner.join(features_storage, feature_store_df, rainbow_table, checkpoint)
         return WriteConfig(features_data, rainbow_data)

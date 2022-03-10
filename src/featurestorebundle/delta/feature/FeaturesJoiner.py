@@ -35,13 +35,15 @@ class FeaturesJoiner:
         self.__checkpoint_dir_setter = checkpoint_dir_setter
         self.__checkpoint_guard = checkpoint_guard
 
-    def join(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
+    def join(
+        self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame, checkpoint: bool = True
+    ) -> Tuple[DataFrame, DataFrame]:
         entity = features_storage.entity
         feature_list = features_storage.feature_list
 
-        base_dataframe = self.__prepare_base_dataframe(features_storage, feature_store, rainbow_table)
+        base_dataframe = self.__prepare_base_dataframe(features_storage, feature_store, rainbow_table, checkpoint)
 
-        if self.__checkpoint_guard.should_checkpoint_before_merge():
+        if self.__checkpoint_guard.should_checkpoint_before_merge() and checkpoint:
             self.__logger.info("Checkpointing features data before merge")
 
             self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
@@ -66,7 +68,9 @@ class FeaturesJoiner:
 
         return features_data, rainbow_data
 
-    def __prepare_base_dataframe(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> DataFrame:
+    def __prepare_base_dataframe(
+        self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame, checkpoint: bool
+    ) -> DataFrame:
         if not features_storage.results:
             raise Exception("There are no features to write.")
 
@@ -79,7 +83,7 @@ class FeaturesJoiner:
         registered_features = {col for col in feature_store.columns if col not in technical_columns}
         incoming_features = {*feature_list.get_names()}
 
-        joined_results = self.__join_results(results, pk_columns)
+        joined_results = self.__join_results(results, pk_columns, checkpoint)
 
         if registered_features == incoming_features:
             self.__logger.debug("Optimization: schema did not change")
@@ -119,7 +123,7 @@ class FeaturesJoiner:
             *feature_list.get_names(),
         )
 
-    def __join_results(self, results: List[DataFrame], pk_columns: List[str]):
+    def __join_results(self, results: List[DataFrame], pk_columns: List[str], checkpoint: bool):
         if self.__join_method == "left_with_checkpointing":
             join_method = self.__join_dataframes_using_left_join
 
@@ -131,7 +135,7 @@ class FeaturesJoiner:
 
         joined_results = join_method(results, pk_columns)
 
-        if self.__checkpoint_guard.should_checkpoint_after_join():
+        if self.__checkpoint_guard.should_checkpoint_after_join() and checkpoint:
             self.__logger.info("Checkpointing features data after join")
 
             self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()

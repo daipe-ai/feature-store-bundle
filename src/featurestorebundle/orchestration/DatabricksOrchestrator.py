@@ -65,7 +65,7 @@ class DatabricksOrchestrator:
         notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
         features_storage = self.__orchestrate_stage(notebook_tasks)
 
-        config = self.__features_preparer.prepare(features_storage)
+        config = self.__features_preparer.prepare(features_storage, checkpoint=False)
 
         return config.features_data, config.rainbow_data
 
