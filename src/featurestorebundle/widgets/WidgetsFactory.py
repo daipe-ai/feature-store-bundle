@@ -9,6 +9,14 @@ class WidgetsFactory:
     all_notebooks_placeholder = "<all>"
     no_targets_placeholder = "<no target>"
 
+    entity_name = "entity_name"
+    target_name = "target_name"
+    timestamp_name = "timestamp"
+    target_date_from_name = "target_date_from"
+    target_date_to_name = "target_date_to"
+    target_time_shift = "target_time_shift"
+    notebooks_name = "notebooks"
+
     def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
         self.__entities = entities
@@ -23,7 +31,7 @@ class WidgetsFactory:
 
         self.create_target_name()
 
-        if self.__widgets.get_value("target_name") == WidgetsFactory.no_targets_placeholder:
+        if self.__widgets.get_value(WidgetsFactory.target_name) == WidgetsFactory.no_targets_placeholder:
             self.create_for_timestamp()
         else:
             self.create_for_target()
@@ -32,17 +40,17 @@ class WidgetsFactory:
         entities_list = list(self.__entities)
 
         if len(entities_list) > 1:
-            self.__widgets.add_select("entity", entities_list, default_value=entities_list[0])
+            self.__widgets.add_select(WidgetsFactory.entity_name, entities_list, default_value=entities_list[0])
 
     def create_for_timestamp(self):
-        self.__widgets.add_text("timestamp", self.__defaults.timestamp)
+        self.__widgets.add_text(WidgetsFactory.timestamp_name, self.__defaults.timestamp)
 
     def create_for_target(self):
-        self.__widgets.add_text("target_date_from", self.__defaults.target_date_from)
+        self.__widgets.add_text(WidgetsFactory.target_date_from_name, self.__defaults.target_date_from)
 
-        self.__widgets.add_text("target_date_to", self.__defaults.target_date_to)
+        self.__widgets.add_text(WidgetsFactory.target_date_to_name, self.__defaults.target_date_to)
 
-        self.__widgets.add_text("number_of_time_units", self.__defaults.number_of_time_units)
+        self.__widgets.add_text(WidgetsFactory.target_date_from_name, self.__defaults.number_of_time_units)
 
     def create_target_name(self):
         targets = [
@@ -51,7 +59,7 @@ class WidgetsFactory:
         ]
 
         self.__widgets.add_select(
-            "target_name",
+            WidgetsFactory.target_name,
             [WidgetsFactory.no_targets_placeholder] + targets,
             WidgetsFactory.no_targets_placeholder,
         )
@@ -60,4 +68,4 @@ class WidgetsFactory:
         stages = [WidgetsFactory.all_notebooks_placeholder]
         for stage, notebooks in self.__stages.items():
             stages.extend([f"{stage}: {notebook}" for notebook in notebooks])
-        self.__widgets.add_multiselect("notebooks", stages, [WidgetsFactory.all_notebooks_placeholder])
+        self.__widgets.add_multiselect(WidgetsFactory.notebooks_name, stages, [WidgetsFactory.all_notebooks_placeholder])
