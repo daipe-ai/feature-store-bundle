@@ -25,7 +25,7 @@ class TimestampAdder:
         self.__feature_store = feature_store
 
     def add_without_filters(self, df: DataFrame, entity: Entity):
-        target_name = self.__widgets.get_value("target_name")
+        target_name = self.__widgets.get_value(WidgetsFactory.target_name)
 
         return (
             self.__add_timestamps(df, entity)
@@ -46,7 +46,7 @@ class TimestampAdder:
         )
 
     def __add_timestamps(self, df: DataFrame, entity: Entity) -> DataFrame:
-        timestamp = self.__parse_date(self.__widgets.get_value("timestamp")) + timedelta(**self.__timestamp_shift)
+        timestamp = self.__parse_date(self.__widgets.get_value(WidgetsFactory.timestamp_name)) + timedelta(**self.__timestamp_shift)
         self.__logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
 
         columns = df.columns
@@ -54,9 +54,9 @@ class TimestampAdder:
         return df.select(entity.id_column, f.lit(timestamp).alias(entity.time_column), *columns)
 
     def __add_targets(self, target_name: str, df: DataFrame, entity: Entity) -> DataFrame:
-        time_shift = self.__widgets.get_value("number_of_time_units")
-        target_date_from = self.__parse_date(self.__widgets.get_value("target_date_from"))
-        target_date_to = self.__parse_date(self.__widgets.get_value("target_date_to"))
+        target_time_shift = self.__widgets.get_value(WidgetsFactory.target_time_shift)
+        target_date_from = self.__parse_date(self.__widgets.get_value(WidgetsFactory.target_date_from_name))
+        target_date_to = self.__parse_date(self.__widgets.get_value(WidgetsFactory.target_date_to_name))
         self.__logger.info(f"Loading targets for selected target={target_name}")
 
         targets = self.__feature_store.get_targets(
@@ -64,7 +64,7 @@ class TimestampAdder:
             target_name,
             target_date_from,
             target_date_to,
-            time_shift,
+            target_time_shift,
         )
 
         self.__logger.info("Joining targets with the input data")
