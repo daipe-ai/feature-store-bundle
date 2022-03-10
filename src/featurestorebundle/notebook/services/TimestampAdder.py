@@ -46,7 +46,7 @@ class TimestampAdder:
         )
 
     def __add_timestamps(self, df: DataFrame, entity: Entity) -> DataFrame:
-        timestamp = self.__parse_date(self.__widgets.get_value("timestamp"))
+        timestamp = self.__parse_date(self.__widgets.get_value("timestamp")) + timedelta(**self.__timestamp_shift)
         self.__logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
 
         columns = df.columns
@@ -75,7 +75,7 @@ class TimestampAdder:
             result = dt.strptime(date_str, TimestampAdder.date_format)
         except ValueError:
             result = self.__parse_legacy_date(date_str)
-        return result + timedelta(**self.__timestamp_shift)
+        return result
 
     def __parse_legacy_date(self, date_str: str) -> dt:
         try:
