@@ -50,7 +50,7 @@ class WidgetsFactory:
 
         self.__widgets.add_text(WidgetsFactory.target_date_to_name, self.__defaults.target_date_to)
 
-        self.__widgets.add_text(WidgetsFactory.target_date_from_name, self.__defaults.number_of_time_units)
+        self.__widgets.add_text(WidgetsFactory.target_time_shift, self.__defaults.target_time_shift)
 
     def create_target_name(self):
         targets = [
