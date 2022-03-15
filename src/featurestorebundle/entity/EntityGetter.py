@@ -2,6 +2,7 @@ from box import Box
 from pyspark.sql import types as t
 from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
 class EntityGetter:
@@ -20,7 +21,7 @@ class EntityGetter:
 
     def get(self) -> Entity:
         if len(self.__entities) > 1:
-            entity_name = self.__widgets.get_value("entity")
+            entity_name = self.__widgets.get_value(WidgetsFactory.entity_name)
         else:
             entity_name = list(self.__entities)[0]
 
