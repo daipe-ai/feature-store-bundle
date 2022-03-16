@@ -7,7 +7,7 @@ from daipecore.decorator.ContainerManager import ContainerManager
 class PostActionsRunner:
     def __init__(self, logger: Logger, post_actions_service_identifiers: List[str]):
         self.__logger = logger
-        self.__post_actions_service_identifiers = post_actions_service_identifiers
+        self.__post_actions_service_identifiers = [] if post_actions_service_identifiers is None else post_actions_service_identifiers
 
     def run(self):
         self.__validate_post_action_service_identifiers()
