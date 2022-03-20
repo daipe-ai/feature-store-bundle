@@ -132,6 +132,16 @@ services:
     arguments:
       - '@featurestorebundle.logger'
 
+  featurestorebundle.delta.join.UnionWithWindowJoiner:
+    tags:
+      - {name: 'dataframe.joiner', alias: 'union_with_window'}
+
+  featurestorebundle.delta.join.LeftWithCheckpointingJoiner:
+    arguments:
+      - '%featurestorebundle.orchestration.features_join.batch_size%'
+    tags:
+      - {name: 'dataframe.joiner', alias: 'left_with_checkpointing'}
+
   featurestorebundle.delta.feature.DeltaRainbowTableManager:
 
   featurestorebundle.delta.feature.FeaturesFilteringManager:
@@ -207,8 +217,7 @@ services:
   featurestorebundle.delta.feature.FeaturesJoiner:
     arguments:
       - '@featurestorebundle.logger'
-      - '%featurestorebundle.orchestration.features_join.method%'
-      - '%featurestorebundle.orchestration.features_join.batch_size%'
+      - !tagged_aliased ['dataframe.joiner', '%featurestorebundle.orchestration.features_join.method%']
 
   featurestorebundle.widgets.WidgetsFactory:
     arguments:

@@ -1,11 +1,9 @@
 import hashlib
-from functools import reduce
 from logging import Logger
 from typing import List, Tuple
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
-from pyspark.sql.window import Window
 
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.delta.feature.schema import (
@@ -16,21 +14,20 @@ from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.NullHandler import NullHandler
+from featurestorebundle.delta.join.DataFrameJoinerInterface import DataFrameJoinerInterface
 
 
 class FeaturesJoiner:
     def __init__(
         self,
         logger: Logger,
-        join_method: str,
-        join_batch_size: int,
+        dataframe_joiner: DataFrameJoinerInterface,
         null_handler: NullHandler,
         checkpoint_dir_setter: CheckpointDirSetter,
         checkpoint_guard: CheckpointGuard,
     ):
         self.__logger = logger
-        self.__join_method = join_method
-        self.__join_batch_size = join_batch_size
+        self.__dataframe_joiner = dataframe_joiner
         self.__null_handler = null_handler
         self.__checkpoint_dir_setter = checkpoint_dir_setter
         self.__checkpoint_guard = checkpoint_guard
@@ -120,16 +117,7 @@ class FeaturesJoiner:
         )
 
     def __join_results(self, results: List[DataFrame], pk_columns: List[str]):
-        if self.__join_method == "left_with_checkpointing":
-            join_method = self.__join_dataframes_using_left_join
-
-        elif self.__join_method == "union_with_window":
-            join_method = self.__join_dataframes_using_union_and_window
-
-        else:
-            raise Exception("Invalid join method")
-
-        joined_results = join_method(results, pk_columns)
+        joined_results = self.__dataframe_joiner.join(results, pk_columns)
 
         if self.__checkpoint_guard.should_checkpoint_after_join():
             self.__logger.info("Checkpointing features data after join")
@@ -141,35 +129,3 @@ class FeaturesJoiner:
             self.__logger.info("Checkpointing done")
 
         return joined_results
-
-    def __join_dataframes_using_left_join(self, dfs: List[DataFrame], join_columns: List[str]) -> DataFrame:
-        join_batch_counter = 0
-        id_dataframes = [df.select(join_columns) for df in dfs]
-        unique_ids_df = reduce(lambda df1, df2: df1.unionByName(df2), id_dataframes).distinct().cache()
-        joined_df = unique_ids_df
-
-        self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
-
-        for df in dfs:
-            join_batch_counter += 1
-            joined_df = joined_df.join(df, on=join_columns, how="left")
-
-            if join_batch_counter == self.__join_batch_size:
-                joined_df = joined_df.checkpoint()
-                join_batch_counter = 0
-
-        return joined_df
-
-    def __join_dataframes_using_union_and_window(self, dfs: List[DataFrame], join_columns: List[str]) -> DataFrame:  # noqa
-        window = Window.partitionBy(*join_columns).rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)
-        union_df = reduce(lambda df1, df2: df1.unionByName(df2, allowMissingColumns=True), dfs)
-        features = [col for col in union_df.columns if col not in join_columns]
-
-        return (
-            union_df.select(
-                *join_columns,
-                *[f.first(feature, ignorenulls=True).over(window).alias(feature) for feature in features],
-            )
-            .groupBy(join_columns)
-            .agg(*[f.first(feature).alias(feature) for feature in features])
-        )
