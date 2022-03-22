@@ -4,21 +4,20 @@ import mlflow
 from pyspark.sql import types as t
 
 from daipecore.function.input_decorator_function import input_decorator_function
-from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 
 from featurestorebundle.feature.FeaturesGetter import FeaturesGetter
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
-def __load_spark_model(model: str):
-    return mlflow.spark.load_model(f"models:/{model}/None")
+def __load_spark_model(container: ContainerInterface, model_name: str):
+    models = container.get_parameters().featurestorebundle.models
+    return mlflow.spark.load_model(f"runs:/{models[model_name].run_id}")
 
 
 @input_decorator_function
 def get_spark_model(model_name: str):
-    def wrapper(_: ContainerInterface):
-        return __load_spark_model(model_name)
+    def wrapper(container: ContainerInterface):
+        return __load_spark_model(container, model_name)
 
     return wrapper
 
@@ -28,16 +27,12 @@ def get_features_for_model(model_name: str, additional_columns: Optional[List[st
     additional_columns = additional_columns or []
 
     def wrapper(container: ContainerInterface):
-        widgets: Widgets = container.get(Widgets)
-        if widgets.get_value(WidgetsFactory.target_name) != WidgetsFactory.no_targets_placeholder:
-            raise Exception("Model features are only available in <no target> mode")
-
         features_getter: FeaturesGetter = container.get(FeaturesGetter)
 
-        loaded_model = __load_spark_model(model_name)
-        feature_names = list(set(loaded_model.stages[0].getInputCols() + additional_columns))
-
+        model = __load_spark_model(container, model_name)
+        feature_names = list(set(model.stages[0].getInputCols() + additional_columns))
         features_df = features_getter.get_features(feature_names)
+
         subset = [
             feature.name
             for feature in features_df.schema.fields
@@ -46,7 +41,6 @@ def get_features_for_model(model_name: str, additional_columns: Optional[List[st
                 (t.IntegerType, t.DoubleType, t.FloatType, t.DecimalType, t.LongType),
             )
         ]
-
         return features_df.fillna(fillna_with, subset=subset)
 
     return wrapper

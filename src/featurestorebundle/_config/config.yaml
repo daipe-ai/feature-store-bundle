@@ -41,6 +41,7 @@ parameters:
     widgets:
       defaults:
     time_windows:
+    models:
 
 services:
   featurestorebundle.logger:
