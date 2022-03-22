@@ -257,3 +257,7 @@ services:
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
 
   featurestorebundle.feature.NullHandler:
+
+  featurestorebundle.date.DateParser:
+    arguments:
+      - '@featurestorebundle.logger'
