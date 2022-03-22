@@ -1,10 +1,11 @@
-from datetime import datetime as dt, timedelta
+from datetime import timedelta
 from logging import Logger
 from typing import List, Optional
 
 from daipecore.widgets.Widgets import Widgets
 from pyspark.sql import DataFrame, functions as f
 
+from featurestorebundle.date.DateParser import DateParser
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.functions.time_windows import get_max_time_window, parse_time_window
@@ -12,17 +13,21 @@ from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
 class TimestampAdder:
-    date_format = "%Y-%m-%d"
-    legacy_date_format = "%Y%m%d"
-
     def __init__(
-        self, timestamp_shift: str, default_time_windows: List[str], logger: Logger, widgets: Widgets, feature_store: FeatureStore
+        self,
+        timestamp_shift: str,
+        default_time_windows: List[str],
+        logger: Logger,
+        widgets: Widgets,
+        feature_store: FeatureStore,
+        date_parser: DateParser,
     ):
         self.__timestamp_shift = parse_time_window(timestamp_shift)
         self.__default_time_windows = default_time_windows
         self.__logger = logger
         self.__widgets = widgets
         self.__feature_store = feature_store
+        self.__date_parser = date_parser
 
     def add_without_filters(self, df: DataFrame, entity: Entity):
         target_name = self.__widgets.get_value(WidgetsFactory.target_name)
@@ -46,7 +51,9 @@ class TimestampAdder:
         )
 
     def __add_timestamps(self, df: DataFrame, entity: Entity) -> DataFrame:
-        timestamp = self.__parse_date(self.__widgets.get_value(WidgetsFactory.timestamp_name)) + timedelta(**self.__timestamp_shift)
+        timestamp = self.__date_parser.parse_date(self.__widgets.get_value(WidgetsFactory.timestamp_name)) + timedelta(
+            **self.__timestamp_shift
+        )
         self.__logger.info(f"No target was selected, adding `{entity.time_column}` with value `{timestamp}`")
 
         columns = df.columns
@@ -55,8 +62,8 @@ class TimestampAdder:
 
     def __add_targets(self, target_name: str, df: DataFrame, entity: Entity) -> DataFrame:
         target_time_shift = self.__widgets.get_value(WidgetsFactory.target_time_shift)
-        target_date_from = self.__parse_date(self.__widgets.get_value(WidgetsFactory.target_date_from_name))
-        target_date_to = self.__parse_date(self.__widgets.get_value(WidgetsFactory.target_date_to_name))
+        target_date_from = self.__date_parser.parse_date(self.__widgets.get_value(WidgetsFactory.target_date_from_name))
+        target_date_to = self.__date_parser.parse_date(self.__widgets.get_value(WidgetsFactory.target_date_to_name))
         self.__logger.info(f"Loading targets for selected target={target_name}")
 
         targets = self.__feature_store.get_targets(
@@ -69,22 +76,3 @@ class TimestampAdder:
 
         self.__logger.info("Joining targets with the input data")
         return df.join(targets, on=[entity.id_column], how="inner")
-
-    def __parse_date(self, date_str: str) -> dt:
-        try:
-            result = dt.strptime(date_str, TimestampAdder.date_format)
-        except ValueError:
-            result = self.__parse_legacy_date(date_str)
-        return result
-
-    def __parse_legacy_date(self, date_str: str) -> dt:
-        try:
-            timestamp = dt.strptime(date_str, TimestampAdder.legacy_date_format)
-            self.__logger.warning(
-                f"Timestamp widget value `{date_str}` is in a deprecated format please use `{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}` instead"
-            )
-            return timestamp
-        except ValueError as value_error:
-            raise Exception(
-                f"Timestamp widget value `{date_str}` does not match either `{TimestampAdder.date_format}` or `{TimestampAdder.legacy_date_format}`"
-            ) from value_error
