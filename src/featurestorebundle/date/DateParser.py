@@ -2,6 +2,10 @@ from datetime import datetime as dt
 from logging import Logger
 
 
+class DateFormatException(Exception):
+    pass
+
+
 class DateParser:
     date_format = "%Y-%m-%d"
     legacy_date_format = "%Y%m%d"
@@ -20,10 +24,10 @@ class DateParser:
         try:
             timestamp = dt.strptime(date_str, DateParser.legacy_date_format)
             self.__logger.warning(
-                f"Timestamp widget value `{date_str}` is in a deprecated format please use `{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}` instead"
+                f"Widget value `{date_str}` is in a deprecated date format please use `{date_str[:4]}-{date_str[4:6]}-{date_str[6:]}` instead"
             )
             return timestamp
         except ValueError as value_error:
-            raise Exception(
-                f"Timestamp widget value `{date_str}` does not match either `{DateParser.date_format}` or `{DateParser.legacy_date_format}`"
+            raise DateFormatException(
+                f"Widget value `{date_str}` does not match either `{DateParser.date_format}` or `{DateParser.legacy_date_format}` date formats"
             ) from value_error
