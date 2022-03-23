@@ -9,15 +9,14 @@ from injecta.container.ContainerInterface import ContainerInterface
 from featurestorebundle.feature.FeaturesGetter import FeaturesGetter
 
 
-def __load_spark_model(container: ContainerInterface, model_name: str):
-    models = container.get_parameters().featurestorebundle.models
-    return mlflow.spark.load_model(f"runs:/{models[model_name].run_id}")
+def __load_spark_model(model_name: str):
+    return mlflow.spark.load_model(f"models:/{model_name}/Production")
 
 
 @input_decorator_function
 def get_spark_model(model_name: str):
-    def wrapper(container: ContainerInterface):
-        return __load_spark_model(container, model_name)
+    def wrapper(_: ContainerInterface):
+        return __load_spark_model(model_name)
 
     return wrapper
 
@@ -29,7 +28,7 @@ def get_features_for_model(model_name: str, additional_columns: Optional[List[st
     def wrapper(container: ContainerInterface):
         features_getter: FeaturesGetter = container.get(FeaturesGetter)
 
-        model = __load_spark_model(container, model_name)
+        model = __load_spark_model(model_name)
         feature_names = list(set(model.stages[0].getInputCols() + additional_columns))
         features_df = features_getter.get_features(feature_names)
 
