@@ -2,6 +2,7 @@ from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
+from featurestorebundle.delta.PathExistenceChecker import PathExistenceChecker
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 
 
@@ -11,10 +12,12 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
         logger: Logger,
         table_names: TableNames,
         spark: SparkSession,
+        path_existence_checker: PathExistenceChecker,
     ):
         self.__logger = logger
         self.__spark = spark
         self.__table_names = table_names
+        self.__path_existence_checker = path_existence_checker
 
     def read(self, entity_name: str) -> DataFrame:
         path = self.__table_names.get_targets_path(entity_name)
@@ -27,3 +30,8 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
         path = self.__table_names.get_targets_enum_path()
 
         return self.__spark.read.format("delta").load(path)
+
+    def exists(self, entity_name: str) -> bool:
+        path = self.__table_names.get_targets_path(entity_name)
+
+        return self.__path_existence_checker.exists(path)

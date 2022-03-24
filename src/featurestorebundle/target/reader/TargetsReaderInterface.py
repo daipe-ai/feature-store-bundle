@@ -10,3 +10,7 @@ class TargetsReaderInterface(ABC):
     @abstractmethod
     def read_enum(self) -> DataFrame:
         pass
+
+    @abstractmethod
+    def exists(self, entity_name: str) -> bool:
+        pass
