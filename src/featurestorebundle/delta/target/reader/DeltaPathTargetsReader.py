@@ -3,6 +3,7 @@ from pyspark.sql import DataFrame
 from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.delta.PathExistenceChecker import PathExistenceChecker
+from featurestorebundle.exception.error import MissingTargetsEnumTableError, MissingTargetsTableError
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 
 
@@ -21,6 +22,10 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
 
     def read(self, entity_name: str) -> DataFrame:
         path = self.__table_names.get_targets_path(entity_name)
+        if not self.enum_exists():
+            raise MissingTargetsTableError(
+                f"Targets table at `{path}` does not exist. Targets table must be created before running this code"
+            )
 
         self.__logger.info(f"Reading targets for entity {entity_name} from path {path}")
 
@@ -28,6 +33,10 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
 
     def read_enum(self) -> DataFrame:
         path = self.__table_names.get_targets_enum_path()
+        if not self.enum_exists():
+            raise MissingTargetsEnumTableError(
+                f"Targets Enum table at `{path}` does not exist. Targets Enum table must be created before running this code"
+            )
 
         return self.__spark.read.format("delta").load(path)
 

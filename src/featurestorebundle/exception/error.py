@@ -6,6 +6,14 @@ class MissingEntitiesError(Exception):
     pass
 
 
+class MissingTargetsTableError(Exception):
+    pass
+
+
+class MissingTargetsEnumTableError(Exception):
+    pass
+
+
 class TemplateMatchingError(Exception):
     pass
 
