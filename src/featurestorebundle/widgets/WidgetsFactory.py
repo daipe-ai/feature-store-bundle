@@ -1,6 +1,7 @@
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
+from featurestorebundle.exception.error import MissingEntitiesError
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
@@ -19,7 +20,7 @@ class WidgetsFactory:
 
     def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
-        self.__entities = entities
+        self.__entities_list = list(entities) if entities is not None else []
         self.__stages = stages
         self.__targets_reader = targets_reader
         self.__widgets = widgets
@@ -37,10 +38,11 @@ class WidgetsFactory:
             self.create_for_target()
 
     def create_for_entity(self):
-        entities_list = list(self.__entities)
+        if not self.__entities_list:
+            raise MissingEntitiesError("No entities are defined in config. Please set featurestorebundle.entities in config.yaml")
 
-        if len(entities_list) > 1:
-            self.__widgets.add_select(WidgetsFactory.entity_name, entities_list, default_value=entities_list[0])
+        if len(self.__entities_list) > 1:
+            self.__widgets.add_select(WidgetsFactory.entity_name, self.__entities_list, default_value=self.__entities_list[0])
 
     def create_for_timestamp(self):
         self.__widgets.add_text(WidgetsFactory.timestamp_name, self.__defaults.timestamp)

@@ -6,13 +6,10 @@ from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.exception.error import WrongColumnTypeError
 from featurestorebundle.feature.FeaturesGetter import FeaturesGetter
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder
-
-
-class WrongColumnTypeError(Exception):
-    pass
 
 
 def __check_time_column_type(df: DataFrame, time_column_name: str):

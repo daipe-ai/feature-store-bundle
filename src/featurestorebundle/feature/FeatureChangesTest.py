@@ -6,9 +6,10 @@ from daipecore.decorator.notebook_function import notebook_function
 from pyspark.sql import functions as f, types as t
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.exception.error import UnsupportedChangeFeatureNameError
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
-from featurestorebundle.feature.FeatureList import FeatureList, UnsupportedChangeFeatureNameException
+from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
@@ -96,7 +97,7 @@ class FeatureChangesTest(PySparkTestCase):
             ]
         )
 
-        self.assertRaises(UnsupportedChangeFeatureNameException, feature_list.get_change_features)
+        self.assertRaises(UnsupportedChangeFeatureNameError, feature_list.get_change_features)
 
     def test_changes_values(self):
         @notebook_function()
