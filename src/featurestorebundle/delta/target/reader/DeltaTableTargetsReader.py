@@ -35,3 +35,8 @@ class DeltaTableTargetsReader(TargetsReaderInterface):
         full_table_name = self.__table_names.get_targets_full_table_name(entity_name)
 
         return self.__table_existence_checker.exists(full_table_name)
+
+    def enum_exists(self) -> bool:
+        full_table_name = self.__table_names.get_targets_enum_full_table_name()
+
+        return self.__table_existence_checker.exists(full_table_name)
