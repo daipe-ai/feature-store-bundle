@@ -6,6 +6,7 @@ from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.FeaturesGetter import FeaturesGetter
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder
 
@@ -64,5 +65,14 @@ def with_timestamps_no_filter(input_data: Union[InputDecorator, DataFrame], enti
 
         df = input_data.result if isinstance(input_data, InputDecorator) else input_data
         return timestamp_adder.add_without_filters(df, entity)
+
+    return wrapper
+
+
+@input_decorator_function
+def get_features() -> Callable[[ContainerInterface], DataFrame]:
+    def wrapper(container: ContainerInterface) -> DataFrame:
+        features_getter: FeaturesGetter = container.get(FeaturesGetter)
+        return features_getter.get_features()
 
     return wrapper

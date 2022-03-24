@@ -261,3 +261,7 @@ services:
   featurestorebundle.date.DateParser:
     arguments:
       - '@featurestorebundle.logger'
+
+  featurestorebundle.feature.FeaturesGetter:
+    arguments:
+      - '@featurestorebundle.logger'
