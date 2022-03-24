@@ -14,3 +14,7 @@ class TargetsReaderInterface(ABC):
     @abstractmethod
     def exists(self, entity_name: str) -> bool:
         pass
+
+    @abstractmethod
+    def enum_exists(self) -> bool:
+        pass

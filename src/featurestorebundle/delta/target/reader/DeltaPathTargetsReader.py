@@ -35,3 +35,8 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
         path = self.__table_names.get_targets_path(entity_name)
 
         return self.__path_existence_checker.exists(path)
+
+    def enum_exists(self) -> bool:
+        path = self.__table_names.get_targets_enum_path()
+
+        return self.__path_existence_checker.exists(path)
