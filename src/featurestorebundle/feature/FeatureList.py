@@ -1,12 +1,9 @@
 import re
 from typing import List, Dict, Union
 
+from featurestorebundle.exception.error import UnsupportedChangeFeatureNameError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.MasterFeature import MasterFeature
-
-
-class UnsupportedChangeFeatureNameException(Exception):
-    pass
 
 
 class FeatureList:
@@ -45,7 +42,7 @@ class FeatureList:
         for change_feature in change_features:
             match = pattern.fullmatch(change_feature.name)
             if not match:
-                raise UnsupportedChangeFeatureNameException(
+                raise UnsupportedChangeFeatureNameError(
                     f"Feature with change {change_feature.name} is not in the expected format '.*_[0-9]+[hdw].*'. Either change the name or remove FeatureWithChange classifier."
                 )
 

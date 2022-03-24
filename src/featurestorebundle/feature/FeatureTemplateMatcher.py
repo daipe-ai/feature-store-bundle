@@ -3,20 +3,13 @@ from typing import List, Set
 from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.exception.error import TemplateMatchingError, TimeWindowFormatError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
 from featurestorebundle.notebook.functions.time_windows import PERIODS
-
-
-class TimeWindowFormatError(Exception):
-    pass
-
-
-class TemplateMatchingError(Exception):
-    pass
 
 
 class FeatureTemplateMatcher:

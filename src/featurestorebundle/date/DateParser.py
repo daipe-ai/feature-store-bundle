@@ -1,9 +1,7 @@
 from datetime import datetime as dt
 from logging import Logger
 
-
-class DateFormatException(Exception):
-    pass
+from featurestorebundle.exception.error import DateFormatError
 
 
 class DateParser:
@@ -28,6 +26,6 @@ class DateParser:
             )
             return timestamp
         except ValueError as value_error:
-            raise DateFormatException(
+            raise DateFormatError(
                 f"Widget value `{date_str}` does not match either `{DateParser.date_format}` or `{DateParser.legacy_date_format}` date formats"
             ) from value_error
