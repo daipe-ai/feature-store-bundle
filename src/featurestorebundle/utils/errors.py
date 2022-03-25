@@ -6,6 +6,10 @@ class MissingEntitiesError(Exception):
     pass
 
 
+class MissingColumnError(Exception):
+    pass
+
+
 class MissingTargetsTableError(Exception):
     pass
 
