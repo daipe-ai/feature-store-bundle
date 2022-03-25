@@ -7,8 +7,9 @@ from daipecore.decorator.notebook_function import notebook_function
 from pyspark.sql import DataFrame, functions as f, types as t
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.notebook.functions.input_functions import with_timestamps, WrongColumnTypeError
+from featurestorebundle.notebook.functions.input_functions import with_timestamps
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from featurestorebundle.utils.errors import WrongColumnTypeError
 
 os.environ["APP_ENV"] = "test"
 

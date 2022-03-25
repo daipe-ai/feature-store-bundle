@@ -262,6 +262,8 @@ services:
     arguments:
       - '@featurestorebundle.logger'
 
+  featurestorebundle.utils.ColumnChecker:
+
   featurestorebundle.feature.FeaturesGetter:
     arguments:
       - '@featurestorebundle.logger'
