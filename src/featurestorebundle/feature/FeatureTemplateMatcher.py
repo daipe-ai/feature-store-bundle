@@ -3,7 +3,7 @@ from typing import List, Set
 from pyspark.sql import DataFrame
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.exception.error import TemplateMatchingError, TimeWindowFormatError
+from featurestorebundle.utils.errors import TemplateMatchingError, TimeWindowFormatError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturePattern import FeaturePattern

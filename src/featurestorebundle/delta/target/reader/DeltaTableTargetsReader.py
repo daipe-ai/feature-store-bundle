@@ -3,7 +3,7 @@ from pyspark.sql import DataFrame
 from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.delta.TableExistenceChecker import TableExistenceChecker
-from featurestorebundle.exception.error import MissingTargetsEnumTableError, MissingTargetsTableError
+from featurestorebundle.utils.errors import MissingTargetsEnumTableError, MissingTargetsTableError
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 
 

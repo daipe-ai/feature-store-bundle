@@ -1,7 +1,7 @@
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
-from featurestorebundle.exception.error import MissingEntitiesError
+from featurestorebundle.utils.errors import MissingEntitiesError
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
