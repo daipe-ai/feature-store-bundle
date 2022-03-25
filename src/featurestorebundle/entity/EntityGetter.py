@@ -2,18 +2,13 @@ from box import Box
 from pyspark.sql import types as t
 from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.utils.types import names_to_dtypes
 from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
 class EntityGetter:
 
     _allowed_id_column_types = ["string", "integer", "long", "short"]
-    _types_map = {
-        "string": t.StringType(),
-        "integer": t.IntegerType(),
-        "long": t.LongType(),
-        "short": t.ShortType(),
-    }
 
     def __init__(self, entities: Box, widgets: Widgets):
         self.__entities = entities
@@ -41,7 +36,7 @@ class EntityGetter:
         return Entity(
             entity_name,
             id_column,
-            self._types_map[id_column_type],
+            names_to_dtypes[id_column_type],
             "timestamp",
             t.TimestampType(),
         )
