@@ -258,7 +258,7 @@ services:
 
   featurestorebundle.feature.NullHandler:
 
-  featurestorebundle.date.DateParser:
+  featurestorebundle.utils.DateParser:
     arguments:
       - '@featurestorebundle.logger'
 

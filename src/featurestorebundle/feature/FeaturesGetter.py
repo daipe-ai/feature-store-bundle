@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from daipecore.widgets.Widgets import Widgets
 
-from featurestorebundle.date.DateParser import DateParser
+from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder

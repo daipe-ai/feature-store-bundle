@@ -5,7 +5,7 @@ from typing import List, Optional
 from daipecore.widgets.Widgets import Widgets
 from pyspark.sql import DataFrame, functions as f
 
-from featurestorebundle.date.DateParser import DateParser
+from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.functions.time_windows import get_max_time_window, parse_time_window

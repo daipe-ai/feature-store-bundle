@@ -1,7 +1,7 @@
 import re
 from typing import List, Dict, Union
 
-from featurestorebundle.exception.error import UnsupportedChangeFeatureNameError
+from featurestorebundle.utils.errors import UnsupportedChangeFeatureNameError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.MasterFeature import MasterFeature
 

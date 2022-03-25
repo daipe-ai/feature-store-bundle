@@ -1,7 +1,7 @@
 from datetime import datetime as dt
 from logging import Logger
 
-from featurestorebundle.exception.error import DateFormatError
+from featurestorebundle.utils.errors import DateFormatError
 
 
 class DateParser:
