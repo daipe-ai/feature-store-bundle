@@ -1,7 +1,7 @@
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
-from featurestorebundle.utils.errors import MissingEntitiesError
+from featurestorebundle.utils.errors import MissingEntitiesError, MissingWidgetDefaultError
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
@@ -45,9 +45,15 @@ class WidgetsFactory:
             self.__widgets.add_select(WidgetsFactory.entity_name, self.__entities_list, default_value=self.__entities_list[0])
 
     def create_for_timestamp(self):
+        self.__check_default_exists(WidgetsFactory.timestamp_name)
+
         self.__widgets.add_text(WidgetsFactory.timestamp_name, self.__defaults.timestamp)
 
     def create_for_target(self):
+        self.__check_default_exists(WidgetsFactory.target_date_from_name)
+        self.__check_default_exists(WidgetsFactory.target_date_to_name)
+        self.__check_default_exists(WidgetsFactory.target_time_shift)
+
         self.__widgets.add_text(WidgetsFactory.target_date_from_name, self.__defaults.target_date_from)
 
         self.__widgets.add_text(WidgetsFactory.target_date_to_name, self.__defaults.target_date_to)
@@ -71,3 +77,7 @@ class WidgetsFactory:
         for stage, notebooks in self.__stages.items():
             stages.extend([f"{stage}: {notebook}" for notebook in notebooks])
         self.__widgets.add_multiselect(WidgetsFactory.notebooks_name, stages, [WidgetsFactory.all_notebooks_placeholder])
+
+    def __check_default_exists(self, widget_name: str):
+        if widget_name not in self.__defaults:
+            raise MissingWidgetDefaultError(widget_name)
