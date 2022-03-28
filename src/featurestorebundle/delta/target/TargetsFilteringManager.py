@@ -6,6 +6,7 @@ from pyspark.sql import functions as f
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.delta.target.schema import get_target_id_column_name, get_id_column_name, get_time_column_name
 from featurestorebundle.notebook.functions.time_windows import PERIOD_NAMES
+from featurestorebundle.utils.errors import TimeShiftFormatError
 
 
 class TargetsFilteringManager:
@@ -39,7 +40,7 @@ class TargetsFilteringManager:
         matches = re.match(r"([+-]?[0-9]+)([smhdw])", time_diff)
 
         if not matches:
-            raise Exception("Invalid time format try something like '7d' for seven days")
+            raise TimeShiftFormatError(f"Time shift {time_diff} is in a wrong format. Try something like '-7d' for seven days before")
 
         integer_part = matches[1]
         period_part = matches[2]

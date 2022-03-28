@@ -32,6 +32,10 @@ class TimeWindowFormatError(Exception):
     pass
 
 
+class TimeShiftFormatError(Exception):
+    pass
+
+
 class UnsupportedChangeFeatureNameError(Exception):
     pass
 
