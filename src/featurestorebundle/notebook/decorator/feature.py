@@ -11,7 +11,7 @@ from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
-from featurestorebundle.feature.NullHandler import NullHandler
+from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.orchestration.Serializator import Serializator
@@ -37,7 +37,7 @@ class feature(OutputDecorator):  # noqa
         feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
         result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
-        return null_handler.handle_nulls(result, self.__feature_list)
+        return null_handler.fill_nulls(result, self.__feature_list)
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
         widgets: Widgets = container.get(Widgets)

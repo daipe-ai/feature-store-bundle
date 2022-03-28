@@ -108,9 +108,9 @@ class FeatureChangesTest(PySparkTestCase):
         def test():
             df = self.spark.createDataFrame(
                 [
-                    ["1", dt.date(2020, 3, 2), dt.date(2020, 3, 1), 100],
-                    ["1", dt.date(2020, 3, 2), dt.date(2020, 2, 1), 300],
-                    ["1", dt.date(2020, 3, 2), dt.date(2020, 1, 1), 500],
+                    ["1", dt.datetime(2020, 3, 2), dt.datetime(2020, 3, 1), 100],
+                    ["1", dt.datetime(2020, 3, 2), dt.datetime(2020, 2, 1), 300],
+                    ["1", dt.datetime(2020, 3, 2), dt.datetime(2020, 1, 1), 500],
                 ],
                 [self.__entity.id_column, self.__entity.time_column, "date", "f1"],
             )
@@ -132,7 +132,7 @@ class FeatureChangesTest(PySparkTestCase):
 
         expected_df = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 3, 2), 1, 100, 2, 400, 0.5],
+                ["1", dt.datetime(2020, 3, 2), 1, 100, 2, 400, 0.5],
             ],
             [
                 self.__entity.id_column,

@@ -42,7 +42,7 @@ class FeaturesGetter:
 
         self.__logger.info(f"Loading latest features for entity '{entity.name}'")
 
-        latest_df = self.__feature_store.get_latest(entity.name, features=feature_names)
+        latest_df = self.__feature_store.get_latest(entity.name, features=feature_names, skip_incomplete_rows=True)
         return self.__timestamp_adder.add_without_filters(latest_df, entity)
 
     def __get_features_for_target(self, feature_names: List[str]):

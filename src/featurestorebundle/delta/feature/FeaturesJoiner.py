@@ -1,131 +1,18 @@
-import hashlib
-from logging import Logger
-from typing import List, Tuple
-
 from pyspark.sql import DataFrame
-from pyspark.sql import functions as f
-
-from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
-from featurestorebundle.delta.feature.schema import (
-    get_rainbow_table_hash_column,
-    get_rainbow_table_features_column,
-)
-from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
-from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
-from featurestorebundle.feature.NullHandler import NullHandler
 from featurestorebundle.delta.join.DataFrameJoinerInterface import DataFrameJoinerInterface
 
 
 class FeaturesJoiner:
     def __init__(
         self,
-        logger: Logger,
         dataframe_joiner: DataFrameJoinerInterface,
-        null_handler: NullHandler,
-        checkpoint_dir_setter: CheckpointDirSetter,
-        checkpoint_guard: CheckpointGuard,
     ):
-        self.__logger = logger
         self.__dataframe_joiner = dataframe_joiner
-        self.__null_handler = null_handler
-        self.__checkpoint_dir_setter = checkpoint_dir_setter
-        self.__checkpoint_guard = checkpoint_guard
 
-    def join(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> Tuple[DataFrame, DataFrame]:
+    def join(self, features_storage: FeaturesStorage) -> DataFrame:
         entity = features_storage.entity
-        feature_list = features_storage.feature_list
-
-        base_dataframe = self.__prepare_base_dataframe(features_storage, feature_store, rainbow_table)
-
-        if self.__checkpoint_guard.should_checkpoint_before_merge():
-            self.__logger.info("Checkpointing features data before merge")
-
-            self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
-
-            base_dataframe = base_dataframe.checkpoint()
-
-            self.__logger.info("Checkpointing done")
-
-        features_data = base_dataframe.select(
-            entity.id_column,
-            entity.time_column,
-            get_rainbow_table_hash_column().name,
-            *feature_list.get_names(),
-        )
-
-        features_data = self.__null_handler.handle_nulls(features_data, feature_list)
-
-        rainbow_data = base_dataframe.select(
-            get_rainbow_table_hash_column().name,
-            get_rainbow_table_features_column().name,
-        ).distinct()
-
-        return features_data, rainbow_data
-
-    def __prepare_base_dataframe(self, features_storage: FeaturesStorage, feature_store: DataFrame, rainbow_table: DataFrame) -> DataFrame:
-        if not features_storage.results:
-            raise Exception("There are no features to write.")
-
-        entity = features_storage.entity
-        feature_list = features_storage.feature_list
         results = features_storage.results
-        pk_columns = [entity.id_column, entity.time_column]
-        technical_columns = pk_columns + [get_rainbow_table_hash_column().name]
+        features_data = self.__dataframe_joiner.join(results, entity.get_primary_key())
 
-        registered_features = {col for col in feature_store.columns if col not in technical_columns}
-        incoming_features = {*feature_list.get_names()}
-
-        joined_results = self.__join_results(results, pk_columns)
-
-        if registered_features == incoming_features:
-            self.__logger.debug("Optimization: schema did not change")
-
-            return self.__compute_new_hashes_optimized(joined_results, feature_list)
-
-        joined_results = joined_results.withColumn("new_columns", f.array(*map(f.lit, feature_list.get_names())))
-
-        return self.__compute_new_hashes(joined_results, feature_store, rainbow_table)
-
-    def __compute_new_hashes(self, joined_results: DataFrame, feature_store: DataFrame, rainbow_table: DataFrame) -> DataFrame:  # noqa
-        pk_columns = feature_store.columns[0:2]
-        technical_columns = feature_store.columns[0:3]
-
-        return (
-            joined_results.join(feature_store.select(technical_columns), on=pk_columns, how="left")
-            .join(rainbow_table, on=get_rainbow_table_hash_column().name, how="left")
-            .withColumn("computed_columns", f.when(f.col("computed_columns").isNull(), f.array()).otherwise(f.col("computed_columns")))
-            .withColumn("columns_union", f.array_sort(f.array_union("computed_columns", "new_columns")))
-            .withColumn("new_features_hash", f.md5(f.concat_ws("`", "columns_union")))
-            .drop("features_hash", "computed_columns")
-            .withColumnRenamed("new_features_hash", "features_hash")
-            .withColumnRenamed("columns_union", "computed_columns")
-        )
-
-    def __compute_new_hashes_optimized(self, joined_results: DataFrame, feature_list: FeatureList) -> DataFrame:  # noqa
-        id_column = joined_results.columns[0]
-        time_column = joined_results.columns[1]
-
-        features_hash = hashlib.md5("`".join(sorted(feature_list.get_names())).encode()).hexdigest()
-
-        return joined_results.select(
-            id_column,
-            time_column,
-            f.lit(features_hash).alias(get_rainbow_table_hash_column().name),
-            f.lit(f.array_sort(f.array(*map(f.lit, feature_list.get_names())))).alias(get_rainbow_table_features_column().name),
-            *feature_list.get_names(),
-        )
-
-    def __join_results(self, results: List[DataFrame], pk_columns: List[str]):
-        joined_results = self.__dataframe_joiner.join(results, pk_columns)
-
-        if self.__checkpoint_guard.should_checkpoint_after_join():
-            self.__logger.info("Checkpointing features data after join")
-
-            self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
-
-            joined_results = joined_results.checkpoint()
-
-            self.__logger.info("Checkpointing done")
-
-        return joined_results
+        return features_data

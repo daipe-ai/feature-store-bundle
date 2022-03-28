@@ -1,13 +1,11 @@
 import uuid
-from typing import List, Optional, Dict, Tuple
+from typing import List, Optional, Dict
 from logging import Logger
 from box import Box
-from pyspark.dbutils import DBUtils
 from concurrent.futures import ThreadPoolExecutor
-
 from pyspark.sql import DataFrame
-
-from featurestorebundle.feature.FeaturesPreparer import FeaturesPreparer
+from pyspark.dbutils import DBUtils
+from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
@@ -59,15 +57,13 @@ class DatabricksOrchestrator:
 
         self.__post_actions_runner.run()
 
-    def _prepare_dataframes(self, notebooks: List[str]) -> Tuple[DataFrame, DataFrame]:
+    def _prepare_dataframe(self, notebooks: List[str]) -> DataFrame:
         self.__logger.info("Running notebooks")
 
         notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
         features_storage = self.__orchestrate_stage(notebook_tasks)
 
-        config = self.__features_preparer.prepare(features_storage)
-
-        return config.features_data, config.rainbow_data
+        return self.__features_preparer.prepare(features_storage)
 
     def __orchestrate_stage(self, notebook_tasks: List[NotebookTask]) -> FeaturesStorage:
         orchestration_id = uuid.uuid4().hex

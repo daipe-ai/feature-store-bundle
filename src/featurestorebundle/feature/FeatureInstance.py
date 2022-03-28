@@ -41,6 +41,10 @@ class FeatureInstance:
         return self.__dtype
 
     @property
+    def storage_dtype(self):
+        return f"map<byte,{self.__dtype}>" if self.__template.default_value is None else self.__dtype
+
+    @property
     def extra(self):
         return self.__extra
 
@@ -54,7 +58,8 @@ class FeatureInstance:
             "name": self.__name,
             "description": self.__description,
             "extra": self.__extra,
-            "template": self.__template.name_template,
+            "feature_template": self.__template.name_template,
+            "description_template": self.__template.description_template,
             "category": self.__template.category,
             "dtype": self.__dtype,
             "default_value": str(self.__template.default_value),

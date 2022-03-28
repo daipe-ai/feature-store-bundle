@@ -29,9 +29,9 @@ class WithTimestampsTest(PySparkTestCase):
     def test_with_timestamps_exception(self):
         df = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 1, 1), "a"],
-                ["3", dt.date(2020, 1, 1), "b"],
-                ["1", dt.date(2020, 1, 2), "c"],
+                ["1", dt.datetime(2020, 1, 1), "a"],
+                ["3", dt.datetime(2020, 1, 1), "b"],
+                ["1", dt.datetime(2020, 1, 2), "c"],
             ],
             [self.__entity.id_column, self.__entity.time_column, "not_a_date_column"],
         )
@@ -52,9 +52,9 @@ class WithTimestampsTest(PySparkTestCase):
     def test_with_timestamps_date(self):
         df = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 1, 1), dt.date(2020, 1, 1)],
-                ["3", dt.date(2020, 1, 1), dt.date(2020, 1, 1)],
-                ["1", dt.date(2020, 1, 2), dt.date(2020, 1, 1)],
+                ["1", dt.datetime(2020, 1, 1), dt.datetime(2020, 1, 1)],
+                ["3", dt.datetime(2020, 1, 1), dt.datetime(2020, 1, 1)],
+                ["1", dt.datetime(2020, 1, 2), dt.datetime(2020, 1, 1)],
             ],
             [self.__entity.id_column, self.__entity.time_column, "date"],
         )
@@ -77,9 +77,9 @@ class WithTimestampsTest(PySparkTestCase):
     def test_with_timestamps_timestamp(self):
         df = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 1, 1), dt.date(2020, 1, 1)],
-                ["3", dt.date(2020, 1, 1), dt.date(2020, 1, 1)],
-                ["1", dt.date(2020, 1, 2), dt.date(2020, 1, 1)],
+                ["1", dt.datetime(2020, 1, 1), dt.datetime(2020, 1, 1)],
+                ["3", dt.datetime(2020, 1, 1), dt.datetime(2020, 1, 1)],
+                ["1", dt.datetime(2020, 1, 2), dt.datetime(2020, 1, 1)],
             ],
             [self.__entity.id_column, self.__entity.time_column, "date"],
         ).withColumn("timestamp", f.col("date").cast("timestamp"))

@@ -43,7 +43,7 @@ class MetadataHTMLDisplayer:
             <td>{metadata_dict["name"]}</td>
             <td>{metadata_dict["description"]}</td>
             <td>{", ".join(f"<b>{key}</b>: {val}" for key, val in metadata_dict["extra"].items())}</td>
-            <td>{metadata_dict["template"]}</td>
+            <td>{metadata_dict["feature_template"]}</td>
             <td>{metadata_dict["dtype"]}</td>
         </tr>
         """

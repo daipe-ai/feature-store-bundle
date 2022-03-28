@@ -12,7 +12,6 @@ parameters:
       # we want to avoid checkpointing locally
       checkpoint_feature_results: False
       checkpoint_before_merge: False
-      checkpoint_after_join: False
       features_join:
          method: 'union_with_window' # available: union_with_window, left_with_checkpointing
          batch_size: 9999

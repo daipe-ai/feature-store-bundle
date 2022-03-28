@@ -1,12 +1,11 @@
 from pyspark.sql import DataFrame
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.delta.feature.schema import get_rainbow_table_hash_column
 
 
 class FeaturesValidator:
     def validate(self, entity: Entity, features_data: DataFrame, feature_list: FeatureList):
-        technical_cols = [entity.id_column, entity.time_column, get_rainbow_table_hash_column().name]
+        technical_cols = [entity.id_column, entity.time_column]
 
         data_column_names = filter(lambda column: column not in technical_cols, features_data.columns)
 

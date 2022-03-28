@@ -1,15 +1,21 @@
 from typing import List
 from pyspark.sql import functions as f
 from pyspark.sql import DataFrame
-from featurestorebundle.delta.feature.schema import get_rainbow_table_hash_column, get_rainbow_table_features_column
+from pyspark.sql.window import Window
+from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.delta.feature.NullHandler import NullHandler
 
 
 class FeaturesFilteringManager:
+    def __init__(self, null_handler: NullHandler):
+        self.__null_handler = null_handler
+
     def get_latest(
         self,
         feature_store: DataFrame,
-        rainbow_table: DataFrame,
+        feature_list: FeatureList,
         features: List[str],
+        skip_incomplete_rows: bool,
     ):
         if not features:
             features = self.__get_registered_features(feature_store)
@@ -19,34 +25,25 @@ class FeaturesFilteringManager:
         id_column = feature_store.columns[0]
         time_column = feature_store.columns[1]
 
-        features_data = feature_store.join(rainbow_table, on=get_rainbow_table_hash_column().name).withColumn(
-            "features_intersect", f.array_intersect(get_rainbow_table_features_column().name, f.array(*map(f.lit, features)))
+        window = (
+            Window().partitionBy(id_column).orderBy(f.desc(time_column)).rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)
         )
-
-        relevant_features = features_data.select(f.array_distinct(f.flatten(f.collect_set("features_intersect")))).collect()[0][0]
 
         features_data = (
-            features_data.groupBy(id_column)
-            .agg(
-                *[
-                    f.array_max(
-                        f.collect_list(f.struct(f.array_contains("features_intersect", feature), f.col(time_column), f.col(feature)))
-                    )[feature].alias(feature)
-                    for feature in relevant_features
-                ],
-                f.array_distinct(f.flatten(f.collect_set("features_intersect"))).alias("computed_features"),
-            )
-            .filter(f.size("computed_features") == len(relevant_features))
-            .drop("computed_features")
+            feature_store.select(id_column, *[f.first(feature, ignorenulls=True).over(window).alias(feature) for feature in features])
+            .groupBy(id_column)
+            .agg(*[f.first(feature).alias(feature) for feature in features])
         )
 
-        return features_data
+        features_data = self.__get_complete_rows(features_data, skip_incomplete_rows).select(id_column, *features)
+
+        return self.__null_handler.from_storage_format(features_data, feature_list)
 
     def get_for_target(
         self,
         feature_store: DataFrame,
-        rainbow_table: DataFrame,
         targets: DataFrame,
+        feature_list: FeatureList,
         features: List[str],
         skip_incomplete_rows: bool,
     ):
@@ -56,7 +53,7 @@ class FeaturesFilteringManager:
         self.__check_features_exist(feature_store, features)
 
         if len(targets.columns) != 2:
-            raise Exception("Targets dataframe must have exactly two columns [id, date]")
+            raise Exception("Targets dataframe must have exactly two columns [id, timestamp]")
 
         features_id_column = feature_store.schema[0]
         features_time_column = feature_store.schema[1]
@@ -78,19 +75,18 @@ class FeaturesFilteringManager:
                 f"{targets_time_column.name} ({targets_time_column.dataType.typeName()})"
             )
 
-        features_data = feature_store.join(targets, on=join_columns).join(rainbow_table, on=get_rainbow_table_hash_column().name)
+        features_data = feature_store.join(targets, on=join_columns)
+        features_data = self.__get_complete_rows(features_data, skip_incomplete_rows).select(*join_columns, *features)
 
-        return self.__get_complete_rows(features_data, features, skip_incomplete_rows).select(*join_columns, *features)
+        return self.__null_handler.from_storage_format(features_data, feature_list)
 
-    def __get_complete_rows(self, features_data: DataFrame, features: List[str], skip_incomplete_rows: bool):
-        features_data = features_data.withColumn(
-            "features_intersect", f.array_intersect(get_rainbow_table_features_column().name, f.array(*map(f.lit, features)))
-        ).withColumn("is_complete_row", f.size("features_intersect") == len(features))
-
+    def __get_complete_rows(self, features_data: DataFrame, skip_incomplete_rows: bool):
         if skip_incomplete_rows:
-            return features_data.filter(f.col("is_complete_row"))
+            return features_data.na.drop(how="any")
 
-        has_incomplete_rows = len(features_data.filter(~f.col("is_complete_row")).limit(1).collect()) == 1
+        has_incomplete_rows = (
+            len(features_data.filter(f.greatest(*[f.col(i).isNull() for i in features_data.columns])).limit(1).collect()) == 1
+        )
 
         if has_incomplete_rows:
             raise Exception("Features contain incomplete rows")
@@ -105,4 +101,4 @@ class FeaturesFilteringManager:
             raise Exception(f"Features {','.join(unregistered_features)} not registered")
 
     def __get_registered_features(self, feature_store: DataFrame):  # noqa
-        return list(feature_store.columns[3:])
+        return list(feature_store.columns[2:])
