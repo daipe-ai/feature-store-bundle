@@ -3,6 +3,7 @@ from typing import Dict, List, Union
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.metadata.DescriptionFiller import DescriptionFiller
+from featurestorebundle.utils.TypeChecker import TypeChecker
 
 
 class FeatureInstance:
@@ -16,6 +17,9 @@ class FeatureInstance:
 
     @classmethod
     def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, metadata: Dict[str, str]):
+        type_checker = TypeChecker()
+        type_checker.check(feature_template, dtype, feature_template.default_value)
+
         filler = DescriptionFiller()
         description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in metadata.items()})
         return cls(entity, name, description, dtype, metadata, feature_template)
