@@ -8,9 +8,5 @@ class FeaturesReaderInterface(ABC):
         pass
 
     @abstractmethod
-    def read_safe(self, entity_name: str) -> DataFrame:
-        pass
-
-    @abstractmethod
     def exists(self, entity_name: str) -> bool:
         pass

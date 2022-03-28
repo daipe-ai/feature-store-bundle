@@ -6,10 +6,13 @@ from pyfonycore.bootstrap import bootstrapped_container
 from pyspark.sql import types as t
 from daipecore.decorator.notebook_function import notebook_function
 
-from featurestorebundle.delta.feature.FeaturesJoiner import FeaturesJoiner
-from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema, get_rainbow_table_schema
+from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
+from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
+from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator import feature_decorator_factory
@@ -21,7 +24,8 @@ os.environ["APP_ENV"] = "test"
 class NullHandlerTest(PySparkTestCase):
     def setUp(self) -> None:
         self.__container = bootstrapped_container.init("test")
-        self.__features_joiner: FeaturesJoiner = self.__container.get(FeaturesJoiner)
+        self.__features_preparer: FeaturesPreparer = self.__container.get(FeaturesPreparer)
+        self.__null_handler: NullHandler = self.__container.get(NullHandler)
 
         self.__entity = Entity(
             name="client_test",
@@ -42,23 +46,23 @@ class NullHandlerTest(PySparkTestCase):
         def test():
             return self.spark.createDataFrame(
                 [
-                    ["1", dt.date(2020, 1, 1), "c1f1", "c1f2"],
-                    ["3", dt.date(2020, 1, 1), None, None],
-                    ["4", dt.date(2020, 1, 1), "c4f1", None],
+                    ["1", dt.datetime(2020, 1, 1), "c1f1", "c1f2"],
+                    ["3", dt.datetime(2020, 1, 1), None, None],
+                    ["4", dt.datetime(2020, 1, 1), "c4f1", None],
                 ],
                 [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
             )
 
         expected_df = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 1, 1), "c1f1", "c1f2"],
-                ["3", dt.date(2020, 1, 1), "default", None],
-                ["4", dt.date(2020, 1, 1), "c4f1", None],
+                ["1", dt.datetime(2020, 1, 1), "c1f1", "c1f2"],
+                ["3", dt.datetime(2020, 1, 1), "default", None],
+                ["4", dt.datetime(2020, 1, 1), "c4f1", None],
             ],
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        self.assertEqual(expected_df.collect(), test.result.collect())
+        self.compare_dataframes(expected_df, test.result, self.__entity.get_primary_key())
 
     def test_changes_null_values(self):
         features_storage = FeaturesStorage(self.__entity)
@@ -77,8 +81,8 @@ class NullHandlerTest(PySparkTestCase):
         def test1():
             return self.spark.createDataFrame(
                 [
-                    ["1", dt.date(2020, 3, 2), "hello", 100, "world", 400],
-                    ["3", dt.date(2020, 3, 2), "hello", None, "world", 500],
+                    ["1", dt.datetime(2020, 3, 2), "hello", 100, "world", 400],
+                    ["3", dt.datetime(2020, 3, 2), "hello", None, "world", 500],
                 ],
                 [
                     self.__entity.id_column,
@@ -97,23 +101,19 @@ class NullHandlerTest(PySparkTestCase):
         def test2():
             return self.spark.createDataFrame(
                 [
-                    ["2", dt.date(2020, 3, 2), 1, None],
+                    ["2", dt.datetime(2020, 3, 2), 1, None],
                 ],
-                schema=f"{self.__entity.id_column} string, {self.__entity.time_column} date, f2_count_20d long, f2_count_40d long",
+                schema=f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f2_count_20d long, f2_count_40d long",
             )
 
-        feature_store = self.spark.createDataFrame([], get_feature_store_initial_schema(self.__entity))
-        rainbow_table = self.spark.createDataFrame([], get_rainbow_table_schema())
-
-        features_data, _ = self.__features_joiner.join(features_storage, feature_store, rainbow_table)
-        features_data = features_data.drop("features_hash")
+        features_data = self.__features_preparer.prepare(features_storage)
 
         expected_df = self.spark.createDataFrame(
             [
-                ["3", dt.date(2020, 3, 2), "hello", change_feature_default, "world", 500, change_default, count_default, count_default],
+                ["3", dt.datetime(2020, 3, 2), "hello", change_feature_default, "world", 500, change_default, count_default, count_default],
                 [
                     "2",
-                    dt.date(2020, 3, 2),
+                    dt.datetime(2020, 3, 2),
                     string_default,
                     change_feature_default,
                     string_default,
@@ -122,7 +122,7 @@ class NullHandlerTest(PySparkTestCase):
                     1,
                     count_default,
                 ],
-                ["1", dt.date(2020, 3, 2), "hello", 100, "world", 400, 0.5, count_default, count_default],
+                ["1", dt.datetime(2020, 3, 2), "hello", 100, "world", 400, 0.5, count_default, count_default],
             ],
             [
                 self.__entity.id_column,
@@ -138,6 +138,50 @@ class NullHandlerTest(PySparkTestCase):
         )
 
         self.compare_dataframes(expected_df, features_data, self.__entity.get_primary_key())
+
+    def test_conversion(self):
+        input_df = self.spark.createDataFrame(
+            [
+                ["1", dt.datetime(2020, 1, 1), "c1f1", 123],
+                ["2", dt.datetime(2020, 1, 1), None, None],
+            ],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
+        )
+
+        input_feature_list = FeatureList(
+            [
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "")
+                ),
+                FeatureInstance(
+                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", None)
+                ),
+            ]
+        )
+
+        expected_converted_df = self.spark.createDataFrame(
+            [
+                ["1", dt.datetime(2020, 1, 1), "c1f1", {0: 123}],
+                ["2", dt.datetime(2020, 1, 1), None, {0: None}],
+            ],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
+        )
+
+        expected_back_converted_df = self.spark.createDataFrame(
+            [
+                ["1", dt.datetime(2020, 1, 1), "c1f1", 123],
+                ["2", dt.datetime(2020, 1, 1), None, None],
+            ],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
+        )
+
+        converted_df = self.__null_handler.to_storage_format(input_df, input_feature_list)
+
+        self.compare_dataframes(converted_df, expected_converted_df, self.__entity.get_primary_key())
+
+        back_converted_df = self.__null_handler.from_storage_format(converted_df, input_feature_list)
+
+        self.compare_dataframes(back_converted_df, expected_back_converted_df, self.__entity.get_primary_key())
 
 
 if __name__ == "__main__":

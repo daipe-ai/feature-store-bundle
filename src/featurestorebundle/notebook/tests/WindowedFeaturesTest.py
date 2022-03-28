@@ -33,22 +33,22 @@ class WindowedFeaturesTest(PySparkTestCase):
         self.assertFalse(is_past_time_window(timestamp, arg_timestamp, "90d"))
 
     def test_simple_time_windows(self):
-        timestamp = dt.date(2020, 2, 16)
+        timestamp = dt.datetime(2020, 2, 16)
 
         df_1 = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 15), timestamp],
-                ["2", dt.date(2020, 2, 1), timestamp],
-                ["3", dt.date(2020, 1, 15), timestamp],
+                ["1", dt.datetime(2020, 2, 15), timestamp],
+                ["2", dt.datetime(2020, 2, 1), timestamp],
+                ["3", dt.datetime(2020, 1, 15), timestamp],
             ],
             ["id", "date", "timestamp"],
         )
         result = with_time_windows(df_1, "timestamp", "date", ["14d", "30d"])
         reference = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 15), timestamp, True, True],
-                ["2", dt.date(2020, 2, 1), timestamp, False, True],
-                ["3", dt.date(2020, 1, 15), timestamp, False, False],
+                ["1", dt.datetime(2020, 2, 15), timestamp, True, True],
+                ["2", dt.datetime(2020, 2, 1), timestamp, False, True],
+                ["3", dt.datetime(2020, 1, 15), timestamp, False, False],
             ],
             ["id", "date", "timestamp", "is_time_window_14d", "is_time_window_30d"],
         )
@@ -56,12 +56,12 @@ class WindowedFeaturesTest(PySparkTestCase):
         self.assertEqual(reference.collect(), result.collect())
 
     def test_future_time_windows(self):
-        timestamp = dt.date(2020, 2, 16)
+        timestamp = dt.datetime(2020, 2, 16)
         df_1 = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 17), timestamp],
-                ["2", dt.date(2020, 2, 1), timestamp],
-                ["3", dt.date(2020, 1, 15), timestamp],
+                ["1", dt.datetime(2020, 2, 17), timestamp],
+                ["2", dt.datetime(2020, 2, 1), timestamp],
+                ["3", dt.datetime(2020, 1, 15), timestamp],
             ],
             ["id", "date", "timestamp"],
         )
@@ -69,9 +69,9 @@ class WindowedFeaturesTest(PySparkTestCase):
         result = with_time_windows(df_1, "timestamp", "date", ["14d", "30d"])
         reference = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 17), timestamp, False, False],
-                ["2", dt.date(2020, 2, 1), timestamp, False, True],
-                ["3", dt.date(2020, 1, 15), timestamp, False, False],
+                ["1", dt.datetime(2020, 2, 17), timestamp, False, False],
+                ["2", dt.datetime(2020, 2, 1), timestamp, False, True],
+                ["3", dt.datetime(2020, 1, 15), timestamp, False, False],
             ],
             ["id", "date", "timestamp", "is_time_window_14d", "is_time_window_30d"],
         )
@@ -80,14 +80,14 @@ class WindowedFeaturesTest(PySparkTestCase):
 
     def test_agg_time_windows(self):
         entity = Entity("test", "id", t.StringType(), "timestamp", t.TimestampType())
-        timestamp = dt.date(2020, 2, 16)
+        timestamp = dt.datetime(2020, 2, 16)
         df_1 = self.spark.createDataFrame(
             [
-                ["1", dt.date(2020, 2, 15), 10, timestamp],
-                ["1", dt.date(2020, 2, 1), 7, timestamp],
-                ["1", dt.date(2020, 1, 18), 2, timestamp],
-                ["2", dt.date(2020, 1, 17), 4, timestamp],
-                ["2", dt.date(2020, 1, 15), 12, timestamp],
+                ["1", dt.datetime(2020, 2, 15), 10, timestamp],
+                ["1", dt.datetime(2020, 2, 1), 7, timestamp],
+                ["1", dt.datetime(2020, 1, 18), 2, timestamp],
+                ["2", dt.datetime(2020, 1, 17), 4, timestamp],
+                ["2", dt.datetime(2020, 1, 15), 12, timestamp],
             ],
             ["id", "date", "amount", "timestamp"],
         )

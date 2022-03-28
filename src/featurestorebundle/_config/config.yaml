@@ -7,9 +7,6 @@ parameters:
         name_template: 'features_{entity}'
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
       backend: delta_path # available: delta_table, delta_path, databricks
-    rainbow:
-      table:
-        path_template: '%featurestorebundle.base_path%/rainbow/{entity}.delta'
     metadata:
       table:
         name_template: 'features_metadata'
@@ -31,7 +28,6 @@ parameters:
       num_parallel: 1
       checkpoint_feature_results: False
       checkpoint_before_merge: False
-      checkpoint_after_join: False
       features_join:
         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
         batch_size: 1
@@ -54,7 +50,6 @@ services:
       - '%featurestorebundle.db_name%'
       - '%featurestorebundle.feature.table.name_template%'
       - '%featurestorebundle.feature.table.path_template%'
-      - '%featurestorebundle.rainbow.table.path_template%'
       - '%featurestorebundle.metadata.table.name_template%'
       - '%featurestorebundle.metadata.table.path_template%'
       - '%featurestorebundle.target.table.name_template%'
@@ -142,13 +137,13 @@ services:
     tags:
       - {name: 'dataframe.joiner', alias: 'left_with_checkpointing'}
 
-  featurestorebundle.delta.feature.DeltaRainbowTableManager:
-
   featurestorebundle.delta.feature.FeaturesFilteringManager:
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 
   featurestorebundle.feature.ChangesCalculator:
+
+  featurestorebundle.feature.FeatureListFactory:
 
   featurestorebundle.feature.FeatureStore:
     arguments:
@@ -208,15 +203,13 @@ services:
     arguments:
       - '%featurestorebundle.orchestration.checkpoint_feature_results%'
       - '%featurestorebundle.orchestration.checkpoint_before_merge%'
-      - '%featurestorebundle.orchestration.checkpoint_after_join%'
 
-  featurestorebundle.feature.FeaturesPreparer:
+  featurestorebundle.delta.feature.FeaturesPreparer:
     arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
+      - '@featurestorebundle.logger'
 
   featurestorebundle.delta.feature.FeaturesJoiner:
     arguments:
-      - '@featurestorebundle.logger'
       - !tagged_aliased ['dataframe.joiner', '%featurestorebundle.orchestration.features_join.method%']
 
   featurestorebundle.widgets.WidgetsFactory:
@@ -256,7 +249,7 @@ services:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
 
-  featurestorebundle.feature.NullHandler:
+  featurestorebundle.delta.feature.NullHandler:
 
   featurestorebundle.utils.DateParser:
     arguments:

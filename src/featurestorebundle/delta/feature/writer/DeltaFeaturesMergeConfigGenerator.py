@@ -20,10 +20,6 @@ class DeltaFeaturesMergeConfigGenerator:
         )
 
         update_set = self.__build_set(data_column_names)
-
-        if entity.time_column not in pk_columns:
-            update_set[entity.time_column] = self.__wrap_source(entity.time_column)
-
         insert_set = {**update_set, **self.__build_set(technical_cols)}
         merge_condition = " AND ".join(f"{self.__wrap_target(pk)} = {self.__wrap_source(pk)}" for pk in pk_columns)
 

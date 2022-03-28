@@ -1,6 +1,6 @@
 import re
 from typing import Optional
-from datetime import date
+from datetime import datetime
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
 from featurestorebundle.entity.Entity import Entity
@@ -15,8 +15,8 @@ class TargetsFilteringManager:
         entity: Entity,
         targets: DataFrame,
         target_id: str,
-        date_from: Optional[date] = None,
-        date_to: Optional[date] = None,
+        date_from: Optional[datetime] = None,
+        date_to: Optional[datetime] = None,
         time_diff: Optional[str] = None,
     ) -> DataFrame:
         id_column = get_id_column_name(entity)
