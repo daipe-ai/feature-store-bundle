@@ -151,10 +151,10 @@ class NullHandlerTest(PySparkTestCase):
         input_feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", None)
+                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", None, "int")
                 ),
             ]
         )
