@@ -35,10 +35,10 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
             ]
         )
@@ -67,10 +67,10 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
             ]
         )
@@ -91,13 +91,13 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None, "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", "EMPTY")
+                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", "EMPTY", "str")
                 ),
             ]
         )
@@ -126,13 +126,13 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "integer", {}, FeatureTemplate("f1", "this is feature 1", None)
+                    self.__entity.name, "f1", "this is feature 1", "integer", {}, FeatureTemplate("f1", "this is feature 1", None, "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", 0)
+                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", 0, "int")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f3", "this is feature 3", "double", {}, FeatureTemplate("f3", "this is feature 3", 0.0)
+                    self.__entity.name, "f3", "this is feature 3", "double", {}, FeatureTemplate("f3", "this is feature 3", 0.0, "float")
                 ),
             ]
         )

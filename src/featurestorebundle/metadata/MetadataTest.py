@@ -24,10 +24,10 @@ class MetadataTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None)
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None, "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None)
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", None, "str")
                 ),
             ]
         )
@@ -47,6 +47,7 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("category", t.StringType(), True),
                     t.StructField("dtype", t.StringType(), True),
                     t.StructField("default_value", t.StringType(), True),
+                    t.StructField("default_value_type", t.StringType(), True),
                 ]
             ),
         )

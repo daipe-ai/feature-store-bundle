@@ -11,4 +11,4 @@ class Feature:
     fillna_with: Any
 
     def create_template(self, category: Optional[str]) -> FeatureTemplate:
-        return FeatureTemplate(self.name_template, self.description_template, self.fillna_with, category)
+        return FeatureTemplate(self.name_template, self.description_template, self.fillna_with, type(self.fillna_with).__name__, category)

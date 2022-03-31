@@ -36,5 +36,7 @@ class ChangesCalculator:
         metadata = {**metadata, "time_window": f"change_{low}_{high}"}
 
         name = feature.template.name_template.format(**metadata)
-        template = FeatureTemplate(feature.template.name_template, feature.template.description_template, 0.0, feature.template.category)
+        template = FeatureTemplate(
+            feature.template.name_template, feature.template.description_template, 0.0, float.__name__, feature.template.category
+        )
         return FeatureInstance.from_template(template, entity, name, "double", metadata)

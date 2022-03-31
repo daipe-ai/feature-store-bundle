@@ -35,10 +35,10 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
             ]
         )
@@ -75,10 +75,10 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
             ]
         )
@@ -106,10 +106,10 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY")
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
                 ),
                 FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY")
+                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
                 ),
             ]
         )
