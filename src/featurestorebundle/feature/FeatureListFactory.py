@@ -17,8 +17,8 @@ class FeatureListFactory:
             feature_template = FeatureTemplate(
                 row.feature_template,
                 row.description_template,
-                self.__convert_default_value(row.default_value, row.default_value_type),
-                row.default_value_type,
+                self.__convert_fillna_value(row.fillna_value, row.fillna_value_type),
+                row.fillna_value_type,
                 row.category,
             )
             feature_instance = FeatureInstance(row.entity, row.feature, row.description, row.dtype, row.extra, feature_template)
@@ -35,28 +35,28 @@ class FeatureListFactory:
         return metadata
 
     # pylint: disable=too-many-return-statements
-    def __convert_default_value(self, default_value: str, default_value_type: str):
-        type_ = pydoc.locate(default_value_type)
+    def __convert_fillna_value(self, fillna_value: str, fillna_value_type: str):
+        type_ = pydoc.locate(fillna_value_type)
 
         if type_ is None:
             return None
 
         if type_ == str:
-            return str(default_value)
+            return str(fillna_value)
 
         if type_ == int:
-            return int(default_value)
+            return int(fillna_value)
 
         if type_ == float:
-            return float(default_value)
+            return float(fillna_value)
 
         if type_ == bool:
-            return bool(default_value)
+            return bool(fillna_value)
 
         if type_ == list:
-            return ast.literal_eval(default_value)
+            return ast.literal_eval(fillna_value)
 
         if type_ == dict:
-            return ast.literal_eval(default_value)
+            return ast.literal_eval(fillna_value)
 
-        raise Exception(f"Default value '{default_value}' of type '{default_value_type}' cannot be converted")
+        raise Exception(f"fillna value '{fillna_value}' of type '{fillna_value_type}' cannot be converted")
