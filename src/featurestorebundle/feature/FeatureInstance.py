@@ -18,7 +18,7 @@ class FeatureInstance:
     @classmethod
     def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, metadata: Dict[str, str]):
         type_checker = TypeChecker()
-        type_checker.check(feature_template, dtype, feature_template.default_value)
+        type_checker.check(feature_template, dtype, feature_template.fillna_value)
 
         filler = DescriptionFiller()
         description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in metadata.items()})
@@ -42,7 +42,7 @@ class FeatureInstance:
 
     @property
     def storage_dtype(self):
-        return f"map<byte,{self.__dtype}>" if self.__template.default_value is None else self.__dtype
+        return f"map<byte,{self.__dtype}>" if self.__template.fillna_value is None else self.__dtype
 
     @property
     def extra(self):
@@ -62,8 +62,8 @@ class FeatureInstance:
             "description_template": self.__template.description_template,
             "category": self.__template.category,
             "dtype": self.__dtype,
-            "default_value": str(self.__template.default_value),
-            "default_value_type": self.__template.default_value_type,
+            "fillna_value": str(self.__template.fillna_value),
+            "fillna_value_type": self.__template.fillna_value_type,
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:

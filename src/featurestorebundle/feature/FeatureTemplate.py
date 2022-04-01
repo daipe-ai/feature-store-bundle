@@ -6,6 +6,6 @@ from typing import Optional, Any
 class FeatureTemplate:
     name_template: str
     description_template: str
-    default_value: Any
-    default_value_type: str
+    fillna_value: Any
+    fillna_value_type: str
     category: Optional[str] = None

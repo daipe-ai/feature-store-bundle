@@ -16,8 +16,8 @@ def get_metadata_columns():
         t.StructField("description_template", t.StringType(), True),
         t.StructField("category", t.StringType(), True),
         t.StructField("dtype", t.StringType(), True),
-        t.StructField("default_value", t.StringType(), True),
-        t.StructField("default_value_type", t.StringType(), True),
+        t.StructField("fillna_value", t.StringType(), True),
+        t.StructField("fillna_value_type", t.StringType(), True),
     ]
 
 

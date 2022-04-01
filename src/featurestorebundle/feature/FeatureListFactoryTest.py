@@ -52,8 +52,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.extra, feature2.extra)
             self.assertEqual(feature1.template.name_template, feature2.template.name_template)
             self.assertEqual(feature1.template.description_template, feature2.template.description_template)
-            self.assertEqual(feature1.template.default_value, feature2.template.default_value)
-            self.assertEqual(feature1.template.default_value_type, feature2.template.default_value_type)
+            self.assertEqual(feature1.template.fillna_value, feature2.template.fillna_value)
+            self.assertEqual(feature1.template.fillna_value_type, feature2.template.fillna_value_type)
             self.assertEqual(feature1.template.category, feature2.template.category)
 
 
