@@ -1,4 +1,5 @@
-import numpy as np
+import math
+import numbers
 from typing import List
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
@@ -37,7 +38,9 @@ class NullHandler:
 
     def __check_fillna_values_valid(self, feature_list: FeatureList):
         for feature in feature_list.get_all():
-            if feature.template.fillna_value in [np.nan, np.inf, -np.inf, float("nan"), float("inf"), float("-inf")]:
+            if isinstance(feature.template.fillna_value, numbers.Real) and (
+                math.isnan(feature.template.fillna_value) or math.isinf(feature.template.fillna_value)
+            ):
                 raise Exception(f"Invalid fillna value, '{feature.template.fillna_value}' is not supported")
 
     def __get_primary_keys(self, df: DataFrame, feature_list: FeatureList) -> List[str]:
