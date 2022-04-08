@@ -175,13 +175,35 @@ class NullHandlerTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        converted_df = self.__null_handler.to_storage_format(input_df, input_feature_list)
+        converted_df = self.__null_handler.to_storage_format(input_df, input_feature_list, self.__entity)
 
         self.compare_dataframes(converted_df, expected_converted_df, self.__entity.get_primary_key())
 
-        back_converted_df = self.__null_handler.from_storage_format(converted_df, input_feature_list)
+        back_converted_df = self.__null_handler.from_storage_format(converted_df, input_feature_list, self.__entity)
 
         self.compare_dataframes(back_converted_df, expected_back_converted_df, self.__entity.get_primary_key())
+
+    def test_metadata_mismatch_raises_exception(self):
+        input_df = self.spark.createDataFrame(
+            [
+                ["1", dt.datetime(2020, 1, 1), {0: "c1f1"}, {0: 123}],
+                ["2", dt.datetime(2020, 1, 1), {0: None}, {0: None}],
+            ],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
+        )
+
+        input_feature_list = FeatureList(
+            [
+                FeatureInstance(
+                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "", "str")
+                ),
+            ]
+        )
+
+        with self.assertRaises(Exception) as context:
+            self.__null_handler.from_storage_format(input_df, input_feature_list, self.__entity)
+
+        self.assertEqual("Dataframe columns do not match declared features", str(context.exception))
 
 
 if __name__ == "__main__":

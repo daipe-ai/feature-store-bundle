@@ -3,9 +3,6 @@ import datetime as dt
 from pyspark.sql import types as t
 from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.feature.FeatureInstance import FeatureInstance
-from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
-from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.delta.feature.FeaturesFilteringManager import FeaturesFilteringManager
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
 
@@ -32,18 +29,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        feature_list = FeatureList(
-            [
-                FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
-                ),
-            ]
-        )
-
-        features_data = self.__filtering_manager.get_latest(feature_store, feature_list, ["f1", "f2"], False)
+        features_data = self.__filtering_manager.get_latest(feature_store, ["f1", "f2"], False)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -64,19 +50,8 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        feature_list = FeatureList(
-            [
-                FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", "EMPTY", "str")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
-                ),
-            ]
-        )
-
         with self.assertRaisesRegex(Exception, "Features f3 not registered"):
-            self.__filtering_manager.get_latest(feature_store, feature_list, ["f3"], False)
+            self.__filtering_manager.get_latest(feature_store, ["f3"], False)
 
     def test_null_returned_correctly(self):
         feature_store = self.spark.createDataFrame(
@@ -85,30 +60,16 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                 ["1", dt.datetime(2020, 1, 1), {0: "c1f1"}, None, None],
                 ["1", dt.datetime(2020, 1, 2), {0: None}, "c1f2", "c1f3"],
             ],
-            f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f1 map<tinyint,string>, f2 string, f3 string",
+            f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f1 map<byte,string>, f2 string, f3 string",
         )
 
-        feature_list = FeatureList(
-            [
-                FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "string", {}, FeatureTemplate("f1", "this is feature 1", None, "str")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "string", {}, FeatureTemplate("f2", "this is feature 2", "EMPTY", "str")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f3", "this is feature 3", "string", {}, FeatureTemplate("f3", "this is feature 3", "EMPTY", "str")
-                ),
-            ]
-        )
-
-        features_data = self.__filtering_manager.get_latest(feature_store, feature_list, ["f1", "f2", "f3"], True)
+        features_data = self.__filtering_manager.get_latest(feature_store, ["f1", "f2", "f3"], True)
 
         expected_features_data = self.spark.createDataFrame(
             [
-                ["1", None, "c1f2", "c1f3"],
+                ["1", {0: None}, "c1f2", "c1f3"],
             ],
-            f"{self.__entity.id_column} string, f1 string, f2 string, f3 string",
+            f"{self.__entity.id_column} string, f1 map<byte,string>, f2 string, f3 string",
         )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])
@@ -120,30 +81,16 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                 ["2", dt.datetime(2020, 1, 1), {0: 222}, None, None],
                 ["1", dt.datetime(2020, 1, 2), {0: None}, 333, 1.12345678910111213],
             ],
-            f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f1 map<tinyint,int>, f2 int, f3 double",
+            f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f1 map<byte,int>, f2 int, f3 double",
         )
 
-        feature_list = FeatureList(
-            [
-                FeatureInstance(
-                    self.__entity.name, "f1", "this is feature 1", "integer", {}, FeatureTemplate("f1", "this is feature 1", None, "str")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f2", "this is feature 2", "integer", {}, FeatureTemplate("f2", "this is feature 2", 0, "int")
-                ),
-                FeatureInstance(
-                    self.__entity.name, "f3", "this is feature 3", "double", {}, FeatureTemplate("f3", "this is feature 3", 0.0, "float")
-                ),
-            ]
-        )
-
-        features_data = self.__filtering_manager.get_latest(feature_store, feature_list, ["f1", "f2", "f3"], True)
+        features_data = self.__filtering_manager.get_latest(feature_store, ["f1", "f2", "f3"], True)
 
         expected_features_data = self.spark.createDataFrame(
             [
-                ["1", None, 333, 1.12345678910111213],
+                ["1", {0: None}, 333, 1.12345678910111213],
             ],
-            f"{self.__entity.id_column} string, f1 int, f2 int, f3 double",
+            f"{self.__entity.id_column} string, f1 map<byte,int>, f2 int, f3 double",
         )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])

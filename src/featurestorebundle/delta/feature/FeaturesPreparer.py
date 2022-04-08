@@ -25,7 +25,7 @@ class FeaturesPreparer:
     def prepare(self, features_storage: FeaturesStorage) -> DataFrame:
         features_data = self.__features_joiner.join(features_storage)
         features_data = self.__null_handler.fill_nulls(features_data, features_storage.feature_list)
-        features_data = self.__null_handler.to_storage_format(features_data, features_storage.feature_list)
+        features_data = self.__null_handler.to_storage_format(features_data, features_storage.feature_list, features_storage.entity)
 
         if self.__checkpoint_guard.should_checkpoint_before_merge():
             self.__logger.info("Checkpointing features data before merge")

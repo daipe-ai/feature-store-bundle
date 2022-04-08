@@ -2,18 +2,12 @@ from typing import List
 from pyspark.sql import functions as f
 from pyspark.sql import DataFrame
 from pyspark.sql.window import Window
-from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.delta.feature.NullHandler import NullHandler
 
 
 class FeaturesFilteringManager:
-    def __init__(self, null_handler: NullHandler):
-        self.__null_handler = null_handler
-
     def get_latest(
         self,
         feature_store: DataFrame,
-        feature_list: FeatureList,
         features: List[str],
         skip_incomplete_rows: bool,
     ):
@@ -37,13 +31,12 @@ class FeaturesFilteringManager:
 
         features_data = self.__get_complete_rows(features_data, skip_incomplete_rows).select(id_column, *features)
 
-        return self.__null_handler.from_storage_format(features_data, feature_list)
+        return features_data
 
     def get_for_target(
         self,
         feature_store: DataFrame,
         targets: DataFrame,
-        feature_list: FeatureList,
         features: List[str],
         skip_incomplete_rows: bool,
     ):
@@ -78,7 +71,7 @@ class FeaturesFilteringManager:
         features_data = feature_store.join(targets, on=join_columns)
         features_data = self.__get_complete_rows(features_data, skip_incomplete_rows).select(*join_columns, *features)
 
-        return self.__null_handler.from_storage_format(features_data, feature_list)
+        return features_data
 
     def __get_complete_rows(self, features_data: DataFrame, skip_incomplete_rows: bool):
         if skip_incomplete_rows:
