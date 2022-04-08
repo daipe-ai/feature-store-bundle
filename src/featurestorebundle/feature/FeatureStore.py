@@ -6,10 +6,12 @@ from featurestorebundle.feature.reader.FeaturesReaderInterface import FeaturesRe
 from featurestorebundle.metadata.reader.MetadataReaderInterface import MetadataReaderInterface
 from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
 from featurestorebundle.delta.feature.FeaturesFilteringManager import FeaturesFilteringManager
+from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.delta.target.TargetsFilteringManager import TargetsFilteringManager
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
 
 
+# pylint: disable=too-many-instance-attributes
 class FeatureStore:
     def __init__(
         self,
@@ -19,6 +21,7 @@ class FeatureStore:
         features_filtering_manager: FeaturesFilteringManager,
         targets_filtering_manager: TargetsFilteringManager,
         feature_list_factory: FeatureListFactory,
+        null_handler: NullHandler,
         entity_getter: EntityGetter,
     ):
         self.__features_reader = features_reader
@@ -27,6 +30,7 @@ class FeatureStore:
         self.__features_filtering_manager = features_filtering_manager
         self.__targets_filtering_manager = targets_filtering_manager
         self.__feature_list_factory = feature_list_factory
+        self.__null_handler = null_handler
         self.__entity_getter = entity_getter
 
     def get_latest(
@@ -36,11 +40,14 @@ class FeatureStore:
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
         features = features or []
+        entity = self.__entity_getter.get_by_name(entity_name)
         feature_store = self.__features_reader.read(entity_name)
         metadata = self.__metadata_reader.read()
         feature_list = self.__feature_list_factory.create(metadata, entity_name, features)
+        features_data = self.__features_filtering_manager.get_latest(feature_store, features, skip_incomplete_rows)
+        features_data = self.__null_handler.from_storage_format(features_data, feature_list, entity)
 
-        return self.__features_filtering_manager.get_latest(feature_store, feature_list, features, skip_incomplete_rows)
+        return features_data
 
     def get_for_target(
         self,
@@ -61,8 +68,10 @@ class FeatureStore:
         )
         metadata = self.__metadata_reader.read()
         feature_list = self.__feature_list_factory.create(metadata, entity_name, features)
+        features_data = self.__features_filtering_manager.get_for_target(feature_store, targets, features, skip_incomplete_rows)
+        features_data = self.__null_handler.from_storage_format(features_data, feature_list, entity)
 
-        return self.__features_filtering_manager.get_for_target(feature_store, targets, feature_list, features, skip_incomplete_rows)
+        return features_data
 
     def get_targets(
         self,
