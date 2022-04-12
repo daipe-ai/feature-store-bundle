@@ -1,5 +1,6 @@
 import math
 import numbers
+from typing import List
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
 from featurestorebundle.entity.Entity import Entity
@@ -24,7 +25,7 @@ class NullHandler:
         self.__features_validator.validate(entity, df, feature_list)
 
         return df.select(
-            *entity.get_primary_key(),
+            *self.__get_primary_keys(df, feature_list),
             *[
                 f.create_map(f.lit(0), f.col(feature.name)).cast(feature.storage_dtype).alias(feature.name)
                 if feature.template.fillna_value is None
@@ -37,7 +38,7 @@ class NullHandler:
         self.__features_validator.validate(entity, df, feature_list)
 
         return df.select(
-            *entity.get_primary_key(),
+            *self.__get_primary_keys(df, feature_list),
             *[
                 f.col(feature.name).getItem(0).alias(feature.name) if feature.template.fillna_value is None else f.col(feature.name)
                 for feature in feature_list.get_all()
@@ -50,3 +51,6 @@ class NullHandler:
                 math.isnan(feature.template.fillna_value) or math.isinf(feature.template.fillna_value)
             ):
                 raise Exception(f"Invalid fillna value, '{feature.template.fillna_value}' is not supported")
+
+    def __get_primary_keys(self, df: DataFrame, feature_list: FeatureList) -> List[str]:
+        return list(set(df.columns) - set(feature_list.get_names()))
