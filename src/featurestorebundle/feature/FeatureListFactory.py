@@ -20,6 +20,9 @@ class FeatureListFactory:
                 self.__convert_fillna_value(row.fillna_value, row.fillna_value_type),
                 row.fillna_value_type,
                 row.category,
+                row.owner,
+                row.start_date,
+                row.frequency,
             )
             feature_instance = FeatureInstance(row.entity, row.feature, row.description, row.dtype, row.extra, feature_template)
             feature_instances.append(feature_instance)

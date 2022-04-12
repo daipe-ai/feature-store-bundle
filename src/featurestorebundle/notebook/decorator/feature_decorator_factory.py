@@ -12,8 +12,16 @@ def create(entity: Entity, features_storage: Optional[FeaturesStorage] = None):
     # pylint: disable=invalid-name
     @DecoratedDecorator
     class feature_decorator(feature):  # noqa
-        def __init__(self, *args, category=None):
-            super().__init__(*args, entity=entity, category=category, features_storage=features_storage)
+        def __init__(self, *args, category=None, owner=None, start_date=None, frequency=None):
+            super().__init__(
+                *args,
+                entity=entity,
+                category=category,
+                owner=owner,
+                start_date=start_date,
+                frequency=frequency,
+                features_storage=features_storage,
+            )
 
     globals()[f"{entity.name}_feature_decorator"] = feature_decorator
 

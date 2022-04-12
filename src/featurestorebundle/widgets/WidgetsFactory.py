@@ -17,6 +17,7 @@ class WidgetsFactory:
     target_date_to_name = "target_date_to"
     target_time_shift = "target_time_shift"
     notebooks_name = "notebooks"
+    features_orchestration_id = "features_orchestration_id"
 
     def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
