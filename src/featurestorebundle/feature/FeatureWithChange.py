@@ -6,7 +6,20 @@ from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChan
 
 
 class FeatureWithChange(Feature):
-    def create_template(self, category: Optional[str]) -> FeatureTemplate:
+    def create_template(
+        self,
+        category: Optional[str],
+        owner: Optional[str],
+        start_date: Optional[str],
+        frequency: Optional[str],
+    ) -> FeatureTemplate:
         return FeatureWithChangeTemplate(
-            self.name_template, self.description_template, self.fillna_with, type(self.fillna_with).__name__, category
+            self.name_template,
+            self.description_template,
+            self.fillna_with,
+            type(self.fillna_with).__name__,
+            category,
+            owner,
+            start_date,
+            frequency,
         )

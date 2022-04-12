@@ -7,6 +7,11 @@ parameters:
         name_template: 'features_{entity}'
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
       backend: delta_path # available: delta_table, delta_path, databricks
+      defaults:
+        category:
+        owner:
+        start_date: '2018-01-01'
+        frequency: 'daily'
     metadata:
       table:
         name_template: 'features_metadata'
@@ -219,6 +224,8 @@ services:
       - '%featurestorebundle.orchestration.stages%'
       - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
 
+  featurestorebundle.widgets.WidgetsGetter:
+
   featurestorebundle.entity.EntityGetter:
     arguments:
       - '%featurestorebundle.entities%'
@@ -243,6 +250,8 @@ services:
   featurestorebundle.orchestration.NotebookTasksFactory:
 
   featurestorebundle.orchestration.Serializator:
+
+  featurestorebundle.orchestration.FrequencyGuard:
 
   featurestorebundle.checkpoint.CheckpointDirSetter:
     arguments:

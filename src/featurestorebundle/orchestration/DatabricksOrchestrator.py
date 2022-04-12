@@ -12,6 +12,7 @@ from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksF
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
+from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 
 
 # pylint: disable=too-many-instance-attributes
@@ -85,7 +86,7 @@ class DatabricksOrchestrator:
     def __submit_notebook(self, notebook: NotebookTask, orchestration_id: str):
         try:
             return self.__dbutils.notebook.run(
-                notebook.path, notebook.timeout, {"daipe_features_orchestration_id": orchestration_id, **notebook.parameters}
+                notebook.path, notebook.timeout, {WidgetsFactory.features_orchestration_id: orchestration_id, **notebook.parameters}
             )
 
         except Exception:  # noqa pylint: disable=broad-except

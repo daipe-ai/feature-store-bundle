@@ -1,9 +1,11 @@
 from typing import Optional, Tuple, Iterable
+from logging import Logger
 from daipecore.decorator.OutputDecorator import OutputDecorator
-from daipecore.widgets.Widgets import Widgets
 from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
 
+from featurestorebundle.widgets.WidgetsGetter import WidgetsGetter
+from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
@@ -15,15 +17,28 @@ from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.orchestration.Serializator import Serializator
+from featurestorebundle.orchestration.FrequencyGuard import FrequencyGuard
 
 
-# pylint: disable=invalid-name
+# pylint: disable=invalid-name, too-many-instance-attributes
 class feature(OutputDecorator):  # noqa
     # pylint: disable=super-init-not-called
-    def __init__(self, *args: Feature, entity: Entity, category: Optional[str] = None, features_storage: Optional[FeaturesStorage] = None):
+    def __init__(
+        self,
+        *args: Feature,
+        entity: Entity,
+        category: Optional[str] = None,
+        owner: Optional[str] = None,
+        start_date: Optional[str] = None,
+        frequency: Optional[str] = None,
+        features_storage: Optional[FeaturesStorage] = None,
+    ):
         self._args = args
         self.__entity = entity
         self.__category = category
+        self.__owner = owner
+        self.__start_date = start_date
+        self.__frequency = frequency
         self.__features_storage = features_storage
         self.__feature_list = None
 
@@ -40,14 +55,27 @@ class feature(OutputDecorator):  # noqa
         return null_handler.fill_nulls(result, self.__feature_list)
 
     def process_result(self, result: DataFrame, container: ContainerInterface):
-        widgets: Widgets = container.get(Widgets)
+        logger: Logger = container.get("featurestorebundle.logger")
+        widgets_getter: WidgetsGetter = container.get(WidgetsGetter)
         checkpoint_dir_setter: CheckpointDirSetter = container.get(CheckpointDirSetter)
         serializator: Serializator = container.get(Serializator)
+        date_parser: DateParser = container.get(DateParser)
         checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
+        frequency_guard: FrequencyGuard = container.get(FrequencyGuard)
+
+        self.__set_feature_defaults(container)
 
         if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
             metadata_html_displayer.display(self.__feature_list.get_metadata_dicts())
+
+        if widgets_getter.timestamp_exists():
+            start_date = date_parser.parse_date(self.__start_date)  # pyre-ignore[6]
+            timestamp = date_parser.parse_date(widgets_getter.get_timestamp())
+
+            if not frequency_guard.should_be_computed(start_date, timestamp, self.__frequency):  # pyre-ignore[6]
+                logger.info(f"Features should not be computed for '{widgets_getter.get_timestamp()}', skipping...")
+                return
 
         if checkpoint_guard.should_checkpoint_result() is True:
             checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
@@ -56,17 +84,9 @@ class feature(OutputDecorator):  # noqa
         if self.__features_storage is not None:
             self.__features_storage.add(result, self.__feature_list)
 
-        if self.__orchestration_id_widget_exists(widgets):
-            orchestration_id = widgets.get_value("daipe_features_orchestration_id")
+        if widgets_getter.features_orchestration_id_exists():
+            orchestration_id = widgets_getter.get_features_orchestration_id()
             serializator.serialize(result, self.__feature_list, orchestration_id)
-
-    def __orchestration_id_widget_exists(self, widgets: Widgets) -> bool:
-        try:
-            widgets.get_value("daipe_features_orchestration_id")
-            return True
-
-        except Exception:  # noqa pylint: disable=broad-except
-            return False
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame
@@ -97,6 +117,14 @@ class feature(OutputDecorator):  # noqa
             FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", fillna_with=0)
         )
         """
-        feature_templates = [feature.create_template(self.__category) for feature in features]
+        feature_templates = [
+            feature_.create_template(self.__category, self.__owner, self.__start_date, self.__frequency) for feature_ in features
+        ]
 
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)
+
+    def __set_feature_defaults(self, container: ContainerInterface):
+        self.__category = self.__category or container.get_parameters().featurestorebundle.feature.defaults.category
+        self.__owner = self.__owner or container.get_parameters().featurestorebundle.feature.defaults.owner
+        self.__start_date = self.__start_date or container.get_parameters().featurestorebundle.feature.defaults.start_date
+        self.__frequency = self.__frequency or container.get_parameters().featurestorebundle.feature.defaults.frequency
