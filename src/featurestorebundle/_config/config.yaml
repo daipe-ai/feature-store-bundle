@@ -36,6 +36,11 @@ parameters:
       features_join:
         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
         batch_size: 1
+      notebook:
+        defaults:
+          start_date: '%featurestorebundle.feature.defaults.start_date%'
+          frequency: '%featurestorebundle.feature.defaults.frequency%'
+          arguments: {}
       stages:
       post_actions:
     entities:
@@ -252,6 +257,12 @@ services:
   featurestorebundle.orchestration.Serializator:
 
   featurestorebundle.orchestration.FrequencyGuard:
+
+  featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
+
+  featurestorebundle.orchestration.NotebookDefinitionGetter:
+    arguments:
+      - '%featurestorebundle.orchestration%'
 
   featurestorebundle.checkpoint.CheckpointDirSetter:
     arguments:

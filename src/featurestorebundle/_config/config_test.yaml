@@ -21,3 +21,6 @@ services:
 
   pyspark.sql.session.SparkSession:
     factory: ['@featurestorebundle.test.DummySparkFactory', 'create']
+
+  featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
+    class: featurestorebundle.test.DummyCurrentNotebookDefinitionGetter
