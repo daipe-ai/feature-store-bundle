@@ -18,6 +18,7 @@ from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDispla
 from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.FrequencyGuard import FrequencyGuard
+from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
 
 
 # pylint: disable=invalid-name, too-many-instance-attributes
@@ -124,7 +125,10 @@ class feature(OutputDecorator):  # noqa
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)
 
     def __set_feature_defaults(self, container: ContainerInterface):
+        current_notebook_definition_getter: CurrentNotebookDefinitionGetter = container.get(CurrentNotebookDefinitionGetter)
+        notebook_definition = current_notebook_definition_getter.get()
+
         self.__category = self.__category or container.get_parameters().featurestorebundle.feature.defaults.category
         self.__owner = self.__owner or container.get_parameters().featurestorebundle.feature.defaults.owner
-        self.__start_date = self.__start_date or container.get_parameters().featurestorebundle.feature.defaults.start_date
-        self.__frequency = self.__frequency or container.get_parameters().featurestorebundle.feature.defaults.frequency
+        self.__start_date = self.__start_date or notebook_definition.start_date
+        self.__frequency = self.__frequency or notebook_definition.frequency

@@ -1,5 +1,5 @@
 import uuid
-from typing import List, Optional, Dict
+from typing import List, Optional
 from logging import Logger
 from box import Box
 from concurrent.futures import ThreadPoolExecutor
@@ -39,17 +39,18 @@ class DatabricksOrchestrator:
         self.__features_preparer = features_preparer
         self.__post_actions_runner = post_actions_runner
 
-    def orchestrate(self, stages: Optional[Dict[str, List[str]]] = None):
+    def orchestrate(self, stages: Optional[Box] = None):
         stages = self.__orchestration_stages if stages is None else stages
 
         self.__logger.info("Starting features orchestration")
 
-        for stage, notebooks in stages.items():
+        for stage, notebook_definitions in stages.items():
             self.__logger.info(f"Running stage {stage}")
 
-            notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
+            notebook_tasks = self.__notebook_tasks_factory.create(notebook_definitions)
 
             features_storage = self.__orchestrate_stage(notebook_tasks)
+
             self.__features_writer.write(features_storage)
 
             self.__logger.info(f"Stage {stage} done")
@@ -58,10 +59,10 @@ class DatabricksOrchestrator:
 
         self.__post_actions_runner.run()
 
-    def _prepare_dataframe(self, notebooks: List[str]) -> DataFrame:
+    def _prepare_dataframe(self, notebook_definitions: List[Box]) -> DataFrame:
         self.__logger.info("Running notebooks")
 
-        notebook_tasks = self.__notebook_tasks_factory.create(notebooks)
+        notebook_tasks = self.__notebook_tasks_factory.create(notebook_definitions)
         features_storage = self.__orchestrate_stage(notebook_tasks)
 
         return self.__features_preparer.prepare(features_storage)

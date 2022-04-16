@@ -75,8 +75,17 @@ class WidgetsFactory:
 
     def create_for_notebooks(self):
         stages = [WidgetsFactory.all_notebooks_placeholder]
-        for stage, notebooks in self.__stages.items():
-            stages.extend([f"{stage}: {notebook}" for notebook in notebooks])
+        for stage, notebook_definitions in self.__stages.items():
+            for notebook_definition in notebook_definitions:
+                # for orchestration backwards compatibility
+                if isinstance(notebook_definition, str):
+                    notebook_name = notebook_definition.split("/")[-1]
+                    stages.append(f"{stage}: {notebook_name}")
+
+                if isinstance(notebook_definition, Box):
+                    notebook_name = notebook_definition.notebook.split("/")[-1]
+                    stages.append(f"{stage}: {notebook_name}")
+
         self.__widgets.add_multiselect(WidgetsFactory.notebooks_name, stages, [WidgetsFactory.all_notebooks_placeholder])
 
     def __check_default_exists(self, widget_name: str):
