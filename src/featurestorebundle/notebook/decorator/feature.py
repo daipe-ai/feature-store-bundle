@@ -41,16 +41,17 @@ class feature(OutputDecorator):  # noqa
         self.__start_date = start_date
         self.__frequency = frequency
         self.__features_storage = features_storage
+        self.__last_compute_date = None
         self.__feature_list = None
 
     def modify_result(self, result, container: ContainerInterface):
         self.__check_primary_key_columns(result)
+        self.__set_feature_defaults(container)
 
-        feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
         null_handler: NullHandler = container.get(NullHandler)
 
-        feature_list = self.__prepare_features(feature_template_matcher, result, self._args)
+        feature_list = self.__prepare_features(container, result, self._args)
         result, self.__feature_list = self.__process_changes(changes_calculator, feature_list, result)
 
         return null_handler.fill_nulls(result, self.__feature_list)
@@ -63,8 +64,6 @@ class feature(OutputDecorator):  # noqa
         date_parser: DateParser = container.get(DateParser)
         checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
         frequency_guard: FrequencyGuard = container.get(FrequencyGuard)
-
-        self.__set_feature_defaults(container)
 
         if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
@@ -108,7 +107,7 @@ class feature(OutputDecorator):  # noqa
 
     def __prepare_features(
         self,
-        feature_template_matcher: FeatureTemplateMatcher,
+        container: ContainerInterface,
         df: DataFrame,
         features: Iterable[Feature],
     ) -> FeatureList:
@@ -118,13 +117,24 @@ class feature(OutputDecorator):  # noqa
             FeatureWithChange("early_flights_pct_30d", "% of flights landed ahead of time in last 30 days", fillna_with=0)
         )
         """
+        feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
+        date_parser: DateParser = container.get(DateParser)
+
         feature_templates = [
-            feature_.create_template(self.__category, self.__owner, self.__start_date, self.__frequency) for feature_ in features
+            feature_.create_template(
+                self.__category,
+                self.__owner,
+                date_parser.parse_date(self.__start_date),  # pyre-ignore[6]
+                self.__frequency,
+                date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None,
+            )
+            for feature_ in features
         ]
 
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)
 
     def __set_feature_defaults(self, container: ContainerInterface):
+        widgets_getter: WidgetsGetter = container.get(WidgetsGetter)
         current_notebook_definition_getter: CurrentNotebookDefinitionGetter = container.get(CurrentNotebookDefinitionGetter)
         notebook_definition = current_notebook_definition_getter.get()
 
@@ -132,3 +142,4 @@ class feature(OutputDecorator):  # noqa
         self.__owner = self.__owner or container.get_parameters().featurestorebundle.feature.defaults.owner
         self.__start_date = self.__start_date or notebook_definition.start_date
         self.__frequency = self.__frequency or notebook_definition.frequency
+        self.__last_compute_date = widgets_getter.get_timestamp() if widgets_getter.timestamp_exists() else None

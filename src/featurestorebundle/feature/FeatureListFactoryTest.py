@@ -1,4 +1,5 @@
 import unittest
+import datetime as dt
 from pyspark.sql import types as t
 from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
@@ -26,9 +27,54 @@ class FeaturesListFactoryTest(PySparkTestCase):
     def test_simple(self):
         metadata = self.spark.createDataFrame(
             [
-                [self.__entity.name, "f1", "desc1", {}, "f1", "desc1", "cat1", "ow1", "2020-01-01", "daily", "string", "", "str"],
-                [self.__entity.name, "f2", "desc2", {}, "f2", "desc2", "cat2", "ow2", "2020-01-01", "daily", "integer", 0, "int"],
-                [self.__entity.name, "f3", "desc3", {}, "f3", "desc3", "cat3", "ow3", "2020-01-01", "daily", "string", "None", "NoneType"],
+                [
+                    self.__entity.name,
+                    "f1",
+                    "desc1",
+                    {},
+                    "f1",
+                    "desc1",
+                    "cat1",
+                    "ow1",
+                    dt.datetime(2020, 1, 1),
+                    "daily",
+                    dt.datetime(2020, 1, 1),
+                    "string",
+                    "",
+                    "str",
+                ],
+                [
+                    self.__entity.name,
+                    "f2",
+                    "desc2",
+                    {},
+                    "f2",
+                    "desc2",
+                    "cat2",
+                    "ow2",
+                    dt.datetime(2020, 1, 1),
+                    "daily",
+                    dt.datetime(2020, 1, 1),
+                    "integer",
+                    0,
+                    "int",
+                ],
+                [
+                    self.__entity.name,
+                    "f3",
+                    "desc3",
+                    {},
+                    "f3",
+                    "desc3",
+                    "cat3",
+                    "ow3",
+                    dt.datetime(2020, 1, 1),
+                    "daily",
+                    dt.datetime(2020, 1, 1),
+                    "string",
+                    "None",
+                    "NoneType",
+                ],
             ],
             get_metadata_schema(),
         )
@@ -43,7 +89,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc1",
                     "string",
                     {},
-                    FeatureTemplate("f1", "desc1", "", "str", "cat1", "ow1", "2020-01-01", "daily"),
+                    FeatureTemplate("f1", "desc1", "", "str", "cat1", "ow1", dt.datetime(2020, 1, 1), "daily", dt.datetime(2020, 1, 1)),
                 ),
                 FeatureInstance(
                     self.__entity.name,
@@ -51,7 +97,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc2",
                     "integer",
                     {},
-                    FeatureTemplate("f2", "desc2", 0, "int", "cat2", "ow2", "2020-01-01", "daily"),
+                    FeatureTemplate("f2", "desc2", 0, "int", "cat2", "ow2", dt.datetime(2020, 1, 1), "daily", dt.datetime(2020, 1, 1)),
                 ),
                 FeatureInstance(
                     self.__entity.name,
@@ -59,7 +105,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc3",
                     "string",
                     {},
-                    FeatureTemplate("f3", "desc3", None, "NoneType", "cat3", "ow3", "2020-01-01", "daily"),
+                    FeatureTemplate(
+                        "f3", "desc3", None, "NoneType", "cat3", "ow3", dt.datetime(2020, 1, 1), "daily", dt.datetime(2020, 1, 1)
+                    ),
                 ),
             ]
         )
@@ -77,6 +125,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.owner, feature2.template.owner)
             self.assertEqual(feature1.template.start_date, feature2.template.start_date)
             self.assertEqual(feature1.template.frequency, feature2.template.frequency)
+            self.assertEqual(feature1.template.last_compute_date, feature2.template.last_compute_date)
 
 
 if __name__ == "__main__":

@@ -46,6 +46,7 @@ class ChangesCalculator:
             feature.template.owner,
             feature.template.start_date,
             feature.template.frequency,
+            feature.template.last_compute_date,
         )
 
         return FeatureInstance.from_template(template, entity, name, "double", metadata)
