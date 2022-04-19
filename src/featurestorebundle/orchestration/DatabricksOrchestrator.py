@@ -13,6 +13,8 @@ from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
+from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
+from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 
 
 # pylint: disable=too-many-instance-attributes
@@ -28,6 +30,8 @@ class DatabricksOrchestrator:
         features_writer: FeaturesWriter,
         features_preparer: FeaturesPreparer,
         post_actions_runner: PostActionsRunner,
+        checkpoint_guard: CheckpointGuard,
+        checkpoint_dir_handler: CheckpointDirHandler,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -38,6 +42,8 @@ class DatabricksOrchestrator:
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
         self.__post_actions_runner = post_actions_runner
+        self.__checkpoint_guard = checkpoint_guard
+        self.__checkpoint_dir_handler = checkpoint_dir_handler
 
     def orchestrate(self, stages: Optional[Box] = None):
         stages = self.__orchestration_stages if stages is None else stages
@@ -58,6 +64,9 @@ class DatabricksOrchestrator:
         self.__logger.info("Features orchestration done")
 
         self.__post_actions_runner.run()
+
+        if self.__checkpoint_guard.should_clean_checkpoint_dir():
+            self.__checkpoint_dir_handler.clean_checkpoint_dir()
 
     def _prepare_dataframe(self, notebook_definitions: List[Box]) -> DataFrame:
         self.__logger.info("Running notebooks")

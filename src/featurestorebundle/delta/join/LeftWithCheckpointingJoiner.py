@@ -1,7 +1,7 @@
 from typing import List
 from functools import reduce
 from pyspark.sql import DataFrame
-from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
+from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.delta.join.DataFrameJoinerInterface import DataFrameJoinerInterface
 
 
@@ -9,10 +9,10 @@ class LeftWithCheckpointingJoiner(DataFrameJoinerInterface):
     def __init__(
         self,
         join_batch_size: int,
-        checkpoint_dir_setter: CheckpointDirSetter,
+        checkpoint_dir_handler: CheckpointDirHandler,
     ):
         self.__join_batch_size = join_batch_size
-        self.__checkpoint_dir_setter = checkpoint_dir_setter
+        self.__checkpoint_dir_handler = checkpoint_dir_handler
 
     def join(self, dataframes: List[DataFrame], join_columns: List[str]) -> DataFrame:
         join_batch_counter = 0
@@ -20,7 +20,7 @@ class LeftWithCheckpointingJoiner(DataFrameJoinerInterface):
         unique_ids_df = reduce(lambda df1, df2: df1.unionByName(df2), id_dataframes).distinct().cache()
         joined_df = unique_ids_df
 
-        self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
+        self.__checkpoint_dir_handler.set_checkpoint_dir_if_necessary()
 
         for df in dataframes:
             join_batch_counter += 1

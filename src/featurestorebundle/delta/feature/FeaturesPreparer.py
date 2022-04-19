@@ -4,7 +4,7 @@ from featurestorebundle.delta.feature.FeaturesJoiner import FeaturesJoiner
 from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
-from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
+from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 
 
 class FeaturesPreparer:
@@ -14,13 +14,13 @@ class FeaturesPreparer:
         features_joiner: FeaturesJoiner,
         null_handler: NullHandler,
         checkpoint_guard: CheckpointGuard,
-        checkpoint_dir_setter: CheckpointDirSetter,
+        checkpoint_dir_handler: CheckpointDirHandler,
     ):
         self.__logger = logger
         self.__features_joiner = features_joiner
         self.__null_handler = null_handler
         self.__checkpoint_guard = checkpoint_guard
-        self.__checkpoint_dir_setter = checkpoint_dir_setter
+        self.__checkpoint_dir_handler = checkpoint_dir_handler
 
     def prepare(self, features_storage: FeaturesStorage) -> DataFrame:
         features_data = self.__features_joiner.join(features_storage)
@@ -30,7 +30,7 @@ class FeaturesPreparer:
         if self.__checkpoint_guard.should_checkpoint_before_merge():
             self.__logger.info("Checkpointing features data before merge")
 
-            self.__checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
+            self.__checkpoint_dir_handler.set_checkpoint_dir_if_necessary()
 
             features_data = features_data.checkpoint()
 
