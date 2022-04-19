@@ -64,6 +64,7 @@ class FeatureInstance:
             "owner": self.__template.owner,
             "start_date": self.__template.start_date,
             "frequency": self.__template.frequency,
+            "last_compute_date": self.__template.last_compute_date,
             "dtype": self.__dtype,
             "fillna_value": str(self.__template.fillna_value),
             "fillna_value_type": self.__template.fillna_value_type,

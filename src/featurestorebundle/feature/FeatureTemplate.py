@@ -1,5 +1,6 @@
 from dataclasses import dataclass
 from typing import Optional, Any
+from datetime import datetime
 
 
 # pylint: disable=too-many-instance-attributes
@@ -11,5 +12,6 @@ class FeatureTemplate:
     fillna_value_type: str
     category: Optional[str] = None
     owner: Optional[str] = None
-    start_date: Optional[str] = None
+    start_date: Optional[datetime] = None
     frequency: Optional[str] = None
+    last_compute_date: Optional[datetime] = None
