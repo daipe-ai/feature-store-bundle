@@ -33,6 +33,7 @@ parameters:
       num_parallel: 1
       checkpoint_feature_results: False
       checkpoint_before_merge: False
+      clean_checkpoint_dir: False
       features_join:
         method: 'union_with_window' # available: union_with_window, left_with_checkpointing
         batch_size: 1
@@ -213,6 +214,7 @@ services:
     arguments:
       - '%featurestorebundle.orchestration.checkpoint_feature_results%'
       - '%featurestorebundle.orchestration.checkpoint_before_merge%'
+      - '%featurestorebundle.orchestration.clean_checkpoint_dir%'
 
   featurestorebundle.delta.feature.FeaturesPreparer:
     arguments:
@@ -264,7 +266,7 @@ services:
     arguments:
       - '%featurestorebundle.orchestration%'
 
-  featurestorebundle.checkpoint.CheckpointDirSetter:
+  featurestorebundle.checkpoint.CheckpointDirHandler:
     arguments:
       - '@featurestorebundle.logger'
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'

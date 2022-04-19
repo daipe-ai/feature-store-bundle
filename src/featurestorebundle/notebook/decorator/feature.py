@@ -15,7 +15,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
-from featurestorebundle.checkpoint.CheckpointDirSetter import CheckpointDirSetter
+from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.FrequencyGuard import FrequencyGuard
 from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
@@ -59,7 +59,7 @@ class feature(OutputDecorator):  # noqa
     def process_result(self, result: DataFrame, container: ContainerInterface):
         logger: Logger = container.get("featurestorebundle.logger")
         widgets_getter: WidgetsGetter = container.get(WidgetsGetter)
-        checkpoint_dir_setter: CheckpointDirSetter = container.get(CheckpointDirSetter)
+        checkpoint_dir_handler: CheckpointDirHandler = container.get(CheckpointDirHandler)
         serializator: Serializator = container.get(Serializator)
         date_parser: DateParser = container.get(DateParser)
         checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
@@ -78,7 +78,7 @@ class feature(OutputDecorator):  # noqa
                 return
 
         if checkpoint_guard.should_checkpoint_result() is True:
-            checkpoint_dir_setter.set_checkpoint_dir_if_necessary()
+            checkpoint_dir_handler.set_checkpoint_dir_if_necessary()
             result = result.checkpoint()
 
         if self.__features_storage is not None:
