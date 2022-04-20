@@ -15,7 +15,7 @@ class NotebookDefinitionGetter:
                 if isinstance(notebook_definition, Box) and self.__get_notebook_name(notebook_definition.notebook) == notebook_name:
                     return self.__add_default_values_if_missing(notebook_definition)
 
-        raise Exception(f"Cannot find notebook {notebook_name} in orchestration definition")
+        return Box({"notebook": notebook_name, **self.__orchestration.notebook.defaults})
 
     def __add_default_values_if_missing(self, notebook_definition: Box) -> Box:
         return Box({**self.__orchestration.notebook.defaults, **notebook_definition})
