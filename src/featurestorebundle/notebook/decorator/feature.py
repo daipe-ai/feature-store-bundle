@@ -6,7 +6,6 @@ from pyspark.sql import DataFrame
 
 from featurestorebundle.widgets.WidgetsGetter import WidgetsGetter
 from featurestorebundle.utils.DateParser import DateParser
-from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
 from featurestorebundle.feature.Feature import Feature
@@ -16,8 +15,9 @@ from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
+from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
+from featurestorebundle.frequency.FrequencyGuard import FrequencyGuard
 from featurestorebundle.orchestration.Serializator import Serializator
-from featurestorebundle.orchestration.FrequencyGuard import FrequencyGuard
 from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
 
 

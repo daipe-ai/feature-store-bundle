@@ -3,7 +3,7 @@ import datetime as dt
 from pyspark.sql import types as t
 from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.delta.feature.FeaturesFilteringManager import FeaturesFilteringManager
+from featurestorebundle.delta.feature.filter.FeaturesFilteringManager import FeaturesFilteringManager
 from featurestorebundle.test.PySparkTestCase import PySparkTestCase
 
 

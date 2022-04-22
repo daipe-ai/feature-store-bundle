@@ -148,13 +148,21 @@ services:
     tags:
       - {name: 'dataframe.joiner', alias: 'left_with_checkpointing'}
 
-  featurestorebundle.delta.feature.FeaturesFilteringManager:
+  featurestorebundle.delta.feature.filter.FeaturesFilteringManager:
+
+  featurestorebundle.delta.feature.filter.LatestFeaturesFilterer:
+
+  featurestorebundle.delta.feature.filter.TargetFeaturesFilterer:
+
+  featurestorebundle.delta.feature.filter.IncompleteRowsHandler:
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 
   featurestorebundle.feature.ChangesCalculator:
 
   featurestorebundle.feature.FeatureListFactory:
+
+  featurestorebundle.feature.FeaturesManager:
 
   featurestorebundle.feature.FeatureStore:
     arguments:
@@ -258,13 +266,15 @@ services:
 
   featurestorebundle.orchestration.Serializator:
 
-  featurestorebundle.orchestration.FrequencyGuard:
-
   featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
 
   featurestorebundle.orchestration.NotebookDefinitionGetter:
     arguments:
       - '%featurestorebundle.orchestration%'
+
+  featurestorebundle.frequency.FrequencyGuard:
+
+  featurestorebundle.frequency.FrequencyChecker:
 
   featurestorebundle.checkpoint.CheckpointDirHandler:
     arguments:

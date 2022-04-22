@@ -1,7 +1,6 @@
 from typing import Optional
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
-from pyspark.sql import functions as f
 from logging import Logger
 from featurestorebundle.db.TableNames import TableNames
 from featurestorebundle.metadata.reader.MetadataReaderInterface import MetadataReaderInterface
@@ -24,9 +23,4 @@ class DeltaTableMetadataReader(MetadataReaderInterface):
 
         self.__logger.info(f"Reading metadata from table {full_table_name}")
 
-        df = self.__spark.read.table(full_table_name)
-
-        if entity_name:
-            df = df.filter(f.col("entity") == entity_name)
-
-        return df
+        return self.__spark.read.table(full_table_name)
