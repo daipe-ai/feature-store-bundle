@@ -1,5 +1,6 @@
 import re
 from typing import List, Dict, Union
+from datetime import datetime
 
 from featurestorebundle.utils.errors import UnsupportedChangeFeatureNameError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
@@ -34,6 +35,9 @@ class FeatureList:
     def get_metadata_dicts(self) -> List[Dict[str, Union[str, Dict[str, str]]]]:
         return [feature.get_metadata_dict() for feature in self.__features]
 
+    def get_max_last_compute_date(self) -> datetime:
+        return max([feature.template.last_compute_date for feature in self.__features])
+
     def get_change_features(self) -> List[MasterFeature]:
         change_features = list(filter(lambda feature: feature.is_change_feature(), self.__features))
         pattern = re.compile("(?P<first_part_name>.*)_(?P<time_window>[0-9]+[hdw])(?P<second_part_name>.*)")
@@ -43,7 +47,8 @@ class FeatureList:
             match = pattern.fullmatch(change_feature.name)
             if not match:
                 raise UnsupportedChangeFeatureNameError(
-                    f"Feature with change {change_feature.name} is not in the expected format '.*_[0-9]+[hdw].*'. Either change the name or remove FeatureWithChange classifier."
+                    f"Feature with change {change_feature.name} is not in the expected format '.*_[0-9]+[hdw].*'. "
+                    f"Either change the name or remove FeatureWithChange classifier."
                 )
 
             first_part_name = match.group("first_part_name")

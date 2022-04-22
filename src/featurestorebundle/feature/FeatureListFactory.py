@@ -1,7 +1,5 @@
 import ast
 import pydoc
-from typing import List
-from pyspark.sql import functions as f
 from pyspark.sql import DataFrame
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
@@ -9,9 +7,9 @@ from featurestorebundle.feature.FeatureList import FeatureList
 
 
 class FeatureListFactory:
-    def create(self, metadata: DataFrame, entity_name: str, features: List[str]) -> FeatureList:
+    def create(self, metadata: DataFrame) -> FeatureList:
         feature_instances = []
-        rows = self.__get_relevant_metadata(metadata, entity_name, features).collect()
+        rows = metadata.collect()
 
         for row in rows:
             feature_template = FeatureTemplate(
@@ -29,14 +27,6 @@ class FeatureListFactory:
             feature_instances.append(feature_instance)
 
         return FeatureList(feature_instances)
-
-    def __get_relevant_metadata(self, metadata: DataFrame, entity_name: str, features: List[str]) -> DataFrame:
-        metadata = metadata.filter(f.col("entity") == entity_name)
-
-        if features:
-            metadata = metadata.filter(f.col("feature").isin(features))
-
-        return metadata
 
     # pylint: disable=too-many-return-statements
     def __convert_fillna_value(self, fillna_value: str, fillna_value_type: str):

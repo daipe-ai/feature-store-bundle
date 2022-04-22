@@ -79,7 +79,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
             get_metadata_schema(),
         )
 
-        feature_list = self.__feature_list_factory.create(metadata, self.__entity.name, ["f1", "f2", "f3"])
+        feature_list = self.__feature_list_factory.create(metadata)
 
         expected_feature_list = FeatureList(
             [

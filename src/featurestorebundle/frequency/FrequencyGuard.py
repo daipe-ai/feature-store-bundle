@@ -1,30 +1,34 @@
-import re
 from datetime import datetime
+from featurestorebundle.frequency.Frequencies import Frequencies
+from featurestorebundle.frequency.FrequencyChecker import FrequencyChecker
 
 
 class FrequencyGuard:
-    _friendly_frequencies = ["daily", "weekly", "monthly"]
+    def __init__(self, frequency_checker: FrequencyChecker):
+        self.__frequency_checker = frequency_checker
 
     def should_be_computed(self, start_date: datetime, current_date: datetime, frequency: str) -> bool:
+        self.__frequency_checker.check_frequency_valid(frequency)
+
         if current_date < start_date:
             return False
 
-        if frequency in self._friendly_frequencies:
+        if frequency in Frequencies.friendly_frequencies:
             return self.__friendly_frequency_should_be_computed(start_date, current_date, frequency)
 
         return self.__other_frequency_should_be_computed(start_date, current_date, frequency)
 
     def __friendly_frequency_should_be_computed(self, start_date: datetime, current_date: datetime, frequency: str) -> bool:
-        if frequency == "daily":
+        if frequency == Frequencies.daily:
             return True
 
-        if frequency == "weekly":
+        if frequency == Frequencies.weekly:
             if start_date.weekday() != 0:
                 raise Exception("Weekly features can only start on monday")
 
             return current_date.weekday() == 0
 
-        if frequency == "monthly":
+        if frequency == Frequencies.monthly:
             if start_date.day != 1:
                 raise Exception("Monthly features can only start on first day of month")
 
@@ -33,11 +37,6 @@ class FrequencyGuard:
         return False
 
     def __other_frequency_should_be_computed(self, start_date: datetime, current_date: datetime, frequency: str) -> bool:
-        matches = re.match(r"([1-9][0-9]*)(d)", frequency)
+        frequency_in_days = int(frequency[:-1])
 
-        if not matches:
-            raise Exception(f"Invalid frequency format, allowed values are {self._friendly_frequencies} or e.g. '5d'")
-
-        number_of_days = int(matches[1])
-
-        return (current_date - start_date).days % number_of_days == 0
+        return (current_date - start_date).days % frequency_in_days == 0
