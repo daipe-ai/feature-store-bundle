@@ -84,10 +84,10 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
 
         expected_features_data = self.spark.createDataFrame(
             [
-                ["1", "c1f1", "c1f2"],
-                ["2", "c2f1", "c2f2"],
+                ["1", dt.datetime(2020, 1, 1), "c1f1", "c1f2"],
+                ["2", dt.datetime(2020, 1, 1), "c2f1", "c2f2"],
             ],
-            [self.__entity.id_column, "f1", "f2"],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])
@@ -235,10 +235,10 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
 
         expected_features_data = self.spark.createDataFrame(
             [
-                ["1", "c1f1", "c1f2", "c1f3"],
-                ["2", "c2f1", "c2f2", "c2f3"],
+                ["1", dt.datetime(2020, 1, 10), "c1f1", "c1f2", "c1f3"],
+                ["2", dt.datetime(2020, 1, 10), "c2f1", "c2f2", "c2f3"],
             ],
-            [self.__entity.id_column, "f1", "f2", "f3"],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2", "f3"],
         )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])
@@ -309,10 +309,10 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
 
         expected_features_data = self.spark.createDataFrame(
             [
-                ["1", "c1f1", "c1f2"],
-                ["2", "c2f1", "c2f2"],
+                ["1", dt.datetime(2020, 1, 30), "c1f1", "c1f2"],
+                ["2", dt.datetime(2020, 1, 30), "c2f1", "c2f2"],
             ],
-            [self.__entity.id_column, "f1", "f2"],
+            [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])
@@ -322,7 +322,13 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
             feature_store, feature_list, dt.datetime(2020, 1, 30), dt.timedelta(days=15), True
         )
 
-        expected_features_data = self.spark.createDataFrame([], f"{self.__entity.id_column} string, f1 string, f2 string")
+        expected_features_data = self.spark.createDataFrame(
+            [],
+            f"{self.__entity.id_column} {self.__entity.id_column_type.simpleString()}, "
+            f"{self.__entity.time_column} {self.__entity.time_column_type.simpleString()}, "
+            f"f1 string, "
+            f"f2 string",
+        )
 
         self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column])
 

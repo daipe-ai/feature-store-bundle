@@ -6,7 +6,6 @@ from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.feature.FeatureStore import FeatureStore
-from featurestorebundle.notebook.services.TimestampAdder import TimestampAdder
 from featurestorebundle.widgets.WidgetNames import WidgetNames
 
 
@@ -17,7 +16,6 @@ class FeaturesGetter:
         date_parser: DateParser,
         entity_getter: EntityGetter,
         feature_store: FeatureStore,
-        timestamp_adder: TimestampAdder,
         widget_names: WidgetNames,
         widgets: Widgets,
     ):
@@ -25,7 +23,6 @@ class FeaturesGetter:
         self.__date_parser = date_parser
         self.__entity_getter = entity_getter
         self.__feature_store = feature_store
-        self.__timestamp_adder = timestamp_adder
         self.__widget_names = widget_names
         self.__widgets = widgets
 
@@ -44,8 +41,7 @@ class FeaturesGetter:
 
         self.__logger.info(f"Loading latest features for entity '{entity.name}'")
 
-        latest_df = self.__feature_store.get_latest(entity.name, features=feature_names, skip_incomplete_rows=True)
-        return self.__timestamp_adder.add_without_filters(latest_df, entity)
+        return self.__feature_store.get_latest(entity.name, features=feature_names, skip_incomplete_rows=True)
 
     def __get_features_for_target(self, feature_names: List[str]):
         entity = self.__entity_getter.get()
