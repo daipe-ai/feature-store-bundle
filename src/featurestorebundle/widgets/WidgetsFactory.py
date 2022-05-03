@@ -9,6 +9,7 @@ from featurestorebundle.delta.target.schema import get_target_id_column_name
 class WidgetsFactory:
     all_notebooks_placeholder = "<all>"
     no_targets_placeholder = "<no target>"
+    sample_value = "sample"
 
     entity_name = "entity_name"
     target_name = "target_name"
@@ -18,6 +19,7 @@ class WidgetsFactory:
     target_time_shift = "target_time_shift"
     notebooks_name = "notebooks"
     features_orchestration_id = "features_orchestration_id"
+    sample_name = "sample_data"
 
     def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
         self.__defaults = defaults
@@ -37,6 +39,8 @@ class WidgetsFactory:
             self.create_for_timestamp()
         else:
             self.create_for_target()
+
+        self.create_for_sample()
 
     def create_for_entity(self):
         if not self.__entities_list:
@@ -87,6 +91,9 @@ class WidgetsFactory:
                     stages.append(f"{stage}: {notebook_name}")
 
         self.__widgets.add_multiselect(WidgetsFactory.notebooks_name, stages, [WidgetsFactory.all_notebooks_placeholder])
+
+    def create_for_sample(self):
+        self.__widgets.add_select(WidgetsFactory.sample_name, [self.__defaults.sample, WidgetsFactory.sample_value], self.__defaults.sample)
 
     def __check_default_exists(self, widget_name: str):
         if widget_name not in self.__defaults:
