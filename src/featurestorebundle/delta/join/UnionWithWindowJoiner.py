@@ -8,6 +8,7 @@ from featurestorebundle.delta.join.DataFrameJoinerInterface import DataFrameJoin
 
 class UnionWithWindowJoiner(DataFrameJoinerInterface):
     def join(self, dataframes: List[DataFrame], join_columns: List[str]) -> DataFrame:
+        dataframes = [df.na.drop(how="any", subset=join_columns) for df in dataframes]
         window = Window.partitionBy(*join_columns).rowsBetween(Window.unboundedPreceding, Window.unboundedFollowing)
         union_df = reduce(lambda df1, df2: df1.unionByName(df2, allowMissingColumns=True), dataframes)
         columns = [col for col in union_df.columns if col not in join_columns]
