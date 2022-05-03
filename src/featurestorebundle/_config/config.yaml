@@ -47,7 +47,11 @@ parameters:
     entities:
     widgets:
       defaults:
+        sample: "complete"
     time_windows:
+    sampling:
+      rate: 0.01
+      seed: 42
 
 services:
   featurestorebundle.logger:
@@ -250,6 +254,7 @@ services:
       - '%featurestorebundle.orchestration.timestamp_shift%'
       - '%featurestorebundle.time_windows%'
       - '@featurestorebundle.logger'
+      - '%featurestorebundle.sampling%'
 
   featurestorebundle.orchestration.DatabricksOrchestrator:
     arguments:
