@@ -8,7 +8,7 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
 from featurestorebundle.delta.metadata.schema import get_metadata_schema
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
 class FeaturesListFactoryTest(PySparkTestCase):

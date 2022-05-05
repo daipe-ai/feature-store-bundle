@@ -17,7 +17,7 @@ from featurestorebundle.feature.MasterFeature import MasterFeature
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 from featurestorebundle.notebook.decorator import feature_decorator_factory
 from featurestorebundle.notebook.functions.time_windows import sum_windowed, count_windowed
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 os.environ["APP_ENV"] = "test"
 

@@ -6,7 +6,7 @@ import datetime as dt
 from pyspark.sql import types as t, functions as f
 
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
 from featurestorebundle.notebook.functions.time_windows import sum_windowed, count_windowed, is_past_time_window, with_time_windows
 
