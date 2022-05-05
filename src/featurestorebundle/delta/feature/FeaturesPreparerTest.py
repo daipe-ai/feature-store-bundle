@@ -9,7 +9,7 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.delta.feature.schema import get_feature_store_initial_schema
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
 class FeaturesPreparerTest(PySparkTestCase):

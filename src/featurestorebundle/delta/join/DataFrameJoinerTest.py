@@ -6,7 +6,7 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.delta.join.LeftWithCheckpointingJoiner import LeftWithCheckpointingJoiner
 from featurestorebundle.delta.join.UnionWithWindowJoiner import UnionWithWindowJoiner
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
 class DataFrameJoinerTest(PySparkTestCase):

@@ -16,7 +16,7 @@ from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator import feature_decorator_factory
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 from featurestorebundle.utils.TypeChecker import TypeChecker
 from featurestorebundle.utils.errors import WrongFillnaValueTypeError
 

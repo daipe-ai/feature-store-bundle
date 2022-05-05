@@ -7,7 +7,7 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
-from featurestorebundle.test.PySparkTestCase import PySparkTestCase
+from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
 class MetadataTest(PySparkTestCase):
