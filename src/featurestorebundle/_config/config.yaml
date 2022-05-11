@@ -134,6 +134,10 @@ services:
 
   featurestorebundle.delta.PathExistenceChecker:
 
+  featurestorebundle.delta.TableSchemaMerger:
+
+  featurestorebundle.delta.PathSchemaMerger:
+
   featurestorebundle.delta.TableCreator:
     arguments:
       - '@featurestorebundle.logger'
