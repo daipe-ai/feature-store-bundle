@@ -31,11 +31,11 @@ class ChangesCalculator:
         return (column_ratio * time_window_ratio).alias(feature_name.format(time_window=f"change_{low}_{high}"))
 
     def __change_feature(self, feature: FeatureInstance, low: str, high: str, entity: str) -> FeatureInstance:
-        metadata = feature.extra
+        extra = feature.extra
 
-        metadata = {**metadata, "time_window": f"change_{low}_{high}"}
+        extra = {**extra, "time_window": f"change_{low}_{high}"}
 
-        name = feature.template.name_template.format(**metadata)
+        name = feature.template.name_template.format(**extra)
 
         template = FeatureTemplate(
             feature.template.name_template,
@@ -49,4 +49,4 @@ class ChangesCalculator:
             feature.template.last_compute_date,
         )
 
-        return FeatureInstance.from_template(template, entity, name, "double", metadata)
+        return FeatureInstance.from_template(template, entity, name, "double", extra)

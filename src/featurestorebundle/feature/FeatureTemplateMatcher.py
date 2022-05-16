@@ -41,14 +41,14 @@ class FeatureTemplateMatcher:
                 continue
 
             unmatched_patterns.discard(feature_pattern)
-            metadata = feature_pattern.get_groups_as_dict(match)
+            extra = feature_pattern.get_groups_as_dict(match)
 
-            time_window = metadata.get("time_window", None)
+            time_window = extra.get("time_window", None)
 
             if time_window is not None:
                 self.__check_time_window(feature_pattern, time_window, name)
 
-            return FeatureInstance.from_template(feature_template, entity, name, dtype, metadata)
+            return FeatureInstance.from_template(feature_template, entity, name, dtype, extra)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 
