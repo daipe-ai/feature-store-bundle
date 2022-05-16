@@ -116,11 +116,11 @@ class feature(OutputDecorator):  # noqa
 
         feature_templates = [
             feature_.create_template(
-                self.__category,
-                self.__owner,
-                date_parser.parse_date(self.__start_date),  # pyre-ignore[6]
-                self.__frequency,
-                date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None,
+                category=self.__category,
+                owner=self.__owner,
+                start_date=date_parser.parse_date(self.__start_date),  # pyre-ignore[6]
+                frequency=self.__frequency,
+                last_compute_date=date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None,
             )
             for feature_ in features
         ]

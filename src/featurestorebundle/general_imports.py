@@ -29,6 +29,7 @@ from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 # Changes
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
+from featurestorebundle.attribute.Attribute import Attribute
 
 # Decorator input functions
 from featurestorebundle.notebook.functions.input_functions import get_features

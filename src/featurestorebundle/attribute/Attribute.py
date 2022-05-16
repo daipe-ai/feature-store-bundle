@@ -1,16 +1,11 @@
-from dataclasses import dataclass
-from typing import Any, Optional
+from typing import Optional
 from datetime import datetime
 
-from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.feature.Feature import Feature
+from featurestorebundle.attribute.AttributeTemplate import AttributeTemplate
 
 
-@dataclass(frozen=True)
-class Feature:
-    name_template: str
-    description_template: str
-    fillna_with: Any
-
+class Attribute(Feature):
     def create_template(
         self,
         category: Optional[str],
@@ -18,8 +13,8 @@ class Feature:
         start_date: Optional[datetime],
         frequency: Optional[str],
         last_compute_date: Optional[datetime],
-    ) -> FeatureTemplate:
-        return FeatureTemplate(
+    ) -> AttributeTemplate:
+        return AttributeTemplate(
             name_template=self.name_template,
             description_template=self.description_template,
             fillna_value=self.fillna_with,
