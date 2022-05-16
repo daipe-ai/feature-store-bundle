@@ -16,13 +16,13 @@ class FeatureInstance:
         self.__template = template
 
     @classmethod
-    def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, metadata: Dict[str, str]):
+    def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, extra: Dict[str, str]):
         type_checker = TypeChecker()
         type_checker.check(feature_template, dtype, feature_template.fillna_value)
 
         filler = DescriptionFiller()
-        description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in metadata.items()})
-        return cls(entity, name, description, dtype, metadata, feature_template)
+        description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in extra.items()})
+        return cls(entity, name, description, dtype, extra, feature_template)
 
     @property
     def entity(self):
