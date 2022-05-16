@@ -61,10 +61,20 @@ class FeatureChangesTest(PySparkTestCase):
 
         features_with_change = [
             FeatureInstance(
-                "entity", "feature_14d_suffix", "feature suffix in 14 days", "int", {"time_window": "14d"}, feature_with_change_template
+                "entity",
+                "feature_14d_suffix",
+                "feature suffix in 14 days",
+                "int",
+                {"time_window": "14d"},
+                feature_with_change_template,
             ),
             FeatureInstance(
-                "entity", "feature_30d_suffix", "feature suffix in 30 days", "int", {"time_window": "30d"}, feature_with_change_template
+                "entity",
+                "feature_30d_suffix",
+                "feature suffix in 30 days",
+                "int",
+                {"time_window": "30d"},
+                feature_with_change_template,
             ),
         ]
 

@@ -22,7 +22,9 @@ class FeatureListFactory:
                 row.start_date,
                 row.frequency,
                 row.last_compute_date,
+                row.is_feature,
             )
+
             feature_instance = FeatureInstance(row.entity, row.feature, row.description, row.dtype, row.extra, feature_template)
             feature_instances.append(feature_instance)
 

@@ -49,6 +49,10 @@ class FeatureInstance:
         return self.__extra
 
     @property
+    def is_feature(self):
+        return self.__template.is_feature
+
+    @property
     def template(self):
         return self.__template
 
@@ -68,6 +72,7 @@ class FeatureInstance:
             "dtype": self.__dtype,
             "fillna_value": str(self.__template.fillna_value),
             "fillna_value_type": self.__template.fillna_value_type,
+            "is_feature": self.__template.is_feature,
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:

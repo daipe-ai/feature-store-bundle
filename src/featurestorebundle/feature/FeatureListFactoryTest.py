@@ -42,6 +42,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "string",
                     "",
                     "str",
+                    False,
                 ],
                 [
                     self.__entity.name,
@@ -58,6 +59,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "integer",
                     0,
                     "int",
+                    False,
                 ],
                 [
                     self.__entity.name,
@@ -74,6 +76,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "string",
                     "None",
                     "NoneType",
+                    False,
                 ],
             ],
             get_metadata_schema(),

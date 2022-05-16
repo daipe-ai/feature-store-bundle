@@ -15,3 +15,4 @@ class FeatureTemplate:
     start_date: Optional[datetime] = None
     frequency: Optional[str] = None
     last_compute_date: Optional[datetime] = None
+    is_feature: bool = True

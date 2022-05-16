@@ -45,12 +45,21 @@ class FeatureStore:
         lookback: Optional[str] = None,
         features: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
+        include_all: bool = False,
     ) -> DataFrame:
         entity = self.__entity_getter.get_by_name(entity_name)
         feature_store = self.__features_reader.read(entity_name)
-        features = features or self.__features_manager.get_registered_features(feature_store)
-        metadata = self.get_metadata(entity_name, features)
+        metadata = self.get_metadata(entity_name)
         feature_list = self.__feature_list_factory.create(metadata)
+
+        if not include_all:
+            all_feature_names = feature_list.get_names()
+            feature_list = feature_list.remove_nonfeatures()
+            nonfeature_names = list(set(all_feature_names) - set(feature_list.get_names()))
+            feature_store = feature_store.drop(*nonfeature_names)
+
+        features = features or self.__features_manager.get_registered_features(feature_store)
+
         timestamp = timestamp or feature_list.get_max_last_compute_date()
         look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else timestamp - datetime.min
 
@@ -63,6 +72,7 @@ class FeatureStore:
 
         return features_data
 
+    # pylint: disable=too-many-locals
     def get_for_target(
         self,
         entity_name: str,
@@ -75,9 +85,16 @@ class FeatureStore:
     ) -> DataFrame:
         entity = self.__entity_getter.get_by_name(entity_name)
         feature_store = self.__features_reader.read(entity_name)
-        features = features or self.__features_manager.get_registered_features(feature_store)
-        metadata = self.get_metadata(entity_name, features)
+        metadata = self.get_metadata(entity_name)
         feature_list = self.__feature_list_factory.create(metadata)
+
+        all_feature_names = feature_list.get_names()
+        feature_list = feature_list.remove_nonfeatures()
+        nonfeature_names = list(set(all_feature_names) - set(feature_list.get_names()))
+        feature_store = feature_store.drop(*nonfeature_names)
+
+        features = features or self.__features_manager.get_registered_features(feature_store)
+
         targets = self.get_targets(entity_name, target_name, target_date_from, target_date_to, time_diff)
 
         self.__features_manager.check_features_registered(feature_store, features)
@@ -100,11 +117,7 @@ class FeatureStore:
 
         return self.__targets_filtering_manager.get_targets(entity, target_store, target_name, date_from, date_to, time_diff)
 
-    def get_metadata(
-        self,
-        entity_name: Optional[str] = None,
-        features: Optional[List[str]] = None,
-    ) -> DataFrame:
+    def get_metadata(self, entity_name: Optional[str] = None, features: Optional[List[str]] = None) -> DataFrame:
         metadata = self.__metadata_reader.read(entity_name)
 
         if entity_name is not None:

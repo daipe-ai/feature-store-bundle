@@ -1,9 +1,9 @@
 {
   "source_directories": [
-    "/app/src"
+    "src"
   ],
   "search_path": [
-    "/app/.venv/lib/python3.7/site-packages"
+    ".venv/lib/python3.7/site-packages"
   ],
-  "taint_models_path": "/app/.venv/lib"
+  "taint_models_path": ".venv/lib"
 }

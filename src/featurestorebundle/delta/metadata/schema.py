@@ -22,6 +22,7 @@ def get_metadata_columns():
         t.StructField("dtype", t.StringType(), True),
         t.StructField("fillna_value", t.StringType(), True),
         t.StructField("fillna_value_type", t.StringType(), True),
+        t.StructField("is_feature", t.BooleanType(), True),
     ]
 
 

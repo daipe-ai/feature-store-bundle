@@ -63,3 +63,6 @@ class FeatureList:
                 result[name] = (features + [change_feature], time_windows + [time_window])
 
         return [MasterFeature(name, features, time_windows) for name, (features, time_windows) in result.items()]
+
+    def remove_nonfeatures(self) -> "FeatureList":
+        return FeatureList([feature_instance for feature_instance in self.__features if feature_instance.is_feature])
