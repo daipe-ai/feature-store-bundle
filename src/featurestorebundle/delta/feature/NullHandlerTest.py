@@ -68,9 +68,7 @@ class NullHandlerTest(PySparkTestCase):
         self.compare_dataframes(expected_df, test.result, self.__entity.get_primary_key())
 
     def test_changes_null_values(self):
-        features_storage = FeaturesStorage(self.__entity)
-        feature_decorator = feature_decorator_factory.create(self.__entity, features_storage)
-
+        feature_decorator = feature_decorator_factory.create(self.__entity)
         string_default = "test"
         change_feature_default = 3
         change_default = 0.0
@@ -108,6 +106,10 @@ class NullHandlerTest(PySparkTestCase):
                 ],
                 schema=f"{self.__entity.id_column} string, {self.__entity.time_column} timestamp, f2_count_20d long, f2_count_40d long",
             )
+
+        features_storage = FeaturesStorage(self.__entity)
+        features_storage.add(test1.result, test1.previous_decorator_instance._feature__feature_list)  # pylint: disable=protected-access
+        features_storage.add(test2.result, test2.previous_decorator_instance._feature__feature_list)  # pylint: disable=protected-access
 
         features_data = self.__features_preparer.prepare(features_storage)
 

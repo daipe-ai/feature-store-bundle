@@ -1,11 +1,9 @@
-from typing import Optional
 from daipecore.decorator.DecoratedDecorator import DecoratedDecorator
 from featurestorebundle.entity.Entity import Entity
-from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator.feature import feature
 
 
-def create(entity: Entity, features_storage: Optional[FeaturesStorage] = None):
+def create(entity: Entity):
     if f"{entity.name}_feature_decorator" in globals():
         return globals()[f"{entity.name}_feature_decorator"]
 
@@ -20,7 +18,6 @@ def create(entity: Entity, features_storage: Optional[FeaturesStorage] = None):
                 owner=owner,
                 start_date=start_date,
                 frequency=frequency,
-                features_storage=features_storage,
             )
 
     globals()[f"{entity.name}_feature_decorator"] = feature_decorator
