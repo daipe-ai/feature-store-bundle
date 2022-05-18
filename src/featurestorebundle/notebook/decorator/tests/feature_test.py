@@ -4,7 +4,6 @@ from daipecore.decorator.DecoratedDecorator import DecoratedDecorator
 from daipecore.decorator.notebook_function import notebook_function
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.Feature import Feature
-from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.notebook.decorator.feature import feature
 
 os.environ["APP_ENV"] = "test"
@@ -50,14 +49,12 @@ entity = Entity(
     time_column_type=t.TimestampType(),
 )
 
-features_storage = FeaturesStorage(entity)
-
 
 # pylint: disable=invalid-name
 @DecoratedDecorator
 class client_feature(feature):
     def __init__(self, *args, category=None):
-        super().__init__(*args, entity=entity, category=category, features_storage=features_storage)
+        super().__init__(*args, entity=entity, category=category)
 
 
 expected_value = FakeResult("not_a_real_dataframe")
@@ -69,8 +66,7 @@ try:
     def my_sample_feature():
         return expected_value
 
+    assert expected_value == my_sample_feature.result
 
 except ModuleNotFoundError as e:
     assert str(e) == "No module named 'IPython'"
-
-assert expected_value == features_storage.results[0]

@@ -11,7 +11,6 @@ from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
@@ -32,7 +31,6 @@ class feature(OutputDecorator):  # noqa
         owner: Optional[str] = None,
         start_date: Optional[str] = None,
         frequency: Optional[str] = None,
-        features_storage: Optional[FeaturesStorage] = None,
     ):
         self._args = args
         self.__entity = entity
@@ -40,7 +38,6 @@ class feature(OutputDecorator):  # noqa
         self.__owner = owner
         self.__start_date = start_date
         self.__frequency = frequency
-        self.__features_storage = features_storage
         self.__last_compute_date = None
         self.__feature_list = None
 
@@ -80,9 +77,6 @@ class feature(OutputDecorator):  # noqa
         if checkpoint_guard.should_checkpoint_result() is True:
             checkpoint_dir_handler.set_checkpoint_dir_if_necessary()
             result = result.checkpoint()
-
-        if self.__features_storage is not None:
-            self.__features_storage.add(result, self.__feature_list)
 
         if widgets_getter.features_orchestration_id_exists():
             orchestration_id = widgets_getter.get_features_orchestration_id()
