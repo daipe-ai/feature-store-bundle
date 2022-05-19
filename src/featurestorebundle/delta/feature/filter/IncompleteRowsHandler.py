@@ -1,6 +1,8 @@
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as f
 
+from featurestorebundle.utils.errors import IncompleteRowsError
+
 
 class IncompleteRowsHandler:
     def handle(self, features_data: DataFrame, skip_incomplete_rows: bool):
@@ -12,6 +14,6 @@ class IncompleteRowsHandler:
         )
 
         if has_incomplete_rows:
-            raise Exception("Features contain incomplete rows")
+            raise IncompleteRowsError("Features contain incomplete rows. Use skip_incomplete_rows=True")
 
         return features_data
