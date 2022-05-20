@@ -12,55 +12,70 @@ poetry add feature-store-bundle
 
 # Getting started
 
-
-1. Define entity and custom `feature decorator`
-
-```python
-from featurestorebundle.entity.getter import get_entity
-from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
-from featurestorebundle.notebook.decorator import feature_decorator_factory
-
-entity = get_entity()
-features_storage = FeaturesStorage(entity)
-
-feature_decorator = feature_decorator_factory.create(entity, features_storage)
-```
-
-2. Use the `feature decorator` to save features as you create them
+1. Define entity and custom `feature` decorator
 
 ```python
 import daipe as dp
 
-from pyspark.sql import functions as f
-from pyspark.sql import DataFrame
+entity = dp.fs.get_entity()
+feature = dp.fs.feature_decorator_factory.create(entity)
+```
 
-@dp.transformation(dp.read_table("silver.tbl_loans"), display=True)
-@feature_decorator(
-    ("Age", "Client's age"),
-    ("Gender", "Client's gender"),
-    ("WorkExperience", "Client's work experience"),
-    category="personal",
+2. Prepare your data
+
+```python
+from pyspark.sql import SparkSession
+from datetime import datetime
+
+@dp.transformation(display=True)
+def load_data(spark: SparkSession):
+    data = [
+        {"client_id": 1, "date": datetime.strptime("2020-12-01", "%Y-%m-%d"), "amount": 121.44},
+        {"client_id": 1, "date": datetime.strptime("2020-12-06", "%Y-%m-%d"), "amount": 21.44},
+        {"client_id": 3, "date": datetime.strptime("2020-12-05", "%Y-%m-%d"), "amount": 321.44},
+        {"client_id": 1, "date": datetime.strptime("2020-11-01", "%Y-%m-%d"), "amount": 121.44},
+        {"client_id": 2, "date": datetime.strptime("2020-12-01", "%Y-%m-%d"), "amount": 421.44},
+        {"client_id": 2, "date": datetime.strptime("2020-11-08", "%Y-%m-%d"), "amount": 121.44},
+        {"client_id": 3, "date": datetime.strptime("2020-12-01", "%Y-%m-%d"), "amount": 221.44},
+        {"client_id": 3, "date": datetime.strptime("2020-12-03", "%Y-%m-%d"), "amount": 221.44},
+        {"client_id": 1, "date": datetime.strptime("2020-11-01", "%Y-%m-%d"), "amount": 21.44},
+        {"client_id": 4, "date": datetime.strptime("2020-11-01", "%Y-%m-%d"), "amount": 21.54},
+    ]
+    return spark.createDataFrame(data).select("client_id", "date", "amount")
+```
+
+3. Add timestamps
+
+```python
+@dp.transformation(
+    dp.fs.with_timestamps_no_filter(
+        load_data,
+        entity,
+    ),
+    display=False
 )
-def client_personal_features(df: DataFrame):
+def data_with_timestamps(df: DataFrame):
+    return df.cache()
+```
+
+4. Create features
+
+```python
+@dp.transformation(data_with_timestamps, display=True)
+@feature(
+    dp.fs.Feature("num_transactions", "Number of transactions", fillna_with=0),
+    dp.fs.Feature("sum_amount", "Sum of amount loaned", fillna_with=0),
+    category="financial",
+)
+def client_features(df: DataFrame):
     return (
-        df.select("UserName", "Age", "Gender", "WorkExperience")
-        .groupBy("UserName")
+        df
+        .groupBy(entity.get_primary_key())
         .agg(
-            f.max("Age").alias("Age"),
-            f.first("Gender").alias("Gender"),
-            f.first("WorkExperience").alias("WorkExperience"),
+            f.count("amount").alias("num_transactions"),
+            f.sum("amount").alias("sum_amount"),
         )
-        .withColumn("timestamp", f.lit(today))
     )
 ```
 
-3. Write/Merge all features in one go
-
-```python
-import daipe as dp
-from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
-
-@dp.notebook_function()
-def write_features(writer: FeaturesWriter):
-    writer.write(features_storage)
-```
+5. Use the orchestration notebook in Databricks to write all the features in one go.
