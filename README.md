@@ -12,7 +12,31 @@ poetry add feature-store-bundle
 
 # Getting started
 
-1. Define entity and custom `feature` decorator
+1. Define entities in `config.yaml` of your Daipe project
+
+```yaml
+parameters:
+  featurestorebundle:
+    entities:
+      client:
+        id_column: "client_id"
+        id_column_type: "long"
+      customer:
+        id_column: "customer_id"
+        id_column_type: "long"
+```
+
+2. Setup Feature store widgets in your Databricks feature notebook
+
+```
+# import daipe as dp
+
+@dp.notebook_function()
+def init_widgets(widgets_factory: dp.fs.WidgetsFactory):
+    widgets_factory.create()
+```
+
+1. Use the widgets to select an entity and create a custom `feature` decorator for it
 
 ```python
 import daipe as dp
@@ -24,8 +48,8 @@ feature = dp.fs.feature_decorator_factory.create(entity)
 2. Prepare your data
 
 ```python
-from pyspark.sql import SparkSession
-from datetime import datetime
+# from pyspark.sql import SparkSession
+# from datetime import datetime
 
 @dp.transformation(display=True)
 def load_data(spark: SparkSession):
@@ -47,6 +71,9 @@ def load_data(spark: SparkSession):
 3. Add timestamps
 
 ```python
+# import daipe as dp
+# from pyspark.sql import DataFrame
+
 @dp.transformation(
     dp.fs.with_timestamps_no_filter(
         load_data,
@@ -61,6 +88,10 @@ def data_with_timestamps(df: DataFrame):
 4. Create features
 
 ```python
+# import daipe as dp
+# from pyspark.sql import DataFrame
+# import pyspark.sql.functions as f
+
 @dp.transformation(data_with_timestamps, display=True)
 @feature(
     dp.fs.Feature("num_transactions", "Number of transactions", fillna_with=0),
