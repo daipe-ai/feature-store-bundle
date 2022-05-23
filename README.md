@@ -36,7 +36,7 @@ def init_widgets(widgets_factory: dp.fs.WidgetsFactory):
     widgets_factory.create()
 ```
 
-1. Use the widgets to select an entity and create a custom `feature` decorator for it
+3. Use the widgets to select an entity and create a custom `feature` decorator for it
 
 ```python
 import daipe as dp
@@ -45,7 +45,7 @@ entity = dp.fs.get_entity()
 feature = dp.fs.feature_decorator_factory.create(entity)
 ```
 
-2. Prepare your data
+4. Prepare your data
 
 ```python
 # from pyspark.sql import SparkSession
@@ -68,7 +68,7 @@ def load_data(spark: SparkSession):
     return spark.createDataFrame(data).select("client_id", "date", "amount")
 ```
 
-3. Add timestamps
+5. Add timestamps
 
 ```python
 # import daipe as dp
@@ -85,7 +85,7 @@ def data_with_timestamps(df: DataFrame):
     return df.cache()
 ```
 
-4. Create features
+6. Create features
 
 ```python
 # import daipe as dp
@@ -109,4 +109,4 @@ def client_features(df: DataFrame):
     )
 ```
 
-5. Use the orchestration notebook in Databricks to write all the features in one go.
+7. Use the orchestration notebook in Databricks to write all the features in one go.
