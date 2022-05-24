@@ -10,6 +10,7 @@ class FeatureTemplate:
     description_template: str
     fillna_value: Any
     fillna_value_type: str
+    type: Optional[str] = None
     category: Optional[str] = None
     owner: Optional[str] = None
     start_date: Optional[datetime] = None

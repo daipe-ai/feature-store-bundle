@@ -18,7 +18,7 @@ class FeatureInstance:
     @classmethod
     def from_template(cls, feature_template: FeatureTemplate, entity: str, name: str, dtype: str, extra: Dict[str, str]):
         type_checker = TypeChecker()
-        type_checker.check(feature_template, dtype, feature_template.fillna_value)
+        type_checker.check(feature_template, dtype)
 
         filler = DescriptionFiller()
         description = feature_template.description_template.format(**{key: filler.format(key, val) for key, val in extra.items()})
@@ -64,6 +64,7 @@ class FeatureInstance:
             "extra": self.__extra,
             "feature_template": self.__template.name_template,
             "description_template": self.__template.description_template,
+            "type": self.__template.type,
             "category": self.__template.category,
             "owner": self.__template.owner,
             "start_date": self.__template.start_date,

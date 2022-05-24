@@ -20,6 +20,7 @@ class FeatureWithChange(Feature):
             self.description_template,
             self.fillna_with,
             type(self.fillna_with).__name__,
+            self.type,
             category,
             owner,
             start_date,
