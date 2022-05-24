@@ -26,7 +26,7 @@ from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 
-# Changes
+# Features / Attributes
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.attribute.Attribute import Attribute

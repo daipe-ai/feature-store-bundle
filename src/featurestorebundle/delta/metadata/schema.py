@@ -14,6 +14,7 @@ def get_metadata_columns():
         t.StructField("extra", t.MapType(t.StringType(), t.StringType(), True)),
         t.StructField("feature_template", t.StringType(), True),
         t.StructField("description_template", t.StringType(), True),
+        t.StructField("type", t.StringType(), True),
         t.StructField("category", t.StringType(), True),
         t.StructField("owner", t.StringType(), True),
         t.StructField("start_date", t.TimestampType(), True),

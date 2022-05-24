@@ -17,6 +17,7 @@ class FeatureListFactory:
                 row.description_template,
                 self.__convert_fillna_value(row.fillna_value, row.fillna_value_type),
                 row.fillna_value_type,
+                row.type,
                 row.category,
                 row.owner,
                 row.start_date,
