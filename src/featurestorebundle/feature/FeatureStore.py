@@ -38,25 +38,50 @@ class FeatureStore:
         self.__null_handler = null_handler
         self.__entity_getter = entity_getter
 
-    def get_latest(
+    def get_latest_attributes(
+        self,
+        entity_name: str,
+        timestamp: Optional[datetime] = None,
+        lookback: Optional[str] = None,
+        attributes: Optional[List[str]] = None,
+        skip_incomplete_rows: bool = False,
+    ) -> DataFrame:
+        entity = self.__entity_getter.get_by_name(entity_name)
+        feature_store = self.__features_reader.read(entity_name)
+        metadata = self.get_metadata(entity_name)
+        attribute_list = self.__feature_list_factory.create(metadata)
+
+        attributes = attributes or self.__features_manager.get_registered_features(feature_store)
+
+        timestamp = timestamp or attribute_list.get_max_last_compute_date()
+        look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else timestamp - datetime.min
+
+        self.__features_manager.check_features_registered(feature_store, attributes)
+
+        attributes_data = self.__features_filtering_manager.get_latest(
+            feature_store, attribute_list, timestamp, look_back_days, attributes, skip_incomplete_rows
+        )
+        attributes_data = self.__null_handler.from_storage_format(attributes_data, attribute_list, entity)
+
+        return attributes_data
+
+    def get_latest_features(
         self,
         entity_name: str,
         timestamp: Optional[datetime] = None,
         lookback: Optional[str] = None,
         features: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
-        include_all: bool = False,
     ) -> DataFrame:
         entity = self.__entity_getter.get_by_name(entity_name)
         feature_store = self.__features_reader.read(entity_name)
         metadata = self.get_metadata(entity_name)
-        feature_list = self.__feature_list_factory.create(metadata)
+        attribute_list = self.__feature_list_factory.create(metadata)
 
-        if not include_all:
-            all_feature_names = feature_list.get_names()
-            feature_list = feature_list.remove_nonfeatures()
-            nonfeature_names = list(set(all_feature_names) - set(feature_list.get_names()))
-            feature_store = feature_store.drop(*nonfeature_names)
+        all_feature_names = attribute_list.get_names()
+        feature_list = attribute_list.remove_nonfeatures()
+        nonfeature_names = list(set(all_feature_names) - set(feature_list.get_names()))
+        feature_store = feature_store.drop(*nonfeature_names)
 
         features = features or self.__features_manager.get_registered_features(feature_store)
 
@@ -72,6 +97,22 @@ class FeatureStore:
 
         return features_data
 
+    def get_latest(
+        self,
+        entity_name: str,
+        timestamp: Optional[datetime] = None,
+        lookback: Optional[str] = None,
+        features: Optional[List[str]] = None,
+        skip_incomplete_rows: bool = False,
+    ) -> DataFrame:
+        return self.get_latest_features(
+            entity_name=entity_name,
+            timestamp=timestamp,
+            lookback=lookback,
+            features=features,
+            skip_incomplete_rows=skip_incomplete_rows,
+        )
+
     # pylint: disable=too-many-locals
     def get_for_target(
         self,
@@ -86,10 +127,10 @@ class FeatureStore:
         entity = self.__entity_getter.get_by_name(entity_name)
         feature_store = self.__features_reader.read(entity_name)
         metadata = self.get_metadata(entity_name)
-        feature_list = self.__feature_list_factory.create(metadata)
+        attribute_list = self.__feature_list_factory.create(metadata)
 
-        all_feature_names = feature_list.get_names()
-        feature_list = feature_list.remove_nonfeatures()
+        all_feature_names = attribute_list.get_names()
+        feature_list = attribute_list.remove_nonfeatures()
         nonfeature_names = list(set(all_feature_names) - set(feature_list.get_names()))
         feature_store = feature_store.drop(*nonfeature_names)
 
