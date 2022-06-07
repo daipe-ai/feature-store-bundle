@@ -3,6 +3,9 @@ import datetime as dt
 from pyspark.sql import types as t
 from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
+from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.delta.feature.filter.FeaturesFilteringManager import FeaturesFilteringManager
 from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
@@ -15,6 +18,49 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
             id_column_type=t.StringType(),
             time_column="timestamp",
             time_column_type=t.TimestampType(),
+        )
+
+        self.__feature_list = FeatureList(
+            [
+                FeatureInstance(
+                    entity=self.__entity.name,
+                    name="f1",
+                    description="",
+                    dtype="string",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f1",
+                        description_template="",
+                        fillna_value="",
+                        fillna_value_type="str",
+                        location="loc",
+                        backend="bck",
+                        notebook="ntb",
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
+                ),
+                FeatureInstance(
+                    entity=self.__entity.name,
+                    name="f2",
+                    description="",
+                    dtype="string",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f2",
+                        description_template="",
+                        fillna_value="",
+                        location="loc",
+                        backend="bck",
+                        notebook="ntb",
+                        fillna_value_type="str",
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
+                ),
+            ]
         )
 
         self.__container = bootstrapped_container.init("test")
@@ -37,7 +83,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column],
         )
 
-        features_data = self.__filtering_manager.get_for_target(feature_store, targets_table, ["f1", "f2"], False)
+        features_data = self.__filtering_manager.get_for_target(feature_store, targets_table, self.__feature_list, False)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -47,7 +93,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column, self.__entity.time_column])
+        self.compare_dataframes(features_data, expected_features_data, self.__entity.get_primary_key())
 
     def test_incomplete_rows_raise_exception(self):
         feature_store = self.spark.createDataFrame(
@@ -67,7 +113,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
         )
 
         with self.assertRaisesRegex(Exception, "Features contain incomplete rows"):
-            self.__filtering_manager.get_for_target(feature_store, targets_table, ["f1", "f2"], False)
+            self.__filtering_manager.get_for_target(feature_store, targets_table, self.__feature_list, False)
 
     def test_skip_incomplete_rows(self):
         feature_store = self.spark.createDataFrame(
@@ -86,7 +132,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column],
         )
 
-        features_data = self.__filtering_manager.get_for_target(feature_store, targets_table, ["f1", "f2"], True)
+        features_data = self.__filtering_manager.get_for_target(feature_store, targets_table, self.__feature_list, True)
 
         expected_features_data = self.spark.createDataFrame(
             [
@@ -95,7 +141,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
             [self.__entity.id_column, self.__entity.time_column, "f1", "f2"],
         )
 
-        self.compare_dataframes(features_data, expected_features_data, [self.__entity.id_column, self.__entity.time_column])
+        self.compare_dataframes(features_data, expected_features_data, self.__entity.get_primary_key())
 
 
 if __name__ == "__main__":

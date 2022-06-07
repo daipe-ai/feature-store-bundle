@@ -161,7 +161,7 @@ class NullHandlerTest(PySparkTestCase):
                     "this is feature 1",
                     "string",
                     {},
-                    FeatureTemplate("f1", "this is feature 1", "", "str"),
+                    FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
                 ),
                 FeatureInstance(
                     self.__entity.name,
@@ -169,7 +169,7 @@ class NullHandlerTest(PySparkTestCase):
                     "this is feature 2",
                     "integer",
                     {},
-                    FeatureTemplate("f2", "this is feature 2", None, "int"),
+                    FeatureTemplate("f2", "this is feature 2", None, "int", "loc", "bck", "ntb"),
                 ),
             ]
         )
@@ -215,57 +215,55 @@ class NullHandlerTest(PySparkTestCase):
                     "this is feature 1",
                     "string",
                     {},
-                    FeatureTemplate("f1", "this is feature 1", "", "str"),
+                    FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
                 ),
             ]
         )
 
-        with self.assertRaises(Exception) as context:
+        with self.assertRaises(Exception):
             self.__null_handler.from_storage_format(input_df, input_feature_list, self.__entity)
 
-        self.assertEqual("Dataframe columns do not match declared features", str(context.exception))
-
     def test_type_checker_good(self):
-        template = FeatureTemplate("test_bool", "test_bool", fillna_value=False, fillna_value_type="bool")
+        template = FeatureTemplate("test_bool", "test_bool", False, "bool", "loc", "bck", "ntb")
         self.__type_checker.check(template, "boolean")
 
-        template = FeatureTemplate("test_int", "test_int", fillna_value=0, fillna_value_type="int")
+        template = FeatureTemplate("test_int", "test_int", 0, "int", "loc", "bck", "ntb")
         self.__type_checker.check(template, "integer")
 
-        template = FeatureTemplate("test_str", "test_str", fillna_value="", fillna_value_type="str")
+        template = FeatureTemplate("test_str", "test_str", "", "str", "loc", "bck", "ntb")
         self.__type_checker.check(template, "string")
 
-        template = FeatureTemplate("test_date", "test_date", fillna_value=dt.datetime.now(), fillna_value_type="datetime")
+        template = FeatureTemplate("test_date", "test_date", dt.datetime.now(), "datetime", "loc", "bck", "ntb")
         self.__type_checker.check(template, "date")
 
     def test_type_checker_bad(self):
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_bool", "test_bool", fillna_value=0, fillna_value_type="int")
+            template = FeatureTemplate("test_bool", "test_bool", 0, "int", "loc", "bck", "ntb")
             self.__type_checker.check(template, "boolean")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_int", "test_int", fillna_value="0", fillna_value_type="str")
+            template = FeatureTemplate("test_int", "test_int", "0", "str", "loc", "bck", "ntb")
             self.__type_checker.check(template, "integer")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_str", "test_str", fillna_value=123, fillna_value_type="int")
+            template = FeatureTemplate("test_str", "test_str", 123, "int", "loc", "bck", "ntb")
             self.__type_checker.check(template, "string")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_date", "test_date", fillna_value="2020-01-01", fillna_value_type="str")
+            template = FeatureTemplate("test_date", "test_date", "2020-01-01", "str", "loc", "bck", "ntb")
             self.__type_checker.check(template, "date")
 
     def test_type_checker_none(self):
-        template = FeatureTemplate("test_bool", "test_bool", fillna_value=None, fillna_value_type="none")
+        template = FeatureTemplate("test_bool", "test_bool", None, "NoneType", "loc", "bck", "ntb")
         self.__type_checker.check(template, "boolean")
 
-        template = FeatureTemplate("test_int", "test_int", fillna_value=None, fillna_value_type="none")
+        template = FeatureTemplate("test_int", "test_int", None, "NoneType", "loc", "bck", "ntb")
         self.__type_checker.check(template, "integer")
 
-        template = FeatureTemplate("test_str", "test_str", fillna_value=None, fillna_value_type="none")
+        template = FeatureTemplate("test_str", "test_str", None, "NoneType", "loc", "bck", "ntb")
         self.__type_checker.check(template, "string")
 
-        template = FeatureTemplate("test_date", "test_date", fillna_value=None, fillna_value_type="none")
+        template = FeatureTemplate("test_date", "test_date", None, "NoneType", "loc", "bck", "ntb")
         self.__type_checker.check(template, "date")
 
 

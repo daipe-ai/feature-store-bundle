@@ -3,21 +3,23 @@ from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator i
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeaturesValidator import FeaturesValidator
+from featurestorebundle.metadata.MetadataValidator import MetadataValidator
 from featurestorebundle.delta.feature.writer.DeltaFeaturesDataHandler import DeltaFeaturesDataHandler
 from featurestorebundle.delta.feature.writer.DeltaTableFeaturesPreparer import DeltaTableFeaturesPreparer
 from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWriterInterface
-from featurestorebundle.metadata.writer.MetadataWriterInterface import MetadataWriterInterface
+from featurestorebundle.metadata.writer.MetadataWriter import MetadataWriter
 
 
 # pylint: disable=too-many-instance-attributes
 class DeltaTableFeaturesWriter(FeaturesWriterInterface):
     def __init__(
         self,
-        metadata_writer: MetadataWriterInterface,
+        metadata_writer: MetadataWriter,
         delta_data_handler: DeltaFeaturesDataHandler,
         features_table_preparer: DeltaTableFeaturesPreparer,
         features_preparer: FeaturesPreparer,
         features_validator: FeaturesValidator,
+        metadata_validator: MetadataValidator,
         table_names: TableNames,
     ):
         self.__metadata_writer = metadata_writer
@@ -25,6 +27,7 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         self.__features_table_preparer = features_table_preparer
         self.__features_preparer = features_preparer
         self.__features_validator = features_validator
+        self.__metadata_validator = metadata_validator
         self.__table_names = table_names
 
     def write(self, features_storage: FeaturesStorage):
@@ -37,6 +40,13 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         merge_config = DeltaFeaturesMergeConfigGenerator().generate(entity, features_data, entity.get_primary_key())
 
         self.__features_validator.validate(entity, features_data, feature_list)
+        self.__metadata_validator.validate(feature_list)
         self.__features_table_preparer.prepare(full_table_name, path, entity, feature_list)
         self.__delta_data_handler.merge_to_delta_table(full_table_name, merge_config)
-        self.__metadata_writer.write(entity, feature_list)
+        self.__metadata_writer.write(feature_list)
+
+    def get_location(self, entity_name: str) -> str:
+        return self.__table_names.get_features_full_table_name(entity_name)
+
+    def get_backend(self) -> str:
+        return "delta_table"

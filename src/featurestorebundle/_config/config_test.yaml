@@ -24,3 +24,6 @@ services:
 
   featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
     class: featurestorebundle.test.DummyCurrentNotebookDefinitionGetter
+
+  featurestorebundle.notebook.services.NotebookNameGetter:
+    class: featurestorebundle.test.DummyNotebookNameGetter

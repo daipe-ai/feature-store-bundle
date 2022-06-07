@@ -1,5 +1,5 @@
 import re
-from typing import List, Dict, Union
+from typing import List, Dict, Union, Callable
 from datetime import datetime
 
 from featurestorebundle.utils.errors import UnsupportedChangeFeatureNameError
@@ -20,14 +20,37 @@ class FeatureList:
     def get_names(self):
         return [feature.name for feature in self.__features]
 
+    def get_by_name(self, feature_name: str) -> FeatureInstance:
+        for feature in self.__features:
+            if feature.name == feature_name:
+                return feature
+
+        raise Exception(f"Cannot find feature {feature_name}")
+
+    def contains_feature(self, feature_name: str) -> bool:
+        for feature in self.__features:
+            if feature.name == feature_name:
+                return True
+
+        return False
+
     def get_unregistered(self, registered_feature_names: List[str]) -> "FeatureList":
         def registered(instance: FeatureInstance, registered_names: List[str]):
             return instance.name in registered_names
 
         return FeatureList([feature for feature in self.get_all() if not registered(feature, registered_feature_names)])
 
+    def check_features_registered(self, features: List[str]):
+        unregistered_features = set(features) - set(self.get_names())
+
+        if len(unregistered_features) > 0:
+            raise Exception(f"Features {', '.join(unregistered_features)} not registered")
+
     def merge(self, new_feature_list: "FeatureList") -> "FeatureList":
         return FeatureList(self.__features + new_feature_list.get_all())
+
+    def filter(self, condition: Callable) -> "FeatureList":
+        return FeatureList(list(filter(condition, self.__features)))
 
     def get_metadata(self) -> List[List[Union[Dict[str, str], str]]]:
         return [feature.get_metadata_list() for feature in self.__features]
@@ -63,6 +86,3 @@ class FeatureList:
                 result[name] = (features + [change_feature], time_windows + [time_window])
 
         return [MasterFeature(name, features, time_windows) for name, (features, time_windows) in result.items()]
-
-    def remove_nonfeatures(self) -> "FeatureList":
-        return FeatureList([feature_instance for feature_instance in self.__features if feature_instance.is_feature])

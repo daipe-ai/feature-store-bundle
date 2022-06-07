@@ -44,6 +44,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "",
                     "str",
                     False,
+                    "loc",
+                    "bck",
+                    "ntb",
                 ],
                 [
                     self.__entity.name,
@@ -62,6 +65,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     0,
                     "int",
                     False,
+                    "loc",
+                    "bck",
+                    "ntb",
                 ],
                 [
                     self.__entity.name,
@@ -80,6 +86,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "None",
                     "NoneType",
                     False,
+                    "loc",
+                    "bck",
+                    "ntb",
                 ],
             ],
             get_metadata_schema(),
@@ -100,6 +109,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc1",
                         fillna_value="",
                         fillna_value_type="str",
+                        location="loc",
+                        backend="bck",
+                        notebook="ntb",
                         type="categorical",
                         category="cat1",
                         owner="ow1",
@@ -119,6 +131,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc2",
                         fillna_value=0,
                         fillna_value_type="int",
+                        location="loc",
+                        backend="bck",
+                        notebook="ntb",
                         type="numerical",
                         category="cat2",
                         owner="ow2",
@@ -138,6 +153,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc3",
                         fillna_value=None,
                         fillna_value_type="NoneType",
+                        location="loc",
+                        backend="bck",
+                        notebook="ntb",
                         type="categorical",
                         category="cat3",
                         owner="ow3",
@@ -158,6 +176,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.description_template, feature2.template.description_template)
             self.assertEqual(feature1.template.fillna_value, feature2.template.fillna_value)
             self.assertEqual(feature1.template.fillna_value_type, feature2.template.fillna_value_type)
+            self.assertEqual(feature1.template.location, feature2.template.location)
+            self.assertEqual(feature1.template.backend, feature2.template.backend)
+            self.assertEqual(feature1.template.notebook, feature2.template.notebook)
             self.assertEqual(feature1.template.type, feature2.template.type)
             self.assertEqual(feature1.template.category, feature2.template.category)
             self.assertEqual(feature1.template.owner, feature2.template.owner)

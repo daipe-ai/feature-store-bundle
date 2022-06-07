@@ -19,7 +19,6 @@ class LatestFeaturesFilterer:
         feature_list: FeatureList,
         timestamp: datetime,
         look_back_days: timedelta,
-        features: List[str],
         skip_incomplete_rows: bool,
     ) -> DataFrame:
         id_column = feature_store.columns[0]
@@ -28,13 +27,13 @@ class LatestFeaturesFilterer:
         feature_store = self.__filter_relevant_time_range(feature_store, timestamp, look_back_days)
         feature_groups = self.__group_features_with_same_compute_date(feature_list, timestamp)
         dataframes = [
-            feature_store.filter(f.col(time_column) == datetime_).select(id_column, *features)
-            for datetime_, features in feature_groups.items()
+            feature_store.filter(f.col(time_column) == datetime_).select(id_column, *features_)
+            for datetime_, features_ in feature_groups.items()
         ]
         features_data = reduce(lambda df1, df2: df1.join(df2, on=id_column, how="outer"), dataframes)
-        features_data = self.__incomplete_rows_handler.handle(features_data, skip_incomplete_rows).select(id_column, *features)
+        features_data = self.__incomplete_rows_handler.handle(features_data, skip_incomplete_rows)
 
-        return features_data
+        return features_data.select(id_column, *feature_list.get_names())
 
     def __group_features_with_same_compute_date(self, feature_list: FeatureList, timestamp: datetime) -> Dict[datetime, List[str]]:
         feature_groups = {}

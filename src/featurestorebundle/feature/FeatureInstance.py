@@ -74,6 +74,9 @@ class FeatureInstance:
             "fillna_value": str(self.__template.fillna_value),
             "fillna_value_type": self.__template.fillna_value_type,
             "is_feature": self.__template.is_feature,
+            "location": self.__template.location,
+            "backend": self.__template.backend,
+            "notebook": self.__template.notebook,
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:

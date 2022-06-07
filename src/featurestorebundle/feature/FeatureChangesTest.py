@@ -34,8 +34,10 @@ class FeatureChangesTest(PySparkTestCase):
         self.__feature_decorator = feature_decorator_factory.create(self.__entity)
 
     def test_simple(self):
-        feature_with_change_template = FeatureWithChangeTemplate("feature_{time_window}", "feature in {time_window}", 0, "int")
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int")
+        feature_with_change_template = FeatureWithChangeTemplate(
+            "feature_{time_window}", "feature in {time_window}", 0, "int", "loc", "bck", "ntb"
+        )
+        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
 
         features_with_change = [
             FeatureInstance("entity", "feature_14d", "feature in 14 days", "int", {"time_window": "14d"}, feature_with_change_template),
@@ -55,9 +57,9 @@ class FeatureChangesTest(PySparkTestCase):
 
     def test_time_window_in_the_middle(self):
         feature_with_change_template = FeatureWithChangeTemplate(
-            "feature_{time_window}_suffix", "feature suffix in {time_window}", 0, "int"
+            "feature_{time_window}_suffix", "feature suffix in {time_window}", 0, "int", "loc", "bck", "ntb"
         )
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int")
+        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
 
         features_with_change = [
             FeatureInstance(
@@ -90,8 +92,10 @@ class FeatureChangesTest(PySparkTestCase):
         self.assertListEqual([MasterFeature("feature_{time_window}_suffix", features_with_change, ["14d", "30d"])], change_features)
 
     def test_wrong_name(self):
-        feature_with_change_template = FeatureWithChangeTemplate("{time_window}_suffix", "feature suffix in {time_window}", 0, "int")
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int")
+        feature_with_change_template = FeatureWithChangeTemplate(
+            "{time_window}_suffix", "feature suffix in {time_window}", 0, "int", "loc", "bck", "ntb"
+        )
+        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
 
         features_with_change = [
             FeatureInstance(

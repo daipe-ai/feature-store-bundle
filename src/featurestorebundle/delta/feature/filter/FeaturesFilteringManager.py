@@ -1,4 +1,3 @@
-from typing import List
 from datetime import datetime
 from datetime import timedelta
 from pyspark.sql import DataFrame
@@ -22,7 +21,6 @@ class FeaturesFilteringManager:
         feature_list: FeatureList,
         timestamp: datetime,
         lookback: timedelta,
-        features: List[str],
         skip_incomplete_rows: bool,
     ):
         return self.__latest_features_filterer.get_latest(
@@ -30,7 +28,6 @@ class FeaturesFilteringManager:
             feature_list,
             timestamp,
             lookback,
-            features,
             skip_incomplete_rows,
         )
 
@@ -38,12 +35,12 @@ class FeaturesFilteringManager:
         self,
         feature_store: DataFrame,
         targets: DataFrame,
-        features: List[str],
+        feature_list: FeatureList,
         skip_incomplete_rows: bool,
     ) -> DataFrame:
         return self.__target_features_filterer.get_for_target(
             feature_store,
             targets,
-            features,
+            feature_list,
             skip_incomplete_rows,
         )

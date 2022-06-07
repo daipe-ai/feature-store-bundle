@@ -1,5 +1,5 @@
-from typing import List
 from pyspark.sql import DataFrame
+from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.delta.feature.filter.IncompleteRowsHandler import IncompleteRowsHandler
 
 
@@ -11,7 +11,7 @@ class TargetFeaturesFilterer:
         self,
         feature_store: DataFrame,
         targets: DataFrame,
-        features: List[str],
+        feature_list: FeatureList,
         skip_incomplete_rows: bool,
     ) -> DataFrame:
         if len(targets.columns) != 2:
@@ -38,6 +38,6 @@ class TargetFeaturesFilterer:
             )
 
         features_data = feature_store.join(targets, on=join_columns)
-        features_data = self.__incomplete_rows_handler.handle(features_data, skip_incomplete_rows).select(*join_columns, *features)
+        features_data = self.__incomplete_rows_handler.handle(features_data, skip_incomplete_rows)
 
-        return features_data
+        return features_data.select(*join_columns, *feature_list.get_names())

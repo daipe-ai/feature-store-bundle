@@ -29,7 +29,7 @@ class MetadataTest(PySparkTestCase):
                     "this is feature 1",
                     "string",
                     {},
-                    FeatureTemplate("f1", "this is feature 1", None, "str"),
+                    FeatureTemplate("f1", "this is feature 1", None, "str", "loc", "bck", "ntb"),
                 ),
                 FeatureInstance(
                     self.__entity.name,
@@ -37,7 +37,7 @@ class MetadataTest(PySparkTestCase):
                     "this is feature 2",
                     "string",
                     {},
-                    FeatureTemplate("f2", "this is feature 2", None, "str"),
+                    FeatureTemplate("f2", "this is feature 2", None, "str", "loc", "bck", "ntb"),
                 ),
             ]
         )
@@ -64,6 +64,9 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("fillna_value", t.StringType(), True),
                     t.StructField("fillna_value_type", t.StringType(), True),
                     t.StructField("is_feature", t.BooleanType(), True),
+                    t.StructField("location", t.StringType(), True),
+                    t.StructField("backend", t.StringType(), True),
+                    t.StructField("notebook", t.StringType(), True),
                 ]
             ),
         )
