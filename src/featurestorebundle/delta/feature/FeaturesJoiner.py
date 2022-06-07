@@ -4,10 +4,7 @@ from featurestorebundle.delta.join.DataFrameJoinerInterface import DataFrameJoin
 
 
 class FeaturesJoiner:
-    def __init__(
-        self,
-        dataframe_joiner: DataFrameJoinerInterface,
-    ):
+    def __init__(self, dataframe_joiner: DataFrameJoinerInterface):
         self.__dataframe_joiner = dataframe_joiner
 
     def join(self, features_storage: FeaturesStorage) -> DataFrame:

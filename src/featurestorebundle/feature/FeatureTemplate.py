@@ -10,6 +10,9 @@ class FeatureTemplate:
     description_template: str
     fillna_value: Any
     fillna_value_type: str
+    location: str
+    backend: str
+    notebook: str
     type: Optional[str] = None
     category: Optional[str] = None
     owner: Optional[str] = None

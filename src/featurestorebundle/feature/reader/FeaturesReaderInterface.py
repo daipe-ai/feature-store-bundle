@@ -4,9 +4,9 @@ from pyspark.sql import DataFrame
 
 class FeaturesReaderInterface(ABC):
     @abstractmethod
-    def read(self, entity_name: str) -> DataFrame:
+    def read(self, location: str) -> DataFrame:
         pass
 
     @abstractmethod
-    def exists(self, entity_name: str) -> bool:
+    def get_backend(self) -> str:
         pass

@@ -8,3 +8,9 @@ class FeaturesWriter:
 
     def write(self, features_storage: FeaturesStorage):
         self.__features_writer.write(features_storage)
+
+    def get_location(self, entity_name: str) -> str:
+        return self.__features_writer.get_location(entity_name)
+
+    def get_backend(self) -> str:
+        return self.__features_writer.get_backend()

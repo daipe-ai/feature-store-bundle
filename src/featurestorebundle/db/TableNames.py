@@ -34,14 +34,14 @@ class TableNames:
     def get_features_path(self, entity_name: str) -> str:
         return self.__replace_placeholders(self.__feature_table_path_template, entity_name)
 
-    def get_metadata_table_name(self, entity_name: str) -> str:
-        return self.__replace_placeholders(self.__metadata_table_name_template, entity_name)
+    def get_metadata_table_name(self) -> str:
+        return self.__metadata_table_name_template
 
-    def get_metadata_full_table_name(self, entity_name: str) -> str:
-        return f"{self.get_db_name()}.{self.get_metadata_table_name(entity_name)}"
+    def get_metadata_full_table_name(self) -> str:
+        return f"{self.get_db_name()}.{self.get_metadata_table_name()}"
 
-    def get_metadata_path(self, entity_name: str) -> str:
-        return self.__replace_placeholders(self.__metadata_table_path_template, entity_name)
+    def get_metadata_path(self) -> str:
+        return self.__metadata_table_path_template
 
     def get_targets_table_name(self, entity_name: str) -> str:
         return self.__replace_placeholders(self.__target_table_name_template, entity_name)

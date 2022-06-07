@@ -16,6 +16,8 @@ from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDispla
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.frequency.FrequencyGuard import FrequencyGuard
+from featurestorebundle.notebook.services.NotebookNameGetter import NotebookNameGetter
+from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
 
@@ -113,9 +115,14 @@ class feature(OutputDecorator):  # noqa
         """
         feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
         date_parser: DateParser = container.get(DateParser)
+        notebook_name_getter: NotebookNameGetter = container.get(NotebookNameGetter)
+        features_writer: FeaturesWriter = container.get(FeaturesWriter)
 
         feature_templates = [
             feature_.create_template(
+                location=features_writer.get_location(self.__entity.name),
+                backend=features_writer.get_backend(),
+                notebook=notebook_name_getter.get(),
                 category=self.__category,
                 owner=self.__owner,
                 start_date=date_parser.parse_date(self.__start_date),  # pyre-ignore[6]

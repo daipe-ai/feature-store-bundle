@@ -4,7 +4,6 @@ from featurestorebundle.delta.metadata.writer.DeltaPathMetadataPreparer import D
 from featurestorebundle.delta.metadata.writer.DeltaMetadataHandler import DeltaMetadataHandler
 from featurestorebundle.delta.metadata.schema import get_metadata_schema
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.db.TableNames import TableNames
 
 
@@ -21,8 +20,8 @@ class DeltaPathMetadataWriter(MetadataWriterInterface):
         self.__path_preparer = path_preparer
         self.__metadata_handler = metadata_handler
 
-    def write(self, entity: Entity, feature_list: FeatureList):
-        path = self.__table_names.get_metadata_path(entity.name)
+    def write(self, feature_list: FeatureList):
+        path = self.__table_names.get_metadata_path()
         metadata_df = self.__spark.createDataFrame(feature_list.get_metadata(), get_metadata_schema())
 
         self.__path_preparer.prepare(path)

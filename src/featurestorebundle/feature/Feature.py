@@ -14,6 +14,9 @@ class Feature:
 
     def create_template(
         self,
+        location: str,
+        backend: str,
+        notebook: str,
         category: Optional[str],
         owner: Optional[str],
         start_date: Optional[datetime],
@@ -25,6 +28,9 @@ class Feature:
             description_template=self.description_template,
             fillna_value=self.fillna_with,
             fillna_value_type=type(self.fillna_with).__name__,
+            location=location,
+            backend=backend,
+            notebook=notebook,
             type=self.type,
             category=category,
             owner=owner,

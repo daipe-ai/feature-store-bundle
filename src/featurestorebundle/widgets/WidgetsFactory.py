@@ -2,7 +2,7 @@ from box import Box
 from daipecore.widgets.Widgets import Widgets
 
 from featurestorebundle.utils.errors import MissingEntitiesError, MissingWidgetDefaultError
-from featurestorebundle.target.reader.TargetsReaderInterface import TargetsReaderInterface
+from featurestorebundle.target.reader.TargetsReader import TargetsReader
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
 
@@ -21,7 +21,7 @@ class WidgetsFactory:
     features_orchestration_id = "features_orchestration_id"
     sample_name = "sample_data"
 
-    def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReaderInterface, widgets: Widgets):
+    def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReader, widgets: Widgets):
         self.__defaults = defaults
         self.__entities_list = list(entities) if entities is not None else []
         self.__stages = stages

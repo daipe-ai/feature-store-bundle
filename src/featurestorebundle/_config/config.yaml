@@ -85,20 +85,14 @@ services:
       - '@featurestorebundle.logger'
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesWriter:
-    arguments:
-      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_table'}
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesWriter:
-    arguments:
-      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'delta_path'}
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreWriter:
-    arguments:
-      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
     tags:
       - {name: 'feature.writer', alias: 'databricks'}
 
@@ -127,6 +121,12 @@ services:
       - '@featurestorebundle.logger'
     tags:
       - {name: 'feature.reader', alias: 'databricks'}
+
+  featurestorebundle.feature.reader.FeaturesReader:
+
+  featurestorebundle.feature.reader.FeaturesReaderFactory:
+    arguments:
+      - !tagged 'feature.reader'
 
   featurestorebundle.delta.EmptyDataFrameCreator:
 
@@ -170,13 +170,7 @@ services:
 
   featurestorebundle.feature.FeatureListFactory:
 
-  featurestorebundle.feature.FeaturesManager:
-
   featurestorebundle.feature.FeatureStore:
-    arguments:
-      - !tagged_aliased ['feature.reader', '%featurestorebundle.feature.backend%']
-      - !tagged_aliased ['metadata.reader', '%featurestorebundle.metadata.backend%']
-      - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
 
   featurestorebundle.delta.metadata.writer.DeltaTableMetadataWriter:
     tags:
@@ -185,6 +179,10 @@ services:
   featurestorebundle.delta.metadata.writer.DeltaPathMetadataWriter:
     tags:
       - {name: 'metadata.writer', alias: 'delta_path'}
+
+  featurestorebundle.metadata.writer.MetadataWriter:
+    arguments:
+      - !tagged_aliased ['metadata.writer', '%featurestorebundle.metadata.backend%']
 
   featurestorebundle.delta.metadata.reader.DeltaTableMetadataReader:
     arguments:
@@ -197,6 +195,10 @@ services:
       - '@featurestorebundle.logger'
     tags:
       - {name: 'metadata.reader', alias: 'delta_path'}
+
+  featurestorebundle.metadata.reader.MetadataReader:
+    arguments:
+      - !tagged_aliased ['metadata.reader', '%featurestorebundle.metadata.backend%']
 
   featurestorebundle.delta.metadata.writer.DeltaMetadataHandler:
     arguments:
@@ -218,11 +220,17 @@ services:
     tags:
       - {name: 'target.reader', alias: 'delta_path'}
 
+  featurestorebundle.target.reader.TargetsReader:
+    arguments:
+      - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
+
   featurestorebundle.delta.target.TargetsFilteringManager:
 
   featurestorebundle.metadata.MetadataHTMLDisplayer:
 
   featurestorebundle.metadata.DescriptionFiller:
+
+  featurestorebundle.metadata.MetadataValidator:
 
   featurestorebundle.feature.FeaturesValidator:
 
@@ -245,13 +253,14 @@ services:
       - '%featurestorebundle.widgets.defaults%'
       - '%featurestorebundle.entities%'
       - '%featurestorebundle.orchestration.stages%'
-      - !tagged_aliased ['target.reader', '%featurestorebundle.target.backend%']
 
   featurestorebundle.widgets.WidgetsGetter:
 
   featurestorebundle.entity.EntityGetter:
     arguments:
       - '%featurestorebundle.entities%'
+
+  featurestorebundle.notebook.services.NotebookNameGetter:
 
   featurestorebundle.notebook.services.TimestampAdder:
     arguments:
