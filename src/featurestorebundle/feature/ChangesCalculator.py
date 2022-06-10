@@ -42,7 +42,7 @@ class ChangesCalculator:
             feature.template.description_template,
             0.0,
             float.__name__,
-            feature.template.type,
+            "numerical",
             feature.template.category,
             feature.template.owner,
             feature.template.start_date,
