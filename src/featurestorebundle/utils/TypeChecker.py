@@ -4,11 +4,11 @@ from numbers import Number
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.utils.errors import WrongFillnaValueTypeError
 from featurestorebundle.utils.errors import WrongTypeError
-from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL
+from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL, BINARY
 
 
 class TypeChecker:
-    _valid_types = [CATEGORICAL, NUMERICAL]
+    _valid_types = [CATEGORICAL, NUMERICAL, BINARY]
 
     def check(self, feature_template: FeatureTemplate, dtype: str):
         self.check_fillna_valid(dtype, feature_template.fillna_value, feature_template)
@@ -42,6 +42,9 @@ class TypeChecker:
 
         if self.is_type_numerical(type_) and not self.is_feature_valid_numerical(dtype):
             raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {NUMERICAL}")
+
+        if self.is_type_binary(type_) and not self.is_feature_valid_binary(dtype):
+            raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {BINARY}")
 
     def is_none(self, value) -> bool:
         return value is None
@@ -79,8 +82,14 @@ class TypeChecker:
     def is_type_numerical(self, type_: str):
         return type_ == NUMERICAL
 
+    def is_type_binary(self, type_: str):
+        return type_ == BINARY
+
     def is_feature_valid_categorical(self, dtype: str):
         return dtype in ["boolean", "byte", "short", "integer", "long", "string"]
 
     def is_feature_valid_numerical(self, dtype: str):
         return self.is_feature_numeric(dtype)
+
+    def is_feature_valid_binary(self, dtype: str):
+        return dtype == "boolean"

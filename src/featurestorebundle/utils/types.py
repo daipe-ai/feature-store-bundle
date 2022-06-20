@@ -2,6 +2,7 @@ from pyspark.sql import types as t
 
 CATEGORICAL = "categorical"
 NUMERICAL = "numerical"
+BINARY = "binary"
 
 names_to_dtypes = {
     "string": t.StringType(),
