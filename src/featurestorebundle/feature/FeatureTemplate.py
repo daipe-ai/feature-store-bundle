@@ -13,7 +13,6 @@ class FeatureTemplate:
     location: str
     backend: str
     notebook: str
-    type: Optional[str] = None
     category: Optional[str] = None
     owner: Optional[str] = None
     start_date: Optional[datetime] = None

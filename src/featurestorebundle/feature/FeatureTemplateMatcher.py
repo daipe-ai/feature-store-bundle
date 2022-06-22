@@ -10,6 +10,7 @@ from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
 from featurestorebundle.notebook.functions.time_windows import PERIODS
+from featurestorebundle.utils.types import get_variable_type_default
 
 
 class FeatureTemplateMatcher:
@@ -20,8 +21,14 @@ class FeatureTemplateMatcher:
         feature_patterns = [FeaturePattern(feature_template) for feature_template in feature_templates]
         unmatched_patterns = set(feature_patterns)
 
+        variable_types = {
+            col["name"]: col["metadata"]["variable_type"] if "variable_type" in col["metadata"] else get_variable_type_default(col["type"])
+            for col in feature_columns
+        }
+
         features = [
-            self.__get_feature(entity.name, col["name"], col["type"], feature_patterns, unmatched_patterns) for col in feature_columns
+            self.__get_feature(entity.name, col["name"], col["type"], variable_types[col["name"]], feature_patterns, unmatched_patterns)
+            for col in feature_columns
         ]
 
         if unmatched_patterns:
@@ -31,7 +38,13 @@ class FeatureTemplateMatcher:
         return FeatureList(features)
 
     def __get_feature(
-        self, entity: str, name: str, dtype: str, feature_patterns: List[FeaturePattern], unmatched_patterns: Set[FeaturePattern]
+        self,
+        entity: str,
+        name: str,
+        dtype: str,
+        variable_type: str,
+        feature_patterns: List[FeaturePattern],
+        unmatched_patterns: Set[FeaturePattern],
     ) -> FeatureInstance:
         for feature_pattern in feature_patterns:
             feature_template = feature_pattern.feature_template
@@ -48,7 +61,7 @@ class FeatureTemplateMatcher:
             if time_window is not None:
                 self.__check_time_window(feature_pattern, time_window, name)
 
-            return FeatureInstance.from_template(feature_template, entity, name, dtype, extra)
+            return FeatureInstance.from_template(feature_template, entity, name, dtype, variable_type, extra)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
 
@@ -58,9 +71,12 @@ class FeatureTemplateMatcher:
 
         if not time_window_value.isdigit():
             raise TimeWindowFormatError(
-                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window_value} which is not a positive integer. Check that your templates adhere to the rules at https://docs.daipe.ai/feature-store/templates/"
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and "
+                f"time_window={time_window_value} which is not a positive integer. Check that your templates adhere to the rules at "
+                f"https://docs.daipe.ai/feature-store/templates/"
             )
         if time_window_period not in PERIODS:
             raise TimeWindowFormatError(
-                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and time_window={time_window} with period '{time_window_period}' is not from supported periods: {', '.join(PERIODS.keys())}"
+                f"Column '{feature_name}' has been matched by '{feature_pattern.feature_template.name_template}' and "
+                f"time_window={time_window} with period '{time_window_period}' is not from supported periods: {', '.join(PERIODS.keys())}"
             )

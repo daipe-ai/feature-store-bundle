@@ -100,7 +100,7 @@ def windowed(col: Column, time_window: str) -> Column:
     return f.when(f.col(time_window_col_name), col).otherwise(None)
 
 
-def __windowed_col(fun: Callable, cols: List[Column], name: str, time_window: str) -> Column:
+def __windowed_col(fun: Callable, cols: List[Column], name: str, time_window: str, metadata: Dict) -> Column:
     return fun(
         *(
             windowed(
@@ -109,13 +109,21 @@ def __windowed_col(fun: Callable, cols: List[Column], name: str, time_window: st
             )
             for col in cols
         )
-    ).alias(name)
+    ).alias(name, metadata=metadata)
 
 
 def windowed_column(fun: Callable):
     def wrapper(name: str, cols: Union[Column, List[Column]]):
         cols = cols if isinstance(cols, list) else [cols]
-        return partial(__windowed_col, fun, cols, name)
+        return partial(__windowed_col, fun, cols, name, metadata={})
+
+    return wrapper
+
+
+def windowed_column_with_metadata(fun: Callable):
+    def wrapper(name: str, cols: Union[Column, List[Column]], metadata: Dict):
+        cols = cols if isinstance(cols, list) else [cols]
+        return partial(__windowed_col, fun, cols, name, metadata=metadata)
 
     return wrapper
 

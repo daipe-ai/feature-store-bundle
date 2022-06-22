@@ -41,3 +41,6 @@ from featurestorebundle.orchestration.DatabricksOrchestrator import DatabricksOr
 
 # Models
 from featurestorebundle.notebook.functions.model import get_spark_model, get_features_for_model
+
+# Types
+from featurestorebundle.utils.types import make_categorical

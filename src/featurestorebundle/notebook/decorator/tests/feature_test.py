@@ -12,9 +12,9 @@ os.environ["APP_ENV"] = "test"
 class FakeSchema:
     json = {
         "fields": [
-            {"name": "client_id", "type": "long"},
-            {"name": "timestamp", "type": "timestamp"},
-            {"name": "my_sample_feature", "type": "long"},
+            {"name": "client_id", "type": "long", "metadata": {}},
+            {"name": "timestamp", "type": "timestamp", "metadata": {}},
+            {"name": "my_sample_feature", "type": "long", "metadata": {}},
         ],
     }
 

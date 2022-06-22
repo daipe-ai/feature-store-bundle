@@ -1,3 +1,4 @@
+from typing import Optional
 from datetime import datetime
 from numbers import Number
 
@@ -8,11 +9,11 @@ from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL, BINARY
 
 
 class TypeChecker:
-    _valid_types = [CATEGORICAL, NUMERICAL, BINARY]
+    _valid_variable_types = [CATEGORICAL, NUMERICAL, BINARY]
 
-    def check(self, feature_template: FeatureTemplate, dtype: str):
+    def check(self, feature_template: FeatureTemplate, dtype: str, variable_type: Optional[str]):
         self.check_fillna_valid(dtype, feature_template.fillna_value, feature_template)
-        self.check_type_valid(dtype, feature_template.type, feature_template)  # pyre-ignore[6]
+        self.check_variable_type_valid(dtype, variable_type, feature_template)
 
     def check_fillna_valid(self, dtype: str, value, feature_template: FeatureTemplate):
         if self.is_none(value):
@@ -30,20 +31,20 @@ class TypeChecker:
         if self.is_feature_datetime(dtype) and not self.is_value_datetime(value):
             raise WrongFillnaValueTypeError(value, feature_template.name_template, dtype)
 
-    def check_type_valid(self, dtype: str, type_: str, feature_template: FeatureTemplate):
-        if type_ is None:
+    def check_variable_type_valid(self, dtype: str, variable_type: Optional[str], feature_template: FeatureTemplate):
+        if variable_type is None:
             return
 
-        if not self.is_type_valid(type_):
-            raise WrongTypeError(f"Invalid type '{type_}', allowed types are {self._valid_types}")
+        if not self.is_variable_type_valid(variable_type):
+            raise WrongTypeError(f"Invalid type '{variable_type}', allowed types are {self._valid_variable_types}")
 
-        if self.is_type_categorical(type_) and not self.is_feature_valid_categorical(dtype):
+        if self.is_variable_type_categorical(variable_type) and not self.is_feature_valid_categorical(dtype):
             raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {CATEGORICAL}")
 
-        if self.is_type_numerical(type_) and not self.is_feature_valid_numerical(dtype):
+        if self.is_variable_type_numerical(variable_type) and not self.is_feature_valid_numerical(dtype):
             raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {NUMERICAL}")
 
-        if self.is_type_binary(type_) and not self.is_feature_valid_binary(dtype):
+        if self.is_variable_type_binary(variable_type) and not self.is_feature_valid_binary(dtype):
             raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {BINARY}")
 
     def is_none(self, value) -> bool:
@@ -73,17 +74,17 @@ class TypeChecker:
     def is_feature_datetime(self, dtype: str) -> bool:
         return dtype in ["date", "timestamp"]
 
-    def is_type_valid(self, type_: str):
-        return type_ in self._valid_types
+    def is_variable_type_valid(self, variable_type: str):
+        return variable_type in self._valid_variable_types
 
-    def is_type_categorical(self, type_: str):
-        return type_ == CATEGORICAL
+    def is_variable_type_categorical(self, variable_type: str):
+        return variable_type == CATEGORICAL
 
-    def is_type_numerical(self, type_: str):
-        return type_ == NUMERICAL
+    def is_variable_type_numerical(self, variable_type: str):
+        return variable_type == NUMERICAL
 
-    def is_type_binary(self, type_: str):
-        return type_ == BINARY
+    def is_variable_type_binary(self, variable_type: str):
+        return variable_type == BINARY
 
     def is_feature_valid_categorical(self, dtype: str):
         return dtype in ["boolean", "byte", "short", "integer", "long", "string"]

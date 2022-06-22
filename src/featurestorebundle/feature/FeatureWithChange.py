@@ -26,7 +26,6 @@ class FeatureWithChange(Feature):
             location=location,
             backend=backend,
             notebook=notebook,
-            type=self.type,
             category=category,
             owner=owner,
             start_date=start_date,

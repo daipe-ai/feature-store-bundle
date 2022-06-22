@@ -27,7 +27,8 @@ class MetadataHTMLDisplayer:
                           <th scope="col">Description</th>
                           <th scope="col">Extra</th>
                           <th scope="col">Template</th>
-                          <th scope="col">Type</th>
+                          <th scope="col">Data Type</th>
+                          <th scope="col">Variable Type</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -48,5 +49,6 @@ class MetadataHTMLDisplayer:
             <td>{", ".join(f"<b>{key}</b>: {val}" for key, val in metadata_dict["extra"].items())}</td>
             <td>{metadata_dict["feature_template"]}</td>
             <td>{metadata_dict["dtype"]}</td>
+            <td>{metadata_dict["variable_type"]}</td>
         </tr>
         """

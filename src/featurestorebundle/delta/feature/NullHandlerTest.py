@@ -160,6 +160,7 @@ class NullHandlerTest(PySparkTestCase):
                     "f1",
                     "this is feature 1",
                     "string",
+                    "categorical",
                     {},
                     FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
                 ),
@@ -168,6 +169,7 @@ class NullHandlerTest(PySparkTestCase):
                     "f2",
                     "this is feature 2",
                     "integer",
+                    "numerical",
                     {},
                     FeatureTemplate("f2", "this is feature 2", None, "int", "loc", "bck", "ntb"),
                 ),
@@ -214,6 +216,7 @@ class NullHandlerTest(PySparkTestCase):
                     "f1",
                     "this is feature 1",
                     "string",
+                    "categorical",
                     {},
                     FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
                 ),
@@ -225,46 +228,46 @@ class NullHandlerTest(PySparkTestCase):
 
     def test_type_checker_good(self):
         template = FeatureTemplate("test_bool", "test_bool", False, "bool", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "boolean")
+        self.__type_checker.check(template, "boolean", "binary")
 
         template = FeatureTemplate("test_int", "test_int", 0, "int", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "integer")
+        self.__type_checker.check(template, "integer", "numerical")
 
         template = FeatureTemplate("test_str", "test_str", "", "str", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "string")
+        self.__type_checker.check(template, "string", "categorical")
 
         template = FeatureTemplate("test_date", "test_date", dt.datetime.now(), "datetime", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "date")
+        self.__type_checker.check(template, "date", None)
 
     def test_type_checker_bad(self):
         with self.assertRaises(WrongFillnaValueTypeError):
             template = FeatureTemplate("test_bool", "test_bool", 0, "int", "loc", "bck", "ntb")
-            self.__type_checker.check(template, "boolean")
+            self.__type_checker.check(template, "boolean", "binary")
 
         with self.assertRaises(WrongFillnaValueTypeError):
             template = FeatureTemplate("test_int", "test_int", "0", "str", "loc", "bck", "ntb")
-            self.__type_checker.check(template, "integer")
+            self.__type_checker.check(template, "integer", "numerical")
 
         with self.assertRaises(WrongFillnaValueTypeError):
             template = FeatureTemplate("test_str", "test_str", 123, "int", "loc", "bck", "ntb")
-            self.__type_checker.check(template, "string")
+            self.__type_checker.check(template, "string", "categorical")
 
         with self.assertRaises(WrongFillnaValueTypeError):
             template = FeatureTemplate("test_date", "test_date", "2020-01-01", "str", "loc", "bck", "ntb")
-            self.__type_checker.check(template, "date")
+            self.__type_checker.check(template, "date", None)
 
     def test_type_checker_none(self):
         template = FeatureTemplate("test_bool", "test_bool", None, "NoneType", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "boolean")
+        self.__type_checker.check(template, "boolean", "binary")
 
         template = FeatureTemplate("test_int", "test_int", None, "NoneType", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "integer")
+        self.__type_checker.check(template, "integer", "numerical")
 
         template = FeatureTemplate("test_str", "test_str", None, "NoneType", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "string")
+        self.__type_checker.check(template, "string", "categorical")
 
         template = FeatureTemplate("test_date", "test_date", None, "NoneType", "loc", "bck", "ntb")
-        self.__type_checker.check(template, "date")
+        self.__type_checker.check(template, "date", None)
 
 
 if __name__ == "__main__":
