@@ -34,13 +34,13 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     {},
                     "f1",
                     "desc1",
-                    "categorical",
                     "cat1",
                     "ow1",
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
                     "string",
+                    "categorical",
                     "",
                     "str",
                     False,
@@ -55,13 +55,13 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     {},
                     "f2",
                     "desc2",
-                    "numerical",
                     "cat2",
                     "ow2",
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
                     "integer",
+                    "numerical",
                     0,
                     "int",
                     False,
@@ -76,13 +76,13 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     {},
                     "f3",
                     "desc3",
-                    "categorical",
                     "cat3",
                     "ow3",
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
                     "string",
+                    "categorical",
                     "None",
                     "NoneType",
                     False,
@@ -103,6 +103,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     name="f1",
                     description="desc1",
                     dtype="string",
+                    variable_type="categorical",
                     extra={},
                     template=FeatureTemplate(
                         name_template="f1",
@@ -112,7 +113,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         location="loc",
                         backend="bck",
                         notebook="ntb",
-                        type="categorical",
                         category="cat1",
                         owner="ow1",
                         start_date=dt.datetime(2020, 1, 1),
@@ -125,6 +125,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     name="f2",
                     description="desc2",
                     dtype="integer",
+                    variable_type="numerical",
                     extra={},
                     template=FeatureTemplate(
                         name_template="f2",
@@ -134,7 +135,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         location="loc",
                         backend="bck",
                         notebook="ntb",
-                        type="numerical",
                         category="cat2",
                         owner="ow2",
                         start_date=dt.datetime(2020, 1, 1),
@@ -147,6 +147,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     name="f3",
                     description="desc3",
                     dtype="string",
+                    variable_type="categorical",
                     extra={},
                     template=FeatureTemplate(
                         name_template="f3",
@@ -156,7 +157,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         location="loc",
                         backend="bck",
                         notebook="ntb",
-                        type="categorical",
                         category="cat3",
                         owner="ow3",
                         start_date=dt.datetime(2020, 1, 1),
@@ -171,6 +171,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.entity, feature2.entity)
             self.assertEqual(feature1.description, feature2.description)
             self.assertEqual(feature1.dtype, feature2.dtype)
+            self.assertEqual(feature1.variable_type, feature2.variable_type)
             self.assertEqual(feature1.extra, feature2.extra)
             self.assertEqual(feature1.template.name_template, feature2.template.name_template)
             self.assertEqual(feature1.template.description_template, feature2.template.description_template)
@@ -179,7 +180,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.location, feature2.template.location)
             self.assertEqual(feature1.template.backend, feature2.template.backend)
             self.assertEqual(feature1.template.notebook, feature2.template.notebook)
-            self.assertEqual(feature1.template.type, feature2.template.type)
             self.assertEqual(feature1.template.category, feature2.template.category)
             self.assertEqual(feature1.template.owner, feature2.template.owner)
             self.assertEqual(feature1.template.start_date, feature2.template.start_date)

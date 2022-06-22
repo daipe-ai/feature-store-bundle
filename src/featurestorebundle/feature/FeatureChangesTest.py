@@ -40,14 +40,18 @@ class FeatureChangesTest(PySparkTestCase):
         template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
 
         features_with_change = [
-            FeatureInstance("entity", "feature_14d", "feature in 14 days", "int", {"time_window": "14d"}, feature_with_change_template),
-            FeatureInstance("entity", "feature_30d", "feature in 30 days", "int", {"time_window": "30d"}, feature_with_change_template),
+            FeatureInstance(
+                "entity", "feature_14d", "feature in 14 days", "int", "numerical", {"time_window": "14d"}, feature_with_change_template
+            ),
+            FeatureInstance(
+                "entity", "feature_30d", "feature in 30 days", "int", "numerical", {"time_window": "30d"}, feature_with_change_template
+            ),
         ]
 
         feature_list = FeatureList(
             [
                 *features_with_change,
-                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
             ]
         )
 
@@ -67,6 +71,7 @@ class FeatureChangesTest(PySparkTestCase):
                 "feature_14d_suffix",
                 "feature suffix in 14 days",
                 "int",
+                "numerical",
                 {"time_window": "14d"},
                 feature_with_change_template,
             ),
@@ -75,6 +80,7 @@ class FeatureChangesTest(PySparkTestCase):
                 "feature_30d_suffix",
                 "feature suffix in 30 days",
                 "int",
+                "numerical",
                 {"time_window": "30d"},
                 feature_with_change_template,
             ),
@@ -83,7 +89,7 @@ class FeatureChangesTest(PySparkTestCase):
         feature_list = FeatureList(
             [
                 *features_with_change,
-                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
             ]
         )
 
@@ -99,17 +105,29 @@ class FeatureChangesTest(PySparkTestCase):
 
         features_with_change = [
             FeatureInstance(
-                "entity", "14d_suffix", "feature suffix in 14 days", "int", {"time_window": "14d"}, feature_with_change_template
+                "entity",
+                "14d_suffix",
+                "feature suffix in 14 days",
+                "int",
+                "numerical",
+                {"time_window": "14d"},
+                feature_with_change_template,
             ),
             FeatureInstance(
-                "entity", "30d_suffix", "feature suffix in 30 days", "int", {"time_window": "30d"}, feature_with_change_template
+                "entity",
+                "30d_suffix",
+                "feature suffix in 30 days",
+                "int",
+                "numerical",
+                {"time_window": "30d"},
+                feature_with_change_template,
             ),
         ]
 
         feature_list = FeatureList(
             [
                 *features_with_change,
-                FeatureInstance("entity", "a_14d", "a in 14 days", "int", {"time_window": "14d"}, template),
+                FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
             ]
         )
 

@@ -27,6 +27,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
                     name="f1",
                     description="",
                     dtype="string",
+                    variable_type="categorical",
                     extra={},
                     template=FeatureTemplate(
                         name_template="f1",
@@ -46,6 +47,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
                     name="f2",
                     description="",
                     dtype="string",
+                    variable_type="categorical",
                     extra={},
                     template=FeatureTemplate(
                         name_template="f2",

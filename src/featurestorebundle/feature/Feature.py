@@ -10,7 +10,6 @@ class Feature:
     name_template: str
     description_template: str
     fillna_with: Any
-    type: Optional[str] = None
 
     def create_template(
         self,
@@ -31,7 +30,6 @@ class Feature:
             location=location,
             backend=backend,
             notebook=notebook,
-            type=self.type,
             category=category,
             owner=owner,
             start_date=start_date,

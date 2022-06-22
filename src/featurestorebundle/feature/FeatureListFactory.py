@@ -20,7 +20,6 @@ class FeatureListFactory:
                 row.location,
                 row.backend,
                 row.notebook,
-                row.type,
                 row.category,
                 row.owner,
                 row.start_date,
@@ -29,7 +28,9 @@ class FeatureListFactory:
                 row.is_feature,
             )
 
-            feature_instance = FeatureInstance(row.entity, row.feature, row.description, row.dtype, row.extra, feature_template)
+            feature_instance = FeatureInstance(
+                row.entity, row.feature, row.description, row.dtype, row.variable_type, row.extra, feature_template
+            )
             feature_instances.append(feature_instance)
 
         return FeatureList(feature_instances)

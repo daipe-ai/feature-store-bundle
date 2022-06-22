@@ -45,7 +45,6 @@ class ChangesCalculator:
             feature.template.location,
             feature.template.backend,
             feature.template.notebook,
-            "numerical",
             feature.template.category,
             feature.template.owner,
             feature.template.start_date,
@@ -53,4 +52,4 @@ class ChangesCalculator:
             feature.template.last_compute_date,
         )
 
-        return FeatureInstance.from_template(template, entity, name, "double", extra)
+        return FeatureInstance.from_template(template, entity, name, "double", "numerical", extra)
