@@ -1,6 +1,5 @@
 from typing import List, Optional
 
-import mlflow
 from pyspark.sql import types as t
 
 from daipecore.function.input_decorator_function import input_decorator_function
@@ -10,6 +9,9 @@ from featurestorebundle.feature.FeaturesGetter import FeaturesGetter
 
 
 def __load_spark_model(model_name: str):
+    # pylint: disable=import-outside-toplevel
+    import mlflow
+
     return mlflow.spark.load_model(f"models:/{model_name}/Production")
 
 
