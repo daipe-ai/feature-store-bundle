@@ -1,12 +1,15 @@
 from typing import List, Dict, Union
-import IPython
+
+from pyspark.dbutils import DBUtils
 
 
 class MetadataHTMLDisplayer:
+    def __init__(self, dbutils: DBUtils):
+        self.__dbutils = dbutils
+
     def display(self, metadata: List[Dict[str, Union[str, Dict[str, str]]]]):
-        display_html = self.__get_display_html()
         html = self.__get_html(metadata)
-        display_html(html)
+        self.__dbutils.notebook.displayHTML(html)
 
     def __get_html(self, metadata: List[Dict[str, Union[str, Dict[str, str]]]]) -> str:
         html = f"""
@@ -47,11 +50,3 @@ class MetadataHTMLDisplayer:
             <td>{metadata_dict["dtype"]}</td>
         </tr>
         """
-
-    def __get_display_html(self):
-        ipython = IPython.get_ipython()
-
-        if not hasattr(ipython, "user_ns") or "displayHTML" not in ipython.user_ns:
-            raise Exception("displayHTML cannot be resolved")
-
-        return ipython.user_ns["displayHTML"]
