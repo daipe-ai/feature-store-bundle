@@ -32,7 +32,6 @@ databricks-bundle = "^1.4.3"
 [tool.poetry.dev-dependencies]
 pyspark = {url = "https://daipe-packages.s3.eu-central-1.amazonaws.com/pyspark-3.2.0-py2.py3-none-any.whl"}
 delta-spark = {url = "https://daipe-packages.s3.eu-central-1.amazonaws.com/delta_spark-1.1.0-py3-none-any.whl"}
-ipython = "^7.30.1"
 pytest = "^6.0"
 pyre-check-nightly = { version = "^0.0.101638533492", markers = "sys_platform == 'linux'"}
 pylint = "^2.12.2"
