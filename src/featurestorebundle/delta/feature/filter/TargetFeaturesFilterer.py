@@ -38,6 +38,7 @@ class TargetFeaturesFilterer:
             )
 
         features_data = feature_store.join(targets, on=join_columns)
+        features_data = features_data.select(*join_columns, *feature_list.get_names())
         features_data = self.__incomplete_rows_handler.handle(features_data, skip_incomplete_rows)
 
-        return features_data.select(*join_columns, *feature_list.get_names())
+        return features_data
