@@ -42,7 +42,7 @@ class FeatureInstance:
 
     @property
     def storage_dtype(self):
-        return f"map<byte,{self.__dtype}>" if self.__template.fillna_value is None else self.__dtype
+        return f"map<integer,{self.__dtype}>" if self.__template.fillna_value is None else self.__dtype
 
     @property
     def extra(self):
