@@ -1,6 +1,7 @@
 name: feature-store-bundle
 channels:
-  - defaults
+  - conda-forge
 dependencies:
-  - python=3.7.3
-  - pip
+  - python=3.8.10
+  - pip=21.2.*
+  - setuptools=<58
