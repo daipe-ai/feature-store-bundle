@@ -6,7 +6,7 @@ parameters:
       table:
         name_template: 'features_{entity}'
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
-      backend: delta_path # available: delta_table, delta_path, databricks
+      backend: databricks # available: delta_table, delta_path, databricks
       defaults:
         category:
         owner:
@@ -16,7 +16,7 @@ parameters:
       table:
         name_template: 'features_metadata'
         path_template: '%featurestorebundle.base_path%/metadata/metadata.delta'
-      backend: delta_path # available: delta_table, delta_path
+      backend: delta_table # available: delta_table, delta_path
       display_in_notebook: True
     target:
       table:
@@ -25,7 +25,7 @@ parameters:
       enum_table:
         name: 'targets_enum'
         path: '%featurestorebundle.base_path%/targets/targets_enum.delta'
-      backend: delta_path # available: delta_table, delta_path
+      backend: delta_table # available: delta_table, delta_path
     checkpoint:
       default_checkpoint_dir: 'dbfs:/tmp/checkpoints'
     orchestration:
