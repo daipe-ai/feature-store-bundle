@@ -54,6 +54,9 @@ class WidgetsGetter:
     def features_orchestration_id_exists(self) -> bool:
         return self.__widget_exists(WidgetsFactory.features_orchestration_id)
 
+    def no_target_selected(self) -> bool:
+        return self.target_exists() and self.get_target() == WidgetsFactory.no_targets_placeholder
+
     def should_sample(self) -> bool:
         return self.__widget_exists(WidgetsFactory.sample_name) and (
             self.__widgets.get_value(WidgetsFactory.sample_name) == WidgetsFactory.sample_value

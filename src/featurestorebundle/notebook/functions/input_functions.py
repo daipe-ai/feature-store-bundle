@@ -1,3 +1,4 @@
+from logging import Logger
 from typing import Optional, List, Callable, Union
 
 from daipecore.decorator.InputDecorator import InputDecorator
@@ -50,15 +51,22 @@ def with_timestamps(
 
 
 @input_decorator_function
-def with_timestamps_no_filter(input_data: Union[InputDecorator, DataFrame], entity: Entity) -> Callable[[ContainerInterface], DataFrame]:
+def with_timestamps_no_filter(
+    input_data: Union[InputDecorator, DataFrame], entity: Entity, time_column_name: str
+) -> Callable[[ContainerInterface], DataFrame]:
     df = input_data.result if isinstance(input_data, InputDecorator) else input_data
 
     def wrapper(container: ContainerInterface) -> DataFrame:
+        logger: Logger = container.get("featurestorebundle.logger")
+        logger.warning(
+            'with_timestamps_no_filter is DEPRECATED and will be removed in future versions. Use `with_timestamps` with argument `custom_time_windows`=["inf"] instead'
+        )
+
         column_checker: ColumnChecker = container.get(ColumnChecker)
         column_checker.check_column_type(df, entity.id_column, [types_to_names[entity.id_column_type]])
 
         timestamp_adder: TimestampAdder = container.get(TimestampAdder)
-        return timestamp_adder.add_without_filters(df, entity)
+        return timestamp_adder.add(df, entity, time_column_name, [TimestampAdder.infinite_time_window])
 
     return wrapper
 

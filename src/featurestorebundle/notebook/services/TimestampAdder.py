@@ -3,17 +3,18 @@ from logging import Logger
 from typing import List, Optional
 
 from box import Box
-from pyspark.sql import DataFrame, functions as f
+from pyspark.sql import DataFrame, functions as f, Column
 
 from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.functions.time_windows import get_max_time_window, parse_time_window
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 from featurestorebundle.widgets.WidgetsGetter import WidgetsGetter
 
 
 class TimestampAdder:
+    infinite_time_window = "inf"
+
     def __init__(
         self,
         timestamp_shift: str,
@@ -32,23 +33,17 @@ class TimestampAdder:
         self.__feature_store = feature_store
         self.__date_parser = date_parser
 
-    def add_without_filters(self, df: DataFrame, entity: Entity):
-        target_name = self.__widgets_getter.get_target()
-
-        return (
-            self.__add_timestamps(df, entity)
-            if target_name == WidgetsFactory.no_targets_placeholder
-            else self.__add_targets(target_name, df, entity)
-        )
-
     def add(self, df: DataFrame, entity: Entity, comparison_col_name: str, custom_time_windows: Optional[List[str]]) -> DataFrame:
+        target_name = self.__widgets_getter.get_target()
         time_windows = self.__default_time_windows if custom_time_windows is None else custom_time_windows
 
-        return self.add_without_filters(df, entity).filter(
+        return (
+            self.__add_timestamps(df, entity) if self.__widgets_getter.no_target_selected() else self.__add_targets(target_name, df, entity)
+        ).filter(
             f.col(comparison_col_name)
             .cast("timestamp")
             .between(
-                (f.col(entity.time_column).cast("timestamp").cast("long") - get_max_time_window(time_windows)[1]).cast("timestamp"),
+                (self.__timestamp_diff(entity.time_column, time_windows)).cast("timestamp"),
                 f.col(entity.time_column),
             )
         )
@@ -81,3 +76,12 @@ class TimestampAdder:
 
         self.__logger.info("Joining targets with the input data")
         return df.join(targets, on=[entity.id_column], how="inner")
+
+    def __timestamp_diff(self, time_column: str, time_windows: List[str]) -> Column:
+        if TimestampAdder.infinite_time_window in time_windows:
+            return self.__year_zero().cast("long")
+
+        return f.col(time_column).cast("timestamp").cast("long") - get_max_time_window(time_windows)[1]
+
+    def __year_zero(self):
+        return f.to_timestamp(f.lit("0000-01-01"), "yyyy-MM-dd")
