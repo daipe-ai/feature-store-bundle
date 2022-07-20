@@ -40,7 +40,7 @@ class DatabricksFeatureStoreDataHandler:
             mode="merge",
         )
 
-    def __table_exists(self, fs_client, full_table_name: str):
+    def __table_exists(self, fs_client, full_table_name: str) -> bool:
         if self.__table_exists_in_feature_store(fs_client, full_table_name) and not self.__table_exists_in_hive(full_table_name):
             raise Exception(f"Table {full_table_name} exists in Databricks Feature Store but not in hive")
 
@@ -57,7 +57,7 @@ class DatabricksFeatureStoreDataHandler:
 
         raise Exception(f"Databricks Feature store table {full_table_name} is in inconsistent state")
 
-    def __table_exists_in_feature_store(self, dbx_feature_store_client, full_table_name: str):  # noqa
+    def __table_exists_in_feature_store(self, dbx_feature_store_client, full_table_name: str) -> bool:  # noqa
         try:
             dbx_feature_store_client.get_feature_table(full_table_name)
             return True
@@ -65,5 +65,5 @@ class DatabricksFeatureStoreDataHandler:
         except Exception:  # noqa pylint: disable=broad-except
             return False
 
-    def __table_exists_in_hive(self, full_table_name: str):
-        self.__table_existence_checker.exists(full_table_name)
+    def __table_exists_in_hive(self, full_table_name: str) -> bool:
+        return self.__table_existence_checker.exists(full_table_name)
