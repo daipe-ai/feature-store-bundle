@@ -42,4 +42,4 @@ class DeltaFeaturesMergeConfigGenerator:
         return {column: self.__wrap_source(column) for column in columns}
 
     def __wrap(self, alias: str, column: str) -> str:  # noqa
-        return f"{alias}.{column}"
+        return f"{alias}.`{column}`"
