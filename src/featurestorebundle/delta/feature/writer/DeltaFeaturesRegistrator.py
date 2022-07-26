@@ -10,7 +10,7 @@ class DeltaFeaturesRegistrator:
 
     def register(self, table_identifier: str, feature_list: FeatureList):
         def build_add_column_string(feature: FeatureInstance):
-            return f'{feature.name} {feature.storage_dtype} COMMENT "{feature.description}"'
+            return f'`{feature.name}` {feature.storage_dtype} COMMENT "{feature.description}"'
 
         def build_add_columns_string(table_identifier, feature_list: FeatureList):
             add_column_sqls = [build_add_column_string(feature) for feature in feature_list.get_all()]
