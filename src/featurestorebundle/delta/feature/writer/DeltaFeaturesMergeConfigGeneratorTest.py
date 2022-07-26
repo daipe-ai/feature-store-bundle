@@ -71,7 +71,7 @@ class DeltaFeaturesMergeConfigGeneratorTest(unittest.TestCase):
 
     def test_merge_condition(self):
         self.assertEqual(
-            " AND ".join(f"target.{pk} = source.{pk}" for pk in [self.entity.id_column, self.entity.time_column]),
+            " AND ".join(f"target.`{pk}` = source.`{pk}`" for pk in [self.entity.id_column, self.entity.time_column]),
             self.__config.merge_condition,
         )
 
