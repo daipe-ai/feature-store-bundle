@@ -76,6 +76,8 @@ services:
 
   featurestorebundle.delta.feature.writer.DeltaFeaturesRegistrator:
 
+  featurestorebundle.delta.feature.writer.AddColumnsQueryBuilder:
+
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesPreparer:
 
   featurestorebundle.delta.feature.writer.DeltaPathFeaturesPreparer:
@@ -141,6 +143,10 @@ services:
   featurestorebundle.delta.TableCreator:
     arguments:
       - '@featurestorebundle.logger'
+
+  featurestorebundle.delta.TablePropertySetter:
+
+  featurestorebundle.delta.TablePropertiesSetter:
 
   featurestorebundle.delta.PathCreator:
     arguments:

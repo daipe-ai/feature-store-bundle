@@ -1,26 +1,21 @@
 from typing import List
 from pyspark.sql import SparkSession
-from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
+
+from featurestorebundle.delta.feature.writer.AddColumnsQueryBuilder import AddColumnsQueryBuilder
 
 
 class DeltaFeaturesRegistrator:
-    def __init__(self, spark: SparkSession):
+    def __init__(self, spark: SparkSession, add_columns_query_builder: AddColumnsQueryBuilder):
         self.__spark = spark
+        self.__add_columns_query_builder = add_columns_query_builder
 
     def register(self, table_identifier: str, feature_list: FeatureList):
-        def build_add_column_string(feature: FeatureInstance):
-            return f'{feature.name} {feature.storage_dtype} COMMENT "{feature.description}"'
-
-        def build_add_columns_string(table_identifier, feature_list: FeatureList):
-            add_column_sqls = [build_add_column_string(feature) for feature in feature_list.get_all()]
-            return f"ALTER TABLE {table_identifier} ADD COLUMNS ({','.join(add_column_sqls)})"
-
         registered_feature_names = self.__get_feature_names(table_identifier)
         unregistered_features = feature_list.get_unregistered(registered_feature_names)
 
         if not unregistered_features.empty():
-            self.__spark.sql(build_add_columns_string(table_identifier, unregistered_features))
+            self.__spark.sql(self.__add_columns_query_builder.build_add_columns_query(table_identifier, unregistered_features))
 
     def __get_feature_names(self, table_identifier: str) -> List[str]:
         column_definitions = self.__spark.sql(f"DESCRIBE TABLE {table_identifier}").collect()
