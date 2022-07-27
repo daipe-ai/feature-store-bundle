@@ -26,11 +26,7 @@ class TableCreator:
         if self.__table_existence_checker.exists(full_table_name):
             self.__logger.info(f"Table {full_table_name} already exists, creation skipped. Setting delta.columnMapping.mode to 'name'.")
 
-            self.__table_properties_setter.set_properties(
-                table_identifier=f"{full_table_name}",
-                property_names=["delta.minReaderVersion", "delta.minWriterVersion", "delta.columnMapping.mode"],
-                property_values=["2", "5", "name"],
-            )
+            self.__set_delta_name_column_mapping_mode(table_identifier=full_table_name)
 
             return
 
@@ -40,10 +36,13 @@ class TableCreator:
 
         df.write.partitionBy(*partition_by).format("delta").option("path", path).saveAsTable(f"{full_table_name}")
 
+        self.__set_delta_name_column_mapping_mode(table_identifier=full_table_name)
+
+        self.__logger.info(f"Table {full_table_name} successfully created")
+
+    def __set_delta_name_column_mapping_mode(self, table_identifier: str):
         self.__table_properties_setter.set_properties(
-            table_identifier=f"{full_table_name}",
+            table_identifier=table_identifier,
             property_names=["delta.minReaderVersion", "delta.minWriterVersion", "delta.columnMapping.mode"],
             property_values=["2", "5", "name"],
         )
-
-        self.__logger.info(f"Table {full_table_name} successfully created")
