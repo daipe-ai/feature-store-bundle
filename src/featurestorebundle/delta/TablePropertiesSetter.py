@@ -8,5 +8,5 @@ class TablePropertiesSetter:
         self.__table_property_setter = table_property_setter
 
     def set_properties(self, table_identifier: str, properties: Dict[str, str]):
-        for name, value in zip(properties.keys(), properties.values()):
+        for name, value in properties.items():
             self.__table_property_setter.set_property(table_identifier=table_identifier, property_name=name, property_value=value)
