@@ -43,6 +43,9 @@ class TableCreator:
     def __set_delta_name_column_mapping_mode(self, table_identifier: str):
         self.__table_properties_setter.set_properties(
             table_identifier=table_identifier,
-            property_names=["delta.minReaderVersion", "delta.minWriterVersion", "delta.columnMapping.mode"],
-            property_values=["2", "5", "name"],
+            properties={
+                "delta.minReaderVersion": "2",
+                "delta.minWriterVersion": "5",
+                "delta.columnMapping.mode": "name",
+            },
         )
