@@ -98,9 +98,21 @@ services:
     tags:
       - {name: 'feature.writer', alias: 'databricks'}
 
+  featurestorebundle.databricks.DatabricksFeatureStoreClientFactory:
+    arguments:
+      - '%featurestorebundle.feature.backend%'
+
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreDataHandler:
     arguments:
       - '@featurestorebundle.logger'
+
+  featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreCreator:
+    arguments:
+      - '@featurestorebundle.logger'
+
+  featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreExistenceChecker:
+
+  featurestorebundle.databricks.feature.writer.DatabricksFeatureStorePreparer:
 
   featurestorebundle.feature.writer.FeaturesWriter:
     arguments:
