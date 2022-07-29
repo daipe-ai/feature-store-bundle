@@ -268,6 +268,7 @@ services:
 
   featurestorebundle.widgets.WidgetsFactory:
     arguments:
+      - '@featurestorebundle.logger'
       - '%featurestorebundle.widgets.defaults%'
       - '%featurestorebundle.entities%'
       - '%featurestorebundle.orchestration.stages%'

@@ -1,3 +1,4 @@
+from logging import Logger
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
@@ -21,7 +22,8 @@ class WidgetsFactory:
     features_orchestration_id = "features_orchestration_id"
     sample_name = "sample_data"
 
-    def __init__(self, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReader, widgets: Widgets):
+    def __init__(self, logger: Logger, defaults: Box, entities: Box, stages: Box, targets_reader: TargetsReader, widgets: Widgets):
+        self.__logger = logger
         self.__defaults = defaults
         self.__entities_list = list(entities) if entities is not None else []
         self.__stages = stages
@@ -66,10 +68,15 @@ class WidgetsFactory:
         self.__widgets.add_text(WidgetsFactory.target_time_shift, self.__defaults.target_time_shift)
 
     def create_target_name(self):
-        targets = [
-            getattr(row, get_target_id_column_name())
-            for row in self.__targets_reader.read_enum().select(get_target_id_column_name()).collect()
-        ]
+        if not self.__targets_reader.enum_exists():
+            self.__logger.warning("Cannot load target store, target based computation will be unavailable")
+            targets = []
+
+        else:
+            targets = [
+                getattr(row, get_target_id_column_name())
+                for row in self.__targets_reader.read_enum().select(get_target_id_column_name()).collect()
+            ]
 
         self.__widgets.add_select(
             WidgetsFactory.target_name,
