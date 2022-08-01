@@ -3,8 +3,7 @@ from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import Cur
 
 
 class DummyCurrentNotebookDefinitionGetter(CurrentNotebookDefinitionGetter):
-    # pylint: disable=super-init-not-called
-    def __init__(self):  # noqa
+    def __init__(self):  # noqa # pylint: disable=super-init-not-called
         pass
 
     def get(self) -> Box:

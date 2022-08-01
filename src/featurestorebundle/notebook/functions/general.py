@@ -10,7 +10,8 @@ def array_contains_all(col: Column, values: List[str]) -> Column:
         return f.lit(True)
 
     return reduce(
-        lambda first_condition, second_condition: (first_condition) & (second_condition), [f.array_contains(col, value) for value in values]
+        lambda first_condition, second_condition: (first_condition) & (second_condition),  # noqa
+        [f.array_contains(col, value) for value in values],
     )
 
 
@@ -19,7 +20,8 @@ def array_contains_any(col: Column, values: List[str]) -> Column:
         return f.lit(True)
 
     return reduce(
-        lambda first_condition, second_condition: (first_condition) | (second_condition), [f.array_contains(col, value) for value in values]
+        lambda first_condition, second_condition: (first_condition) | (second_condition),  # noqa
+        [f.array_contains(col, value) for value in values],
     )
 
 

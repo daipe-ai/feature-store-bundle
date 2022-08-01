@@ -7,9 +7,8 @@ def create(entity: Entity):
     if f"{entity.name}_feature_decorator" in globals():
         return globals()[f"{entity.name}_feature_decorator"]
 
-    # pylint: disable=invalid-name
     @DecoratedDecorator
-    class feature_decorator(feature):  # noqa
+    class feature_decorator(feature):  # noqa # pylint: disable=invalid-name
         def __init__(self, *args, category=None, owner=None, start_date=None, frequency=None):
             super().__init__(
                 *args,
