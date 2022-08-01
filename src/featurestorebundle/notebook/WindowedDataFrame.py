@@ -9,7 +9,7 @@ from featurestorebundle.notebook.functions.time_windows import WindowedColumn, w
 
 class WindowedDataFrame(DataFrame):
     def __init__(self, df: DataFrame, entity: Entity, time_column_name_to_be_subtracted_from_timestamp: str, time_windows: List[str]):
-        super().__init__(df._jdf, df.sql_ctx)  # pyre-ignore[6]
+        super().__init__(df._jdf, df.sql_ctx)  # noqa # pyre-ignore[6]
         self.__entity = entity
         self.__time_column_name = time_column_name_to_be_subtracted_from_timestamp
         self.__time_windows = time_windows

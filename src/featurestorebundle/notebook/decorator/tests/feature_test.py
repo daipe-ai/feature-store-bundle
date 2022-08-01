@@ -18,9 +18,8 @@ class FakeSchema:
         ],
     }
 
-    # pylint: disable=invalid-name
     @staticmethod
-    def jsonValue():
+    def jsonValue():  # noqa # pylint: disable=invalid-name
         return FakeSchema.json
 
 
@@ -32,12 +31,10 @@ class FakeResult:
         self.value = value
         self.schema = FakeSchema
 
-    # pylint: disable=unused-argument
-    def select(self, *args, **kwargs):
+    def select(self, *args, **kwargs):  # noqa # pylint: disable=unused-argument
         return self
 
-    # pylint: disable=unused-argument
-    def fillna(self, *args, **kwargs):
+    def fillna(self, *args, **kwargs):  # noqa # pylint: disable=unused-argument
         return self
 
 
@@ -50,9 +47,8 @@ entity = Entity(
 )
 
 
-# pylint: disable=invalid-name
 @DecoratedDecorator
-class client_feature(feature):
+class client_feature(feature):  # noqa # pylint: disable=invalid-name
     def __init__(self, *args, category=None):
         super().__init__(*args, entity=entity, category=category)
 

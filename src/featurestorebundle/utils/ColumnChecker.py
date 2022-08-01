@@ -17,5 +17,6 @@ class ColumnChecker:
         if dtypes_dict[column_name] not in expected_types:
             types_str = ", ".join(expected_types)
             raise WrongColumnTypeError(
-                f"Column `{column_name}` is of type `{dtypes_dict[column_name]}` but expected types are [{types_str}]. Please convert it or use another appropriate column"
+                f"Column `{column_name}` is of type `{dtypes_dict[column_name]}` but expected types are [{types_str}]. "
+                f"Please convert it or use another appropriate column"
             )

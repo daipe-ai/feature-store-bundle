@@ -20,13 +20,13 @@ class DeltaFeaturesRegistrator:
     def __get_feature_names(self, table_identifier: str) -> List[str]:
         column_definitions = self.__spark.sql(f"DESCRIBE TABLE {table_identifier}").collect()
 
-        def find_separation_row(column_definitions):
+        def find_separation_row(column_definitions):  # noqa
             for i, row in enumerate(column_definitions):
                 if row.col_name in ["", "# Partition Information"]:
                     return i
 
             return None
 
-        feature_rows = column_definitions[2 : find_separation_row(column_definitions)]
+        feature_rows = column_definitions[2 : find_separation_row(column_definitions)]  # noqa
 
         return [row.col_name for row in feature_rows]

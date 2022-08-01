@@ -46,7 +46,7 @@ class WithTimestampsTest(PySparkTestCase):
                     ["90d"],
                 )
             )
-            def test(df: DataFrame):
+            def test(df: DataFrame):  # noqa
                 return df
 
     def test_with_timestamps_date(self):
@@ -69,7 +69,7 @@ class WithTimestampsTest(PySparkTestCase):
                     ["90d"],
                 )
             )
-            def test(df: DataFrame):
+            def test(df: DataFrame):  # noqa
                 return df
 
         self.assertEqual('No widget defined for name "target_name"', str(context.exception))
@@ -94,7 +94,7 @@ class WithTimestampsTest(PySparkTestCase):
                     ["90d"],
                 )
             )
-            def test(df: DataFrame):
+            def test(df: DataFrame):  # noqa
                 return df
 
         self.assertEqual('No widget defined for name "target_name"', str(context.exception))

@@ -1,9 +1,9 @@
 # pylint: disable = unused-import
 
 # Time windows functionality
-from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
-from featurestorebundle.notebook.functions.input_functions import make_windowed
-from featurestorebundle.notebook.functions.time_windows import (
+from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame  # noqa
+from featurestorebundle.notebook.functions.input_functions import make_windowed  # noqa
+from featurestorebundle.notebook.functions.time_windows import (  # noqa
     sum_windowed,
     count_windowed,
     count_distinct_windowed,
