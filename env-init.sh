@@ -13,7 +13,7 @@ resolve_conda_executable_path() {
     POSSIBLE_PATHS_LIST=$(curl --silent $POSSIBLE_PATHS_LIST_URL)
 
     while IFS= read -r line; do
-      FILE_PATH=$(sed -E "s|\~|$HOME|g" <<< $line)
+      FILE_PATH=$(sed -E "s|\~|$HOME|g" <<< "$line")
 
       if [ -f "$FILE_PATH" ]; then
         echo "Using conda from: $FILE_PATH"
