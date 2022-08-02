@@ -94,9 +94,10 @@ class FeaturesListFactoryTest(PySparkTestCase):
             get_metadata_schema(),
         )
 
-        feature_list = self.__feature_list_factory.create(metadata)
+        feature_list = self.__feature_list_factory.create(self.__entity, metadata)
 
         expected_feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -164,7 +165,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         for feature1, feature2 in zip(feature_list.get_all(), expected_feature_list.get_all()):

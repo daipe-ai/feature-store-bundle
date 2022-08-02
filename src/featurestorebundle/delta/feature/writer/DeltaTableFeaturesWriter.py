@@ -40,7 +40,7 @@ class DeltaTableFeaturesWriter(FeaturesWriterInterface):
         merge_config = DeltaFeaturesMergeConfigGenerator().generate(entity, features_data, entity.get_primary_key())
 
         self.__features_validator.validate(entity, features_data, feature_list)
-        self.__metadata_validator.validate(feature_list)
+        self.__metadata_validator.validate(entity, feature_list)
         self.__features_table_preparer.prepare(full_table_name, path, entity, feature_list)
         self.__delta_data_handler.merge_to_delta_table(full_table_name, merge_config)
         self.__metadata_writer.write(feature_list)

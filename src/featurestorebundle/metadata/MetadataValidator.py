@@ -1,3 +1,4 @@
+from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
 from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
@@ -10,9 +11,9 @@ class MetadataValidator:
         self.__metadata_reader = metadata_reader
         self.__feature_list_factory = feature_list_factory
 
-    def validate(self, feature_list: FeatureList):
+    def validate(self, entity: Entity, feature_list: FeatureList):
         incoming_feature_list = feature_list
-        current_feature_list = self.__get_current_feature_list()
+        current_feature_list = self.__get_current_feature_list(entity)
 
         self.__check_no_duplicates_present(current_feature_list, incoming_feature_list)
         self.__check_immutable_fields_did_not_change(current_feature_list, incoming_feature_list)
@@ -46,7 +47,7 @@ class MetadataValidator:
                         f"from {current_field_value} to {incoming_field_value}"
                     )
 
-    def __get_current_feature_list(self) -> FeatureList:
-        metadata = self.__metadata_reader.read()
+    def __get_current_feature_list(self, entity: Entity) -> FeatureList:
+        metadata = self.__metadata_reader.read(entity.name)
 
-        return self.__feature_list_factory.create(metadata)
+        return self.__feature_list_factory.create(entity, metadata)

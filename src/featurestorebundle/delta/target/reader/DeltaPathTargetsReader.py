@@ -22,7 +22,7 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
 
     def read(self, entity_name: str) -> DataFrame:
         path = self.__table_names.get_targets_path(entity_name)
-        if not self.enum_exists():
+        if not self.enum_exists(entity_name):
             raise MissingTargetsTableError(
                 f"Targets table at `{path}` does not exist. Targets table must be created before running this code"
             )
@@ -31,9 +31,9 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
 
         return self.__spark.read.format("delta").load(path)
 
-    def read_enum(self) -> DataFrame:
-        path = self.__table_names.get_targets_enum_path()
-        if not self.enum_exists():
+    def read_enum(self, entity_name: str) -> DataFrame:
+        path = self.__table_names.get_targets_enum_path(entity_name)
+        if not self.enum_exists(entity_name):
             raise MissingTargetsEnumTableError(
                 f"Targets Enum table at `{path}` does not exist. Targets Enum table must be created before running this code"
             )
@@ -45,7 +45,7 @@ class DeltaPathTargetsReader(TargetsReaderInterface):
 
         return self.__path_existence_checker.exists(path)
 
-    def enum_exists(self) -> bool:
-        path = self.__table_names.get_targets_enum_path()
+    def enum_exists(self, entity_name: str) -> bool:
+        path = self.__table_names.get_targets_enum_path(entity_name)
 
         return self.__path_existence_checker.exists(path)

@@ -39,7 +39,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
         merge_config = DeltaFeaturesMergeConfigGenerator().generate(entity, features_data, entity.get_primary_key())
 
         self.__features_validator.validate(entity, features_data, feature_list)
-        self.__metadata_validator.validate(feature_list)
+        self.__metadata_validator.validate(entity, feature_list)
         self.__features_path_preparer.prepare(path, entity, feature_list)
         self.__delta_data_handler.merge_to_delta_path(path, merge_config)
         self.__metadata_writer.write(feature_list)

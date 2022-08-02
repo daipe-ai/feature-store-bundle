@@ -2,12 +2,14 @@ from logging import Logger
 from box import Box
 from daipecore.widgets.Widgets import Widgets
 
+from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.widgets.WidgetNames import WidgetNames
 from featurestorebundle.utils.errors import MissingEntitiesError, MissingWidgetDefaultError
 from featurestorebundle.target.reader.TargetsReader import TargetsReader
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
 
+# pylint: disable=too-many-instance-attributes
 class WidgetsFactory:
     def __init__(
         self,
@@ -15,6 +17,7 @@ class WidgetsFactory:
         defaults: Box,
         entities: Box,
         stages: Box,
+        entity_getter: EntityGetter,
         targets_reader: TargetsReader,
         widget_names: WidgetNames,
         widgets: Widgets,
@@ -23,6 +26,7 @@ class WidgetsFactory:
         self.__defaults = defaults
         self.__entities_list = list(entities) if entities is not None else []
         self.__stages = stages
+        self.__entity_getter = entity_getter
         self.__targets_reader = targets_reader
         self.__widget_names = widget_names
         self.__widgets = widgets
@@ -65,14 +69,16 @@ class WidgetsFactory:
         self.__widgets.add_text(self.__widget_names.target_time_shift, self.__defaults.target_time_shift)
 
     def create_target_name(self):
-        if not self.__targets_reader.enum_exists():
+        entity = self.__entity_getter.get()
+
+        if not self.__targets_reader.enum_exists(entity.name):
             self.__logger.warning("Cannot load target store, target based computation will be unavailable")
             targets = []
 
         else:
             targets = [
                 getattr(row, get_target_id_column_name())
-                for row in self.__targets_reader.read_enum().select(get_target_id_column_name()).collect()
+                for row in self.__targets_reader.read_enum(entity.name).select(get_target_id_column_name()).collect()
             ]
 
         self.__widgets.add_select(

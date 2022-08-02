@@ -40,7 +40,7 @@ class DatabricksFeatureStoreWriter(FeaturesWriterInterface):
         databricks_merge_config = DatabricksFeatureStoreMergeConfig(features_data, entity.get_primary_key())
 
         self.__features_validator.validate(entity, features_data, feature_list)
-        self.__metadata_validator.validate(feature_list)
+        self.__metadata_validator.validate(entity, feature_list)
         self.__features_table_preparer.prepare(full_table_name, path, entity)
         self.__databricks_data_handler.merge_to_databricks_feature_store(full_table_name, databricks_merge_config)
         self.__metadata_writer.write(feature_list)

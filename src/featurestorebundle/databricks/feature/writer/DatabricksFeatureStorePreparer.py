@@ -17,7 +17,7 @@ class DatabricksFeatureStorePreparer:
         self.__feature_store_creator = feature_store_creator
 
     def prepare(self, full_table_name: str, path: str, entity: Entity):
-        self.__spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.__table_names.get_db_name()}")
+        self.__spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.__table_names.get_features_database(entity.name)}")
 
         self.__feature_store_creator.create_if_not_exists(
             full_table_name=full_table_name,

@@ -21,6 +21,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
         )
 
         self.__feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -62,7 +63,7 @@ class FeaturesFilteringManagerTargetsTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         self.__container = bootstrapped_container.init("test")

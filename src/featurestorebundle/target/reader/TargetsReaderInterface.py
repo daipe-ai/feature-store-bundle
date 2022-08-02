@@ -8,7 +8,7 @@ class TargetsReaderInterface(ABC):
         pass
 
     @abstractmethod
-    def read_enum(self) -> DataFrame:
+    def read_enum(self, entity_name: str) -> DataFrame:
         pass
 
     @abstractmethod
@@ -16,5 +16,5 @@ class TargetsReaderInterface(ABC):
         pass
 
     @abstractmethod
-    def enum_exists(self) -> bool:
+    def enum_exists(self, entity_name: str) -> bool:
         pass

@@ -90,7 +90,7 @@ class feature(OutputDecorator):  # noqa
 
         change_master_features = feature_list.get_change_features()
 
-        change_columns, change_feature_list = changes_calculator.get_changes(change_master_features, self.__entity.name)
+        change_columns, change_feature_list = changes_calculator.get_changes(change_master_features, self.__entity)
 
         return result.select("*", *change_columns), feature_list.merge(change_feature_list)
 

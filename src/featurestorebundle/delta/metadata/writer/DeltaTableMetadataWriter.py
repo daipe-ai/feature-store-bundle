@@ -21,9 +21,10 @@ class DeltaTableMetadataWriter(MetadataWriterInterface):
         self.__metadata_handler = metadata_handler
 
     def write(self, feature_list: FeatureList):
-        full_table_name = self.__table_names.get_metadata_full_table_name()
-        path = self.__table_names.get_metadata_path()
+        entity = feature_list.get_entity()
+        full_table_name = self.__table_names.get_metadata_full_table_name(entity.name)
+        path = self.__table_names.get_metadata_path(entity.name)
         metadata_df = self.__spark.createDataFrame(feature_list.get_metadata(), get_metadata_schema())
 
-        self.__table_preparer.prepare(full_table_name, path)
+        self.__table_preparer.prepare(full_table_name, path, entity)
         self.__metadata_handler.merge_to_delta_table(full_table_name, metadata_df)

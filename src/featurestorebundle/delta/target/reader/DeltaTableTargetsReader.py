@@ -31,9 +31,9 @@ class DeltaTableTargetsReader(TargetsReaderInterface):
 
         return self.__spark.read.table(full_table_name)
 
-    def read_enum(self) -> DataFrame:
-        full_table_name = self.__table_names.get_targets_enum_full_table_name()
-        if not self.enum_exists():
+    def read_enum(self, entity_name: str) -> DataFrame:
+        full_table_name = self.__table_names.get_targets_enum_full_table_name(entity_name)
+        if not self.enum_exists(entity_name):
             raise MissingTargetsEnumTableError(
                 f"Targets Enum table at `{full_table_name}` does not exist. Targets Enum table must be created before running this code"
             )
@@ -45,7 +45,7 @@ class DeltaTableTargetsReader(TargetsReaderInterface):
 
         return self.__table_existence_checker.exists(full_table_name)
 
-    def enum_exists(self) -> bool:
-        full_table_name = self.__table_names.get_targets_enum_full_table_name()
+    def enum_exists(self, entity_name: str) -> bool:
+        full_table_name = self.__table_names.get_targets_enum_full_table_name(entity_name)
 
         return self.__table_existence_checker.exists(full_table_name)

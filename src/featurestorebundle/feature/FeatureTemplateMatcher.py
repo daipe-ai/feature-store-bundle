@@ -35,7 +35,7 @@ class FeatureTemplateMatcher:
             patterns = ", ".join(f'"{pattern.feature_template}"' for pattern in unmatched_patterns)
             raise TemplateMatchingError(f"Templates {patterns} did not match any columns.")
 
-        return FeatureList(features)
+        return FeatureList(entity, features)
 
     def __get_feature(
         self,
