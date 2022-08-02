@@ -3,20 +3,21 @@ from pyspark.sql import types as t
 from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.utils.types import names_to_dtypes
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
+from featurestorebundle.widgets.WidgetNames import WidgetNames
 
 
 class EntityGetter:
 
     _allowed_id_column_types = ["string", "integer", "long", "short"]
 
-    def __init__(self, entities: Box, widgets: Widgets):
+    def __init__(self, entities: Box, widgets: Widgets, widget_names: WidgetNames):
         self.__entities = entities
         self.__widgets = widgets
+        self.__widget_names = widget_names
 
     def get(self) -> Entity:
         if len(self.__entities) > 1:
-            entity_name = self.__widgets.get_value(WidgetsFactory.entity_name)
+            entity_name = self.__widgets.get_value(self.__widget_names.entity_name)
         else:
             entity_name = list(self.__entities)[0]
 

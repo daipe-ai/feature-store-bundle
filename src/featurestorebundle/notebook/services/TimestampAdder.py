@@ -9,10 +9,11 @@ from featurestorebundle.utils.DateParser import DateParser
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureStore import FeatureStore
 from featurestorebundle.notebook.functions.time_windows import get_max_time_window, parse_time_window
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
+from featurestorebundle.widgets.WidgetNames import WidgetNames
 from featurestorebundle.widgets.WidgetsGetter import WidgetsGetter
 
 
+# pylint: disable=too-many-instance-attributes
 class TimestampAdder:
     def __init__(
         self,
@@ -20,6 +21,7 @@ class TimestampAdder:
         default_time_windows: List[str],
         logger: Logger,
         sampling: Box,
+        widget_names: WidgetNames,
         widgets_getter: WidgetsGetter,
         feature_store: FeatureStore,
         date_parser: DateParser,
@@ -28,6 +30,7 @@ class TimestampAdder:
         self.__default_time_windows = default_time_windows
         self.__logger = logger
         self.__sampling = sampling
+        self.__widget_names = widget_names
         self.__widgets_getter = widgets_getter
         self.__feature_store = feature_store
         self.__date_parser = date_parser
@@ -37,7 +40,7 @@ class TimestampAdder:
 
         return (
             self.__add_timestamps(df, entity)
-            if target_name == WidgetsFactory.no_targets_placeholder
+            if target_name == self.__widget_names.no_targets_placeholder
             else self.__add_targets(target_name, df, entity)
         )
 

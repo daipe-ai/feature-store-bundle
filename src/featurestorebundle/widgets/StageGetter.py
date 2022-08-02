@@ -4,7 +4,7 @@ from injecta.container.ContainerInterface import ContainerInterface
 from py4j.protocol import Py4JError
 from pyspark.dbutils import DBUtils
 
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
+from featurestorebundle.widgets.WidgetNames import WidgetNames
 from featurestorebundle.orchestration.NotebookDefinitionGetter import NotebookDefinitionGetter
 
 
@@ -13,20 +13,21 @@ def get_stages():
     def wrapper(container: ContainerInterface) -> Box:
         dbutils: DBUtils = container.get(DBUtils)
         notebook_definition_getter: NotebookDefinitionGetter = container.get(NotebookDefinitionGetter)
+        widget_names: WidgetNames = container.get(WidgetNames)
 
         try:
             notebooks_str = dbutils.widgets.get("notebooks")
         except Py4JError:
-            notebooks_str = WidgetsFactory.all_notebooks_placeholder
+            notebooks_str = widget_names.all_notebooks_placeholder
 
-        if notebooks_str == WidgetsFactory.all_notebooks_placeholder:
+        if notebooks_str == widget_names.all_notebooks_placeholder:
             return container.get_parameters().featurestorebundle.orchestration.stages
 
         notebooks_list = notebooks_str.split(",")
-        if WidgetsFactory.all_notebooks_placeholder in notebooks_list:
+        if widget_names.all_notebooks_placeholder in notebooks_list:
             raise Exception(
-                f"`{WidgetsFactory.all_notebooks_placeholder}` together with selected notebooks is not a valid option. Please select "
-                f"either `{WidgetsFactory.all_notebooks_placeholder}` only or a subset of notebooks"
+                f"`{widget_names.all_notebooks_placeholder}` together with selected notebooks is not a valid option. Please select "
+                f"either `{widget_names.all_notebooks_placeholder}` only or a subset of notebooks"
             )
 
         stages = [stage.split(":")[0].strip() for stage in notebooks_list]
