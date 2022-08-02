@@ -47,7 +47,7 @@ class FeatureStore:
     ) -> DataFrame:
         entity = self.__entity_getter.get_by_name(entity_name)
         metadata = self.get_metadata(entity_name)
-        attribute_list = self.__feature_list_factory.create(metadata)
+        attribute_list = self.__feature_list_factory.create(entity, metadata)
         attributes = attributes or attribute_list.get_names()
         attribute_list.check_features_registered(attributes)
         relevant_attribute_list = attribute_list.filter(lambda feature_instance: feature_instance.name in attributes)
@@ -88,7 +88,7 @@ class FeatureStore:
     ) -> DataFrame:
         entity = self.__entity_getter.get_by_name(entity_name)
         metadata = self.get_metadata(entity_name)
-        attribute_list = self.__feature_list_factory.create(metadata)
+        attribute_list = self.__feature_list_factory.create(entity, metadata)
         feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
         features = features or feature_list.get_names()
         feature_list.check_features_registered(features)
@@ -149,7 +149,7 @@ class FeatureStore:
         entity = self.__entity_getter.get_by_name(entity_name)
         metadata = self.get_metadata(entity_name)
         targets = self.get_targets(entity_name, target_name, target_date_from, target_date_to, time_diff)
-        attribute_list = self.__feature_list_factory.create(metadata)
+        attribute_list = self.__feature_list_factory.create(entity, metadata)
         feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
         features = features or feature_list.get_names()
         feature_list.check_features_registered(features)
@@ -191,7 +191,7 @@ class FeatureStore:
         return self.__targets_filtering_manager.get_targets(entity, target_store, target_name, date_from, date_to, time_diff)
 
     def get_metadata(self, entity_name: Optional[str] = None, features: Optional[List[str]] = None) -> DataFrame:
-        metadata = self.__metadata_reader.read()
+        metadata = self.__metadata_reader.read(entity_name)
 
         if entity_name is not None:
             metadata = get_metadata_for_entity(metadata, entity_name)

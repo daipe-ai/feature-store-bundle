@@ -2,22 +2,27 @@ import re
 from typing import List, Dict, Union, Callable
 from datetime import datetime
 
+from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.utils.errors import UnsupportedChangeFeatureNameError
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.MasterFeature import MasterFeature
 
 
 class FeatureList:
-    def __init__(self, features: List[FeatureInstance]):
+    def __init__(self, entity: Entity, features: List[FeatureInstance]):
+        self.__entity = entity
         self.__features = features
+
+    def get_entity(self) -> Entity:
+        return self.__entity
 
     def get_all(self) -> List[FeatureInstance]:
         return self.__features
 
-    def empty(self):
+    def empty(self) -> bool:
         return not self.__features
 
-    def get_names(self):
+    def get_names(self) -> List[str]:
         return [feature.name for feature in self.__features]
 
     def get_by_name(self, feature_name: str) -> FeatureInstance:
@@ -38,7 +43,7 @@ class FeatureList:
         def registered(instance: FeatureInstance, registered_names: List[str]):
             return instance.name in registered_names
 
-        return FeatureList([feature for feature in self.get_all() if not registered(feature, registered_feature_names)])
+        return FeatureList(self.get_entity(), [feature for feature in self.get_all() if not registered(feature, registered_feature_names)])
 
     def check_features_registered(self, features: List[str]):
         unregistered_features = set(features) - set(self.get_names())
@@ -47,10 +52,10 @@ class FeatureList:
             raise Exception(f"Features {', '.join(unregistered_features)} not registered")
 
     def merge(self, new_feature_list: "FeatureList") -> "FeatureList":
-        return FeatureList(self.__features + new_feature_list.get_all())
+        return FeatureList(self.get_entity(), self.__features + new_feature_list.get_all())
 
     def filter(self, condition: Callable) -> "FeatureList":
-        return FeatureList(list(filter(condition, self.__features)))
+        return FeatureList(self.get_entity(), list(filter(condition, self.__features)))
 
     def get_metadata(self) -> List[List[Union[Dict[str, str], str]]]:
         return [feature.get_metadata_list() for feature in self.__features]

@@ -1,10 +1,12 @@
 parameters:
   featurestorebundle:
-    db_name: '%kernel.environment%_feature_store'
+    db_name: '%kernel.environment%_feature_store' # @deprecated, use base_database instead
+    base_database: '%featurestorebundle.db_name%'
     base_path: 'dbfs:/%kernel.environment%_feature_store'
     feature:
       table:
-        name_template: 'features_{entity}'
+        database_template: '%featurestorebundle.base_database%'
+        table_template: 'features_{entity}'
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
       backend: databricks # available: delta_table, delta_path, databricks
       defaults:
@@ -14,17 +16,20 @@ parameters:
         frequency: 'daily'
     metadata:
       table:
-        name_template: 'features_metadata'
+        database_template: '%featurestorebundle.base_database%'
+        table_template: 'features_metadata'
         path_template: '%featurestorebundle.base_path%/metadata/metadata.delta'
       backend: delta_table # available: delta_table, delta_path
       display_in_notebook: True
     target:
       table:
-        name_template: 'targets_{entity}'
+        database_template: '%featurestorebundle.base_database%'
+        table_template: 'targets_{entity}'
         path_template: '%featurestorebundle.base_path%/targets/{entity}.delta'
       enum_table:
-        name: 'targets_enum'
-        path: '%featurestorebundle.base_path%/targets/targets_enum.delta'
+        database_template: '%featurestorebundle.base_database%'
+        table_template: 'targets_enum'
+        path_template: '%featurestorebundle.base_path%/targets/targets_enum.delta'
       backend: delta_table # available: delta_table, delta_path
     checkpoint:
       default_checkpoint_dir: 'dbfs:/tmp/checkpoints'
@@ -61,16 +66,21 @@ services:
       - 'feature_store'
 
   featurestorebundle.db.TableNames:
+    autowire: False
     arguments:
-      - '%featurestorebundle.db_name%'
-      - '%featurestorebundle.feature.table.name_template%'
+      - '%featurestorebundle.feature.table.database_template%'
+      - '%featurestorebundle.feature.table.table_template%'
       - '%featurestorebundle.feature.table.path_template%'
-      - '%featurestorebundle.metadata.table.name_template%'
+      - '%featurestorebundle.metadata.table.database_template%'
+      - '%featurestorebundle.metadata.table.table_template%'
       - '%featurestorebundle.metadata.table.path_template%'
-      - '%featurestorebundle.target.table.name_template%'
+      - '%featurestorebundle.target.table.database_template%'
+      - '%featurestorebundle.target.table.table_template%'
       - '%featurestorebundle.target.table.path_template%'
-      - '%featurestorebundle.target.enum_table.name%'
-      - '%featurestorebundle.target.enum_table.path%'
+      - '%featurestorebundle.target.enum_table.database_template%'
+      - '%featurestorebundle.target.enum_table.table_template%'
+      - '%featurestorebundle.target.enum_table.path_template%'
+      - '@featurestorebundle.databricks.DatabricksCurrentBranchResolver'
 
   featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator:
 
@@ -113,6 +123,8 @@ services:
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStoreExistenceChecker:
 
   featurestorebundle.databricks.feature.writer.DatabricksFeatureStorePreparer:
+
+  featurestorebundle.databricks.DatabricksCurrentBranchResolver:
 
   featurestorebundle.feature.writer.FeaturesWriter:
     arguments:

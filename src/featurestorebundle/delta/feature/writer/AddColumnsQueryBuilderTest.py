@@ -1,4 +1,6 @@
 import unittest
+from pyspark.sql import types as t
+from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
@@ -10,6 +12,13 @@ class AddColumnQueryBuilderTest(unittest.TestCase):
     def test_sql_query_builder_build_add_columns_string(self):
         add_columns_query_builder = AddColumnsQueryBuilder()
 
+        entity = Entity(
+            name="test_entity",
+            id_column="id",
+            id_column_type=t.StringType(),
+            time_column="timestamp",
+            time_column_type=t.TimestampType(),
+        )
         feature_template = FeatureTemplate(
             name_template="test_name",
             description_template="test_description",
@@ -28,7 +37,7 @@ class AddColumnQueryBuilderTest(unittest.TestCase):
             extra={},
             template=feature_template,
         )
-        feature_list = FeatureList([feature_instance])
+        feature_list = FeatureList(entity, [feature_instance])
 
         add_columns_query = add_columns_query_builder.build_add_columns_query(
             table_identifier="test_database.test_table", feature_list=feature_list

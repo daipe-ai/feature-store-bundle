@@ -154,6 +154,7 @@ class NullHandlerTest(PySparkTestCase):
         )
 
         input_feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -173,7 +174,7 @@ class NullHandlerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", None, "int", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         expected_converted_df = self.spark.createDataFrame(
@@ -210,6 +211,7 @@ class NullHandlerTest(PySparkTestCase):
         )
 
         input_feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -220,7 +222,7 @@ class NullHandlerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         with self.assertRaises(Exception):

@@ -38,6 +38,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -57,7 +58,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -86,6 +87,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -105,7 +107,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         df_2 = self.spark.createDataFrame(
@@ -118,6 +120,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_2 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -128,7 +131,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -166,6 +169,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -176,7 +180,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -216,6 +220,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -226,7 +231,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -266,6 +271,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -276,7 +282,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         df_2 = self.spark.createDataFrame(
@@ -287,6 +293,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_2 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -297,7 +304,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f1", "this is feature 1", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -330,6 +337,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -349,7 +357,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         df_2 = self.spark.createDataFrame(
@@ -360,6 +368,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_2 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -370,7 +379,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)
@@ -401,6 +410,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -420,7 +430,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", None, "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage_1 = FeaturesStorage(self.__entity)
@@ -448,6 +458,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_2 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -458,7 +469,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", None, "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage_2 = FeaturesStorage(self.__entity)
@@ -491,6 +502,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_1 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -510,7 +522,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", "EMPTY", "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         df_2 = self.spark.createDataFrame(
@@ -523,6 +535,7 @@ class FeaturesPreparerTest(PySparkTestCase):
         )
 
         feature_list_2 = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -533,7 +546,7 @@ class FeaturesPreparerTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f3", "this is feature 3", None, "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         features_storage.add(df_1, feature_list_1)

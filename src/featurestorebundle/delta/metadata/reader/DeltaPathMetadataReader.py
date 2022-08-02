@@ -1,3 +1,4 @@
+from typing import Optional
 from pyspark.sql import SparkSession
 from pyspark.sql import DataFrame
 from logging import Logger
@@ -23,8 +24,9 @@ class DeltaPathMetadataReader(MetadataReaderInterface):
         self.__path_existence_checker = path_existence_checker
         self.__empty_dataframe_creator = empty_dataframe_creator
 
-    def read(self) -> DataFrame:
-        path = self.__table_names.get_metadata_path()
+    def read(self, entity_name: Optional[str]) -> DataFrame:
+        entity_name = entity_name or ""
+        path = self.__table_names.get_metadata_path(entity_name)
 
         if not self.__path_existence_checker.exists(path):
             self.__logger.debug(f"Metadata does not exist at path {path}, returning empty metadata dataframe")

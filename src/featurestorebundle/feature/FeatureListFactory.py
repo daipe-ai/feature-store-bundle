@@ -1,13 +1,14 @@
 import ast
 import pydoc
 from pyspark.sql import DataFrame
+from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
 
 
 class FeatureListFactory:
-    def create(self, metadata: DataFrame) -> FeatureList:
+    def create(self, entity: Entity, metadata: DataFrame) -> FeatureList:
         feature_instances = []
         rows = metadata.collect()
 
@@ -33,7 +34,7 @@ class FeatureListFactory:
             )
             feature_instances.append(feature_instance)
 
-        return FeatureList(feature_instances)
+        return FeatureList(entity, feature_instances)
 
     # pylint: disable=too-many-return-statements
     def __convert_fillna_value(self, fillna_value: str, fillna_value_type: str):

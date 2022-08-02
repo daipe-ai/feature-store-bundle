@@ -21,6 +21,6 @@ class DeltaTableFeaturesPreparer:
         self.__features_registrator = features_registrator
 
     def prepare(self, full_table_name: str, path: str, entity: Entity, current_feature_list: FeatureList):
-        self.__spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.__table_names.get_db_name()}")
+        self.__spark.sql(f"CREATE DATABASE IF NOT EXISTS {self.__table_names.get_features_database(entity.name)}")
         self.__table_creator.create_if_not_exists(full_table_name, path, get_feature_store_initial_schema(entity), entity.time_column)
         self.__features_registrator.register(full_table_name, current_feature_list)

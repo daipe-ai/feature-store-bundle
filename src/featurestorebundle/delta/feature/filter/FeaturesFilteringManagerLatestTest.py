@@ -33,6 +33,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         )
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -74,7 +75,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         features_data = self.__filtering_manager.get_latest(
@@ -101,6 +102,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         )
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -142,7 +144,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         with self.assertRaises(Exception):
@@ -162,6 +164,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         )
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -223,7 +226,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         features_data = self.__filtering_manager.get_latest(
@@ -254,6 +257,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
         )
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     entity=self.__entity.name,
@@ -295,7 +299,7 @@ class FeaturesFilteringManagerLatestTest(PySparkTestCase):
                         last_compute_date=dt.datetime(2020, 1, 1),
                     ),
                 ),
-            ]
+            ],
         )
 
         # lookback 30 days

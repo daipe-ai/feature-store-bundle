@@ -49,10 +49,11 @@ class FeatureChangesTest(PySparkTestCase):
         ]
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 *features_with_change,
                 FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
-            ]
+            ],
         )
 
         change_features = feature_list.get_change_features()
@@ -87,10 +88,11 @@ class FeatureChangesTest(PySparkTestCase):
         ]
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 *features_with_change,
                 FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
-            ]
+            ],
         )
 
         change_features = feature_list.get_change_features()
@@ -125,10 +127,11 @@ class FeatureChangesTest(PySparkTestCase):
         ]
 
         feature_list = FeatureList(
+            self.__entity,
             [
                 *features_with_change,
                 FeatureInstance("entity", "a_14d", "a in 14 days", "int", "numerical", {"time_window": "14d"}, template),
-            ]
+            ],
         )
 
         self.assertRaises(UnsupportedChangeFeatureNameError, feature_list.get_change_features)

@@ -13,7 +13,7 @@ class FeaturesStorage:
     def __init__(self, entity: Entity):
         self.__entity = entity
         self.__results = []
-        self.__feature_list = FeatureList([])
+        self.__feature_list = FeatureList(entity, [])
 
     @property
     def entity(self):

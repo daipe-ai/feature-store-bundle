@@ -22,6 +22,7 @@ class MetadataTest(PySparkTestCase):
 
     def test_metadata(self):
         feature_list = FeatureList(
+            self.__entity,
             [
                 FeatureInstance(
                     self.__entity.name,
@@ -41,7 +42,7 @@ class MetadataTest(PySparkTestCase):
                     {},
                     FeatureTemplate("f2", "this is feature 2", None, "str", "loc", "bck", "ntb"),
                 ),
-            ]
+            ],
         )
 
         df = self.spark.createDataFrame(feature_list.get_metadata(), get_metadata_schema())

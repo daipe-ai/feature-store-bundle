@@ -9,11 +9,11 @@ class TargetsReader:
     def read(self, entity_name: str) -> DataFrame:
         return self.__targets_reader.read(entity_name)
 
-    def read_enum(self) -> DataFrame:
-        return self.__targets_reader.read_enum()
+    def read_enum(self, entity_name: str) -> DataFrame:
+        return self.__targets_reader.read_enum(entity_name)
 
     def exists(self, entity_name: str) -> bool:
         return self.__targets_reader.exists(entity_name)
 
-    def enum_exists(self) -> bool:
-        return self.__targets_reader.enum_exists()
+    def enum_exists(self, entity_name: str) -> bool:
+        return self.__targets_reader.enum_exists(entity_name)
