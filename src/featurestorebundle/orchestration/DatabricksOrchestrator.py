@@ -12,9 +12,9 @@ from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksF
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
-from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
+from featurestorebundle.widgets.WidgetNames import WidgetNames
 
 
 # pylint: disable=too-many-instance-attributes
@@ -32,6 +32,7 @@ class DatabricksOrchestrator:
         post_actions_runner: PostActionsRunner,
         checkpoint_guard: CheckpointGuard,
         checkpoint_dir_handler: CheckpointDirHandler,
+        widget_names: WidgetNames,
     ):
         self.__logger = logger
         self.__orchestration_stages = orchestration_stages
@@ -44,6 +45,7 @@ class DatabricksOrchestrator:
         self.__post_actions_runner = post_actions_runner
         self.__checkpoint_guard = checkpoint_guard
         self.__checkpoint_dir_handler = checkpoint_dir_handler
+        self.__widget_names = widget_names
 
     def orchestrate(self, stages: Optional[Box] = None):
         stages = self.__orchestration_stages if stages is None else stages
@@ -96,7 +98,7 @@ class DatabricksOrchestrator:
     def __submit_notebook(self, notebook: NotebookTask, orchestration_id: str):
         try:
             return self.__dbutils.notebook.run(
-                notebook.path, notebook.timeout, {WidgetsFactory.features_orchestration_id: orchestration_id, **notebook.parameters}
+                notebook.path, notebook.timeout, {self.__widget_names.features_orchestration_id: orchestration_id, **notebook.parameters}
             )
 
         except Exception:  # noqa pylint: disable=broad-except

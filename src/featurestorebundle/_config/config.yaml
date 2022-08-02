@@ -275,6 +275,8 @@ services:
 
   featurestorebundle.widgets.WidgetsGetter:
 
+  featurestorebundle.widgets.WidgetNames:
+
   featurestorebundle.entity.EntityGetter:
     arguments:
       - '%featurestorebundle.entities%'
