@@ -1,9 +1,11 @@
-from typing import List, Optional
+from typing import List, Optional, Callable
 from functools import reduce
-from datetime import datetime
-from datetime import timedelta
+from datetime import datetime, timedelta
 from pyspark.sql import DataFrame
+
 from featurestorebundle.entity.EntityGetter import EntityGetter
+from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.feature.FeatureStoreStorageInfo import FeatureStoreStorageInfo
 from featurestorebundle.feature.reader.FeaturesReader import FeaturesReader
 from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
 from featurestorebundle.target.reader.TargetsReader import TargetsReader
@@ -45,37 +47,21 @@ class FeatureStore:
         attributes: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
-        entity = self.__entity_getter.get_by_name(entity_name)
-        metadata = self.get_metadata(entity_name)
-        attribute_list = self.__feature_list_factory.create(entity, metadata)
-        attributes = attributes or attribute_list.get_names()
-        attribute_list.check_features_registered(attributes)
-        relevant_attribute_list = attribute_list.filter(lambda feature_instance: feature_instance.name in attributes)
-        timestamp = timestamp or attribute_list.get_max_last_compute_date()
-        look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else timestamp - datetime.min
-        feature_store_info_list = self.__features_reader.read(attribute_list)
-        latest_dataframes = []
+        relevant_attribute_list = self.__get_relevant_attribute_list(entity_name, attributes)
 
-        for feature_store_info in feature_store_info_list:
-            # pylint: disable=cell-var-from-loop
-            relevant_location_attribute_list = relevant_attribute_list.filter(
-                lambda feature_instance: feature_instance.template.location == feature_store_info.location
+        def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
+            selected_timestamp = timestamp or feature_list.get_max_last_compute_date()
+            look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else selected_timestamp - datetime.min
+
+            return self.__features_filtering_manager.get_latest(
+                feature_store_info.feature_store,
+                feature_list,
+                selected_timestamp,
+                look_back_days,
+                skip_incomplete_rows,
             )
 
-            latest_dataframes.append(
-                self.__features_filtering_manager.get_latest(
-                    feature_store_info.feature_store,
-                    relevant_location_attribute_list,
-                    timestamp,
-                    look_back_days,
-                    skip_incomplete_rows,
-                )
-            )
-
-        attributes_data = reduce(lambda df1, df2: df1.join(df2, on=entity.id_column, how="outer"), latest_dataframes)
-        attributes_data = self.__null_handler.from_storage_format(attributes_data, attribute_list, entity)
-
-        return attributes_data
+        return self.__get(relevant_attribute_list, wrapper)
 
     # pylint: disable=too-many-locals
     def get_latest_features(
@@ -86,38 +72,21 @@ class FeatureStore:
         features: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
-        entity = self.__entity_getter.get_by_name(entity_name)
-        metadata = self.get_metadata(entity_name)
-        attribute_list = self.__feature_list_factory.create(entity, metadata)
-        feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
-        features = features or feature_list.get_names()
-        feature_list.check_features_registered(features)
-        relevant_feature_list = feature_list.filter(lambda feature_instance: feature_instance.name in features)
-        timestamp = timestamp or feature_list.get_max_last_compute_date()
-        look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else timestamp - datetime.min
-        feature_store_info_list = self.__features_reader.read(relevant_feature_list)
-        latest_dataframes = []
+        relevant_feature_list = self.__get_relevant_feature_list(entity_name, features)
 
-        for feature_store_info in feature_store_info_list:
-            # pylint: disable=cell-var-from-loop
-            relevant_location_feature_list = relevant_feature_list.filter(
-                lambda feature_instance: feature_instance.template.location == feature_store_info.location
+        def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
+            selected_timestamp = timestamp or feature_list.get_max_last_compute_date()
+            look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else selected_timestamp - datetime.min
+
+            return self.__features_filtering_manager.get_latest(
+                feature_store_info.feature_store,
+                feature_list,
+                selected_timestamp,
+                look_back_days,
+                skip_incomplete_rows,
             )
 
-            latest_dataframes.append(
-                self.__features_filtering_manager.get_latest(
-                    feature_store_info.feature_store,
-                    relevant_location_feature_list,
-                    timestamp,
-                    look_back_days,
-                    skip_incomplete_rows,
-                )
-            )
-
-        features_data = reduce(lambda df1, df2: df1.join(df2, on=entity.id_column, how="outer"), latest_dataframes)
-        features_data = self.__null_handler.from_storage_format(features_data, feature_list, entity)
-
-        return features_data
+        return self.__get(relevant_feature_list, wrapper)
 
     def get_latest(
         self,
@@ -146,36 +115,19 @@ class FeatureStore:
         features: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
-        entity = self.__entity_getter.get_by_name(entity_name)
-        metadata = self.get_metadata(entity_name)
         targets = self.get_targets(entity_name, target_name, target_date_from, target_date_to, time_diff)
-        attribute_list = self.__feature_list_factory.create(entity, metadata)
-        feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
-        features = features or feature_list.get_names()
-        feature_list.check_features_registered(features)
-        relevant_feature_list = feature_list.filter(lambda feature_instance: feature_instance.name in features)
-        feature_store_info_list = self.__features_reader.read(feature_list)
-        historical_dataframes = []
 
-        for feature_store_info in feature_store_info_list:
-            # pylint: disable=cell-var-from-loop
-            relevant_location_feature_list = relevant_feature_list.filter(
-                lambda feature_instance: feature_instance.template.location == feature_store_info.location
+        relevant_feature_list = self.__get_relevant_feature_list(entity_name, features)
+
+        def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
+            return self.__features_filtering_manager.get_for_target(
+                feature_store_info.feature_store,
+                targets,
+                feature_list,
+                skip_incomplete_rows,
             )
 
-            historical_dataframes.append(
-                self.__features_filtering_manager.get_for_target(
-                    feature_store_info.feature_store,
-                    targets,
-                    relevant_location_feature_list,
-                    skip_incomplete_rows,
-                )
-            )
-
-        features_data = reduce(lambda df1, df2: df1.join(df2, on=entity.get_primary_key(), how="outer"), historical_dataframes)
-        features_data = self.__null_handler.from_storage_format(features_data, feature_list, entity)
-
-        return features_data
+        return self.__get(relevant_feature_list, wrapper)
 
     def get_targets(
         self,
@@ -200,3 +152,45 @@ class FeatureStore:
             metadata = get_metadata_for_features(metadata, features)
 
         return metadata
+
+    def __get_attribute_list(self, entity_name: str) -> FeatureList:
+        entity = self.__entity_getter.get_by_name(entity_name)
+        metadata = self.get_metadata(entity_name)
+
+        return self.__feature_list_factory.create(entity, metadata)
+
+    def __get_relevant_attribute_list(self, entity_name: str, attributes: Optional[List[str]]) -> FeatureList:
+        attribute_list = self.__get_attribute_list(entity_name)
+
+        attributes = attributes or attribute_list.get_names()
+        attribute_list.check_features_registered(attributes)
+
+        return attribute_list.filter(lambda attribute_instance: attribute_instance.name in attributes)
+
+    def __get_relevant_feature_list(self, entity_name: str, features: Optional[List[str]]) -> FeatureList:
+        attribute_list = self.__get_attribute_list(entity_name)
+        feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
+
+        features = features or feature_list.get_names()
+        feature_list.check_features_registered(features)
+
+        return feature_list.filter(lambda feature_instance: feature_instance.name in features)
+
+    def __get(
+        self, feature_list: FeatureList, get_dataframe_function: Callable[[FeatureStoreStorageInfo, FeatureList], DataFrame]
+    ) -> DataFrame:
+        feature_store_info_list = self.__features_reader.read(feature_list)
+
+        dataframes = []
+        for feature_store_info in feature_store_info_list:
+            # pylint: disable=cell-var-from-loop
+            relevant_location_feature_list = feature_list.filter(
+                lambda feature_instance: feature_instance.template.location == feature_store_info.location
+            )
+
+            dataframes.append(get_dataframe_function(feature_store_info, relevant_location_feature_list))
+
+        features_data = reduce(lambda df1, df2: df1.join(df2, on=feature_list.entity.get_primary_key(), how="outer"), dataframes)
+        features_data = self.__null_handler.from_storage_format(features_data, feature_list)
+
+        return features_data

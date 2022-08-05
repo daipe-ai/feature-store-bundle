@@ -27,8 +27,8 @@ class NullHandler:
 
         return df
 
-    def from_storage_format(self, df: DataFrame, feature_list: FeatureList, entity: Entity) -> DataFrame:
-        features = [col for col in df.columns if col not in entity.get_primary_key()]
+    def from_storage_format(self, df: DataFrame, feature_list: FeatureList) -> DataFrame:
+        features = [col for col in df.columns if col not in feature_list.entity.get_primary_key()]
 
         for feature in features:
             feature_instance = feature_list.get_by_name(feature)

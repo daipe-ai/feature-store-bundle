@@ -197,7 +197,7 @@ class NullHandlerTest(PySparkTestCase):
 
         self.compare_dataframes(converted_df, expected_converted_df, self.__entity.get_primary_key())
 
-        back_converted_df = self.__null_handler.from_storage_format(converted_df, input_feature_list, self.__entity)
+        back_converted_df = self.__null_handler.from_storage_format(converted_df, input_feature_list)
 
         self.compare_dataframes(back_converted_df, expected_back_converted_df, self.__entity.get_primary_key())
 
@@ -226,7 +226,7 @@ class NullHandlerTest(PySparkTestCase):
         )
 
         with self.assertRaises(Exception):
-            self.__null_handler.from_storage_format(input_df, input_feature_list, self.__entity)
+            self.__null_handler.from_storage_format(input_df, input_feature_list)
 
     def test_type_checker_good(self):
         template = FeatureTemplate("test_bool", "test_bool", False, "bool", "loc", "bck", "ntb")
