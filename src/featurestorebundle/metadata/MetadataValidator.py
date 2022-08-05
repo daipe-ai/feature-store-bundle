@@ -1,11 +1,13 @@
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
 from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
 
 
 class MetadataValidator:
-    _immutable_metadata_fields = ["start_date", "frequency", "dtype", "fillna_value", "fillna_value_type"]
+    _immutable_metadata_template_fields = ["start_date", "frequency", "fillna_value", "fillna_value_type"]
+    _immutable_metadata_instance_fields = ["dtype"]
 
     def __init__(self, metadata_reader: MetadataReader, feature_list_factory: FeatureListFactory):
         self.__metadata_reader = metadata_reader
@@ -37,15 +39,24 @@ class MetadataValidator:
 
             current_feature = current_feature_list.get_by_name(incoming_feature.name)
 
-            for field in self._immutable_metadata_fields:
-                incoming_field_value = getattr(incoming_feature, field, None) or getattr(incoming_feature.template, field, None)
-                current_field_value = getattr(current_feature, field, None) or getattr(current_feature.template, field, None)
+            for field in self._immutable_metadata_template_fields:
+                incoming_field_value = getattr(incoming_feature.template, field)
+                current_field_value = getattr(current_feature.template, field)
 
-                if current_field_value is not None and current_field_value != incoming_field_value:
-                    raise Exception(
-                        f"Metadata field {field} for feature {incoming_feature.name} cannot be changed "
-                        f"from {current_field_value} to {incoming_field_value}"
-                    )
+                self.__check_field_equality(current_field_value, incoming_field_value, field, incoming_feature)
+
+            for field in self._immutable_metadata_instance_fields:
+                incoming_field_value = getattr(incoming_feature, field)
+                current_field_value = getattr(current_feature, field)
+
+                self.__check_field_equality(current_field_value, incoming_field_value, field, incoming_feature)
+
+    def __check_field_equality(self, current_field_value, incoming_field_value, field: str, incoming_feature: FeatureInstance):
+        if current_field_value is not None and current_field_value != incoming_field_value:
+            raise Exception(
+                f"Metadata field {field} for feature {incoming_feature.name} cannot be changed "
+                f"from {current_field_value} to {incoming_field_value}"
+            )
 
     def __get_current_feature_list(self, entity: Entity) -> FeatureList:
         metadata = self.__metadata_reader.read(entity.name)
