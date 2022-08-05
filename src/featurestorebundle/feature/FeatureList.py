@@ -15,7 +15,8 @@ class FeatureList:
         self.__entity = entity
         self.__features = features
 
-    def get_entity(self) -> Entity:
+    @property
+    def entity(self) -> Entity:
         return self.__entity
 
     def get_all(self) -> List[FeatureInstance]:
@@ -38,7 +39,7 @@ class FeatureList:
         return feature_name in self.get_names()
 
     def get_unregistered(self, registered_feature_names: List[str]) -> FeatureList:
-        return FeatureList(self.get_entity(), [feature for feature in self.get_all() if feature.name not in registered_feature_names])
+        return FeatureList(self.entity, [feature for feature in self.get_all() if feature.name not in registered_feature_names])
 
     def check_features_registered(self, features: List[str]):
         unregistered_features = set(features) - set(self.get_names())
@@ -47,10 +48,10 @@ class FeatureList:
             raise Exception(f"Features {', '.join(unregistered_features)} not registered")
 
     def merge(self, new_feature_list: FeatureList) -> FeatureList:
-        return FeatureList(self.get_entity(), self.__features + new_feature_list.get_all())
+        return FeatureList(self.entity, self.__features + new_feature_list.get_all())
 
     def filter(self, condition: Callable) -> FeatureList:
-        return FeatureList(self.get_entity(), list(filter(condition, self.__features)))
+        return FeatureList(self.entity, list(filter(condition, self.__features)))
 
     def get_metadata(self) -> List[List[Union[Dict[str, str], str]]]:
         return [feature.get_metadata_list() for feature in self.__features]
