@@ -7,6 +7,7 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
+from featurestorebundle.metadata.MetadataValidator import MetadataValidator
 from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
@@ -75,6 +76,19 @@ class MetadataTest(PySparkTestCase):
         )
 
         self.compare_dataframes(expected_df, df, ["entity"])
+
+    def test_metadata_validator_fields(self):
+        feature_template = FeatureTemplate("a", "b", "c", "d", "e", "f", "g")
+        self.assertTrue(
+            # pylint: disable=protected-access
+            all((hasattr(feature_template, field) for field in MetadataValidator._immutable_metadata_template_fields))
+        )
+
+        feature_instance = FeatureInstance("a", "b", "c", "d", "e", {}, feature_template)
+        self.assertTrue(
+            # pylint: disable=protected-access
+            all((hasattr(feature_instance, field) for field in MetadataValidator._immutable_metadata_instance_fields))
+        )
 
 
 if __name__ == "__main__":
