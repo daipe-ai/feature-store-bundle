@@ -53,7 +53,7 @@ class FeatureListFactory:
             return float(fillna_value)
 
         if type_ == bool:
-            return bool(fillna_value)
+            return fillna_value == "True"
 
         if type_ == list:
             return ast.literal_eval(fillna_value)
