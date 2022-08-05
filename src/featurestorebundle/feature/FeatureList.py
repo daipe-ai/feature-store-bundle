@@ -1,3 +1,5 @@
+from __future__ import annotations
+
 import re
 from typing import List, Dict, Union, Callable
 from datetime import datetime
@@ -33,28 +35,21 @@ class FeatureList:
         raise Exception(f"Cannot find feature {feature_name}")
 
     def contains_feature(self, feature_name: str) -> bool:
-        for feature in self.__features:
-            if feature.name == feature_name:
-                return True
+        return feature_name in self.get_names()
 
-        return False
-
-    def get_unregistered(self, registered_feature_names: List[str]) -> "FeatureList":
-        def registered(instance: FeatureInstance, registered_names: List[str]):
-            return instance.name in registered_names
-
-        return FeatureList(self.get_entity(), [feature for feature in self.get_all() if not registered(feature, registered_feature_names)])
+    def get_unregistered(self, registered_feature_names: List[str]) -> FeatureList:
+        return FeatureList(self.get_entity(), [feature for feature in self.get_all() if feature.name not in registered_feature_names])
 
     def check_features_registered(self, features: List[str]):
         unregistered_features = set(features) - set(self.get_names())
 
-        if len(unregistered_features) > 0:
+        if unregistered_features:
             raise Exception(f"Features {', '.join(unregistered_features)} not registered")
 
-    def merge(self, new_feature_list: "FeatureList") -> "FeatureList":
+    def merge(self, new_feature_list: FeatureList) -> FeatureList:
         return FeatureList(self.get_entity(), self.__features + new_feature_list.get_all())
 
-    def filter(self, condition: Callable) -> "FeatureList":
+    def filter(self, condition: Callable) -> FeatureList:
         return FeatureList(self.get_entity(), list(filter(condition, self.__features)))
 
     def get_metadata(self) -> List[List[Union[Dict[str, str], str]]]:
