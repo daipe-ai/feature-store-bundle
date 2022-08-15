@@ -5,12 +5,18 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
+from featurestorebundle.delta.DataFrameSchemaMerger import DataFrameSchemaMerger
+from featurestorebundle.delta.metadata.schema import get_metadata_schema
 
 
 class FeatureListFactory:
+    def __init__(self, dataframe_schema_merger: DataFrameSchemaMerger):
+        self.__dataframe_schema_merger = dataframe_schema_merger
+
     def create(self, entity: Entity, metadata: DataFrame) -> FeatureList:
+        rows = self.__merge_metadata_with_current_schema(metadata).collect()
+
         feature_instances = []
-        rows = metadata.collect()
 
         for row in rows:
             feature_template = FeatureTemplate(
@@ -23,10 +29,10 @@ class FeatureListFactory:
                 row.notebook,
                 row.category,
                 row.owner,
+                row.tags,
                 row.start_date,
                 row.frequency,
                 row.last_compute_date,
-                row.is_feature,
             )
 
             feature_instance = FeatureInstance(
@@ -36,7 +42,6 @@ class FeatureListFactory:
 
         return FeatureList(entity, feature_instances)
 
-    # pylint: disable=too-many-return-statements
     def __convert_fillna_value(self, fillna_value: str, fillna_value_type: str):
         type_ = pydoc.locate(fillna_value_type)
 
@@ -46,19 +51,10 @@ class FeatureListFactory:
         if type_ == str:
             return str(fillna_value)
 
-        if type_ == int:
-            return int(fillna_value)
-
-        if type_ == float:
-            return float(fillna_value)
-
-        if type_ == bool:
-            return fillna_value == "True"
-
-        if type_ == list:
-            return ast.literal_eval(fillna_value)
-
-        if type_ == dict:
+        if type_ in [int, float, bool, list, dict]:
             return ast.literal_eval(fillna_value)
 
         raise Exception(f"fillna value '{fillna_value}' of type '{fillna_value_type}' cannot be converted")
+
+    def __merge_metadata_with_current_schema(self, metadata: DataFrame) -> DataFrame:
+        return self.__dataframe_schema_merger.merge(metadata, get_metadata_schema())

@@ -157,22 +157,50 @@ class NullHandlerTest(PySparkTestCase):
             self.__entity,
             [
                 FeatureInstance(
-                    self.__entity.name,
-                    "f1",
-                    "this is feature 1",
-                    "string",
-                    "categorical",
-                    {},
-                    FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
+                    entity=self.__entity.name,
+                    name="f1",
+                    description="f1 description",
+                    dtype="string",
+                    variable_type="categorical",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f1",
+                        description_template="f1 description",
+                        fillna_value="",
+                        fillna_value_type="str",
+                        location="datalake/path",
+                        backend="delta_table",
+                        notebook="test_notebook",
+                        category="test_category",
+                        owner="test_owner",
+                        tags=["feature"],
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
                 ),
                 FeatureInstance(
-                    self.__entity.name,
-                    "f2",
-                    "this is feature 2",
-                    "integer",
-                    "numerical",
-                    {},
-                    FeatureTemplate("f2", "this is feature 2", None, "int", "loc", "bck", "ntb"),
+                    entity=self.__entity.name,
+                    name="f2",
+                    description="f2 description",
+                    dtype="integer",
+                    variable_type="numerical",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f2",
+                        description_template="f2 description",
+                        fillna_value=None,
+                        fillna_value_type="NoneType",
+                        location="datalake/path",
+                        backend="delta_table",
+                        notebook="test_notebook",
+                        category="test_category",
+                        owner="test_owner",
+                        tags=["feature"],
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
                 ),
             ],
         )
@@ -214,13 +242,27 @@ class NullHandlerTest(PySparkTestCase):
             self.__entity,
             [
                 FeatureInstance(
-                    self.__entity.name,
-                    "f1",
-                    "this is feature 1",
-                    "string",
-                    "categorical",
-                    {},
-                    FeatureTemplate("f1", "this is feature 1", "", "str", "loc", "bck", "ntb"),
+                    entity=self.__entity.name,
+                    name="f1",
+                    description="f1 description",
+                    dtype="string",
+                    variable_type="categorical",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f1",
+                        description_template="f1 description",
+                        fillna_value="",
+                        fillna_value_type="str",
+                        location="datalake/path",
+                        backend="delta_table",
+                        notebook="test_notebook",
+                        category="test_category",
+                        owner="test_owner",
+                        tags=["feature"],
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
                 ),
             ],
         )
@@ -229,46 +271,226 @@ class NullHandlerTest(PySparkTestCase):
             self.__null_handler.from_storage_format(input_df, input_feature_list)
 
     def test_type_checker_good(self):
-        template = FeatureTemplate("test_bool", "test_bool", False, "bool", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_bool",
+            description_template="test_bool",
+            fillna_value=False,
+            fillna_value_type="bool",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "boolean", "binary")
 
-        template = FeatureTemplate("test_int", "test_int", 0, "int", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_int",
+            description_template="test_int",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "integer", "numerical")
 
-        template = FeatureTemplate("test_str", "test_str", "", "str", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_str",
+            description_template="test_str",
+            fillna_value="",
+            fillna_value_type="str",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "string", "categorical")
 
-        template = FeatureTemplate("test_date", "test_date", dt.datetime.now(), "datetime", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_date",
+            description_template="test_date",
+            fillna_value=dt.datetime.now(),
+            fillna_value_type="datetime",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "date", None)
 
     def test_type_checker_bad(self):
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_bool", "test_bool", 0, "int", "loc", "bck", "ntb")
+            template = FeatureTemplate(
+                name_template="test_bool",
+                description_template="test_bool",
+                fillna_value=0,
+                fillna_value_type="int",
+                location="datalake/path",
+                backend="delta_table",
+                notebook="test_notebook",
+                category="test_category",
+                owner="test_owner",
+                tags=["feature"],
+                start_date=dt.datetime(2020, 1, 1),
+                frequency="daily",
+                last_compute_date=dt.datetime(2020, 1, 1),
+            )
+
             self.__type_checker.check(template, "boolean", "binary")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_int", "test_int", "0", "str", "loc", "bck", "ntb")
+            template = FeatureTemplate(
+                name_template="test_int",
+                description_template="test_int",
+                fillna_value="0",
+                fillna_value_type="str",
+                location="datalake/path",
+                backend="delta_table",
+                notebook="test_notebook",
+                category="test_category",
+                owner="test_owner",
+                tags=["feature"],
+                start_date=dt.datetime(2020, 1, 1),
+                frequency="daily",
+                last_compute_date=dt.datetime(2020, 1, 1),
+            )
+
             self.__type_checker.check(template, "integer", "numerical")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_str", "test_str", 123, "int", "loc", "bck", "ntb")
+            template = FeatureTemplate(
+                name_template="test_str",
+                description_template="test_str",
+                fillna_value=123,
+                fillna_value_type="int",
+                location="datalake/path",
+                backend="delta_table",
+                notebook="test_notebook",
+                category="test_category",
+                owner="test_owner",
+                tags=["feature"],
+                start_date=dt.datetime(2020, 1, 1),
+                frequency="daily",
+                last_compute_date=dt.datetime(2020, 1, 1),
+            )
+
             self.__type_checker.check(template, "string", "categorical")
 
         with self.assertRaises(WrongFillnaValueTypeError):
-            template = FeatureTemplate("test_date", "test_date", "2020-01-01", "str", "loc", "bck", "ntb")
+            template = FeatureTemplate(
+                name_template="test_date",
+                description_template="test_date",
+                fillna_value="2020-01-01",
+                fillna_value_type="str",
+                location="datalake/path",
+                backend="delta_table",
+                notebook="test_notebook",
+                category="test_category",
+                owner="test_owner",
+                tags=["feature"],
+                start_date=dt.datetime(2020, 1, 1),
+                frequency="daily",
+                last_compute_date=dt.datetime(2020, 1, 1),
+            )
+
             self.__type_checker.check(template, "date", None)
 
     def test_type_checker_none(self):
-        template = FeatureTemplate("test_bool", "test_bool", None, "NoneType", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_bool",
+            description_template="test_bool",
+            fillna_value=None,
+            fillna_value_type="NoneType",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "boolean", "binary")
 
-        template = FeatureTemplate("test_int", "test_int", None, "NoneType", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_int",
+            description_template="test_int",
+            fillna_value=None,
+            fillna_value_type="NoneType",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "integer", "numerical")
 
-        template = FeatureTemplate("test_str", "test_str", None, "NoneType", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_str",
+            description_template="test_str",
+            fillna_value=None,
+            fillna_value_type="NoneType",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "string", "categorical")
 
-        template = FeatureTemplate("test_date", "test_date", None, "NoneType", "loc", "bck", "ntb")
+        template = FeatureTemplate(
+            name_template="test_date",
+            description_template="test_date",
+            fillna_value=None,
+            fillna_value_type="NoneType",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
+
         self.__type_checker.check(template, "date", None)
 
 

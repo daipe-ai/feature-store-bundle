@@ -8,19 +8,22 @@ parameters:
   featurestorebundle:
     metadata:
       display_in_notebook: False
+    checkpoint:
+      default_checkpoint_dir: '/tmp/checkpoints'
     orchestration:
       # we want to avoid checkpointing locally
       checkpoint_feature_results: False
       checkpoint_before_merge: False
+      clean_checkpoint_dir: False
       features_join:
          method: 'union_with_window' # available: union_with_window, left_with_checkpointing
          batch_size: 9999
 
 services:
-  featurestorebundle.test.DummySparkFactory:
+  featurestorebundle.test.SparkSessionFactory:
 
   pyspark.sql.session.SparkSession:
-    factory: ['@featurestorebundle.test.DummySparkFactory', 'create']
+    factory: ['@featurestorebundle.test.SparkSessionFactory', 'create']
 
   featurestorebundle.databricks.DatabricksCurrentBranchResolver:
     class: featurestorebundle.test.DummyDatabricksCurrentBranchResolver

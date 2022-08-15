@@ -11,11 +11,12 @@ def get_metadata_pk_columns():
 def get_metadata_columns():
     return [
         t.StructField("description", t.StringType(), True),
-        t.StructField("extra", t.MapType(t.StringType(), t.StringType(), True)),
+        t.StructField("extra", t.MapType(t.StringType(), t.StringType()), True),
         t.StructField("feature_template", t.StringType(), True),
         t.StructField("description_template", t.StringType(), True),
         t.StructField("category", t.StringType(), True),
         t.StructField("owner", t.StringType(), True),
+        t.StructField("tags", t.ArrayType(t.StringType()), True),
         t.StructField("start_date", t.TimestampType(), True),
         t.StructField("frequency", t.StringType(), True),
         t.StructField("last_compute_date", t.TimestampType(), True),
@@ -23,7 +24,6 @@ def get_metadata_columns():
         t.StructField("variable_type", t.StringType(), True),
         t.StructField("fillna_value", t.StringType(), True),
         t.StructField("fillna_value_type", t.StringType(), True),
-        t.StructField("is_feature", t.BooleanType(), True),
         t.StructField("location", t.StringType(), True),
         t.StructField("backend", t.StringType(), True),
         t.StructField("notebook", t.StringType(), True),

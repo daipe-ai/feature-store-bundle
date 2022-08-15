@@ -1,4 +1,5 @@
 import unittest
+import datetime as dt
 
 from pyspark.sql import types as t
 
@@ -26,22 +27,50 @@ class MetadataTest(PySparkTestCase):
             self.__entity,
             [
                 FeatureInstance(
-                    self.__entity.name,
-                    "f1",
-                    "this is feature 1",
-                    "string",
-                    "categorical",
-                    {},
-                    FeatureTemplate("f1", "this is feature 1", None, "str", "loc", "bck", "ntb"),
+                    entity=self.__entity.name,
+                    name="f1",
+                    description="f1 description",
+                    dtype="string",
+                    variable_type="categorical",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f1",
+                        description_template="f1 description",
+                        fillna_value=None,
+                        fillna_value_type="NoneType",
+                        location="datalake/path",
+                        backend="delta_table",
+                        notebook="test_notebook",
+                        category="test_category",
+                        owner="test_owner",
+                        tags=["feature"],
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
                 ),
                 FeatureInstance(
-                    self.__entity.name,
-                    "f2",
-                    "this is feature 2",
-                    "string",
-                    "categorical",
-                    {},
-                    FeatureTemplate("f2", "this is feature 2", None, "str", "loc", "bck", "ntb"),
+                    entity=self.__entity.name,
+                    name="f2",
+                    description="f2 description",
+                    dtype="string",
+                    variable_type="categorical",
+                    extra={},
+                    template=FeatureTemplate(
+                        name_template="f2",
+                        description_template="f2 description",
+                        fillna_value=None,
+                        fillna_value_type="NoneType",
+                        location="datalake/path",
+                        backend="delta_table",
+                        notebook="test_notebook",
+                        category="test_category",
+                        owner="test_owner",
+                        tags=["feature"],
+                        start_date=dt.datetime(2020, 1, 1),
+                        frequency="daily",
+                        last_compute_date=dt.datetime(2020, 1, 1),
+                    ),
                 ),
             ],
         )
@@ -55,11 +84,12 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("entity", t.StringType(), False),
                     t.StructField("feature", t.StringType(), False),
                     t.StructField("description", t.StringType(), True),
-                    t.StructField("extra", t.MapType(t.StringType(), t.StringType(), True)),
+                    t.StructField("extra", t.MapType(t.StringType(), t.StringType()), True),
                     t.StructField("feature_template", t.StringType(), True),
                     t.StructField("description_template", t.StringType(), True),
                     t.StructField("category", t.StringType(), True),
                     t.StructField("owner", t.StringType(), True),
+                    t.StructField("tags", t.ArrayType(t.StringType()), True),
                     t.StructField("start_date", t.TimestampType(), True),
                     t.StructField("frequency", t.StringType(), True),
                     t.StructField("last_compute_date", t.TimestampType(), True),
@@ -67,7 +97,6 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("variable_type", t.StringType(), True),
                     t.StructField("fillna_value", t.StringType(), True),
                     t.StructField("fillna_value_type", t.StringType(), True),
-                    t.StructField("is_feature", t.BooleanType(), True),
                     t.StructField("location", t.StringType(), True),
                     t.StructField("backend", t.StringType(), True),
                     t.StructField("notebook", t.StringType(), True),
@@ -78,7 +107,7 @@ class MetadataTest(PySparkTestCase):
         self.compare_dataframes(expected_df, df, ["entity"])
 
     def test_metadata_validator_fields(self):
-        feature_template = FeatureTemplate("a", "b", "c", "d", "e", "f", "g")
+        feature_template = FeatureTemplate("a", "b", "c", "d", "e", "f", "g", "h", "i", [], dt.datetime.min, "k", dt.datetime.min)
         self.assertTrue(
             # pylint: disable=protected-access
             all((hasattr(feature_template, field) for field in MetadataValidator._immutable_metadata_template_fields))

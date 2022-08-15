@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import List
 from datetime import datetime
 
 from featurestorebundle.feature.Feature import Feature
@@ -12,11 +12,12 @@ class FeatureWithChange(Feature):
         location: str,
         backend: str,
         notebook: str,
-        category: Optional[str],
-        owner: Optional[str],
-        start_date: Optional[datetime],
-        frequency: Optional[str],
-        last_compute_date: Optional[datetime],
+        category: str,
+        owner: str,
+        tags: List[str],
+        start_date: datetime,
+        frequency: str,
+        last_compute_date: datetime,
     ) -> FeatureTemplate:
         return FeatureWithChangeTemplate(
             name_template=self.name_template,
@@ -28,6 +29,7 @@ class FeatureWithChange(Feature):
             notebook=notebook,
             category=category,
             owner=owner,
+            tags=tags,
             start_date=start_date,
             frequency=frequency,
             last_compute_date=last_compute_date,

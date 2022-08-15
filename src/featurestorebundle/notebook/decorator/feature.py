@@ -1,4 +1,4 @@
-from typing import Optional, Tuple, Iterable
+from typing import Optional, List, Tuple, Iterable
 from logging import Logger
 from daipecore.decorator.OutputDecorator import OutputDecorator
 from injecta.container.ContainerInterface import ContainerInterface
@@ -22,8 +22,7 @@ from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
 
 
-# pylint: disable=invalid-name, too-many-instance-attributes
-class feature(OutputDecorator):  # noqa
+class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many-instance-attributes
     # pylint: disable=super-init-not-called
     def __init__(
         self,
@@ -31,6 +30,7 @@ class feature(OutputDecorator):  # noqa
         entity: Entity,
         category: Optional[str] = None,
         owner: Optional[str] = None,
+        tags: Optional[List[str]] = None,
         start_date: Optional[str] = None,
         frequency: Optional[str] = None,
     ):
@@ -38,6 +38,7 @@ class feature(OutputDecorator):  # noqa
         self.__entity = entity
         self.__category = category
         self.__owner = owner
+        self.__tags = tags
         self.__start_date = start_date
         self.__frequency = frequency
         self.__last_compute_date = None
@@ -118,16 +119,19 @@ class feature(OutputDecorator):  # noqa
         notebook_name_getter: NotebookNameGetter = container.get(NotebookNameGetter)
         features_writer: FeaturesWriter = container.get(FeaturesWriter)
 
+        last_compute_date = date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None
+
         feature_templates = [
             feature_.create_template(
                 location=features_writer.get_location(self.__entity.name),
                 backend=features_writer.get_backend(),
                 notebook=notebook_name_getter.get(),
-                category=self.__category,
-                owner=self.__owner,
+                category=self.__category,  # pyre-ignore[6]
+                owner=self.__owner,  # pyre-ignore[6]
+                tags=self.__tags,  # pyre-ignore[6]
                 start_date=date_parser.parse_date(self.__start_date),  # pyre-ignore[6]
-                frequency=self.__frequency,
-                last_compute_date=date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None,
+                frequency=self.__frequency,  # pyre-ignore[6]
+                last_compute_date=last_compute_date,  # pyre-ignore[6]
             )
             for feature_ in features
         ]
@@ -139,8 +143,9 @@ class feature(OutputDecorator):  # noqa
         current_notebook_definition_getter: CurrentNotebookDefinitionGetter = container.get(CurrentNotebookDefinitionGetter)
         notebook_definition = current_notebook_definition_getter.get()
 
-        self.__category = self.__category or container.get_parameters().featurestorebundle.feature.defaults.category
-        self.__owner = self.__owner or container.get_parameters().featurestorebundle.feature.defaults.owner
-        self.__start_date = self.__start_date or notebook_definition.start_date
-        self.__frequency = self.__frequency or notebook_definition.frequency
-        self.__last_compute_date = widgets_getter.get_timestamp() if widgets_getter.timestamp_exists() else None
+        self.__category = self.__category or str(container.get_parameters().featurestorebundle.feature.defaults.category)
+        self.__owner = self.__owner or str(container.get_parameters().featurestorebundle.feature.defaults.owner)
+        self.__tags = self.__tags or list(container.get_parameters().featurestorebundle.feature.defaults.tags)
+        self.__start_date = self.__start_date or str(notebook_definition.start_date)
+        self.__frequency = self.__frequency or str(notebook_definition.frequency)
+        self.__last_compute_date = str(widgets_getter.get_timestamp()) if widgets_getter.timestamp_exists() else None

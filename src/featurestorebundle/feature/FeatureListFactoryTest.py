@@ -36,6 +36,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc1",
                     "cat1",
                     "ow1",
+                    ["feature"],
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
@@ -43,7 +44,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "categorical",
                     "",
                     "str",
-                    False,
                     "loc",
                     "bck",
                     "ntb",
@@ -57,6 +57,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc2",
                     "cat2",
                     "ow2",
+                    ["feature"],
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
@@ -64,7 +65,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "numerical",
                     0,
                     "int",
-                    False,
                     "loc",
                     "bck",
                     "ntb",
@@ -78,6 +78,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "desc3",
                     "cat3",
                     "ow3",
+                    ["feature"],
                     dt.datetime(2020, 1, 1),
                     "daily",
                     dt.datetime(2020, 1, 1),
@@ -85,7 +86,6 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "categorical",
                     "None",
                     "NoneType",
-                    False,
                     "loc",
                     "bck",
                     "ntb",
@@ -116,6 +116,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         notebook="ntb",
                         category="cat1",
                         owner="ow1",
+                        tags=["feature"],
                         start_date=dt.datetime(2020, 1, 1),
                         frequency="daily",
                         last_compute_date=dt.datetime(2020, 1, 1),
@@ -138,6 +139,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         notebook="ntb",
                         category="cat2",
                         owner="ow2",
+                        tags=["feature"],
                         start_date=dt.datetime(2020, 1, 1),
                         frequency="daily",
                         last_compute_date=dt.datetime(2020, 1, 1),
@@ -160,6 +162,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         notebook="ntb",
                         category="cat3",
                         owner="ow3",
+                        tags=["feature"],
                         start_date=dt.datetime(2020, 1, 1),
                         frequency="daily",
                         last_compute_date=dt.datetime(2020, 1, 1),
@@ -183,6 +186,7 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.notebook, feature2.template.notebook)
             self.assertEqual(feature1.template.category, feature2.template.category)
             self.assertEqual(feature1.template.owner, feature2.template.owner)
+            self.assertEqual(feature1.template.tags, feature2.template.tags)
             self.assertEqual(feature1.template.start_date, feature2.template.start_date)
             self.assertEqual(feature1.template.frequency, feature2.template.frequency)
             self.assertEqual(feature1.template.last_compute_date, feature2.template.last_compute_date)
