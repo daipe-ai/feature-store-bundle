@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Any, Optional
+from typing import List, Any
 from datetime import datetime
 
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
@@ -16,11 +16,12 @@ class Feature:
         location: str,
         backend: str,
         notebook: str,
-        category: Optional[str],
-        owner: Optional[str],
-        start_date: Optional[datetime],
-        frequency: Optional[str],
-        last_compute_date: Optional[datetime],
+        category: str,
+        owner: str,
+        tags: List[str],
+        start_date: datetime,
+        frequency: str,
+        last_compute_date: datetime,
     ) -> FeatureTemplate:
         return FeatureTemplate(
             name_template=self.name_template,
@@ -32,6 +33,7 @@ class Feature:
             notebook=notebook,
             category=category,
             owner=owner,
+            tags=tags,
             start_date=start_date,
             frequency=frequency,
             last_compute_date=last_compute_date,

@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from typing import Optional, Any
+from typing import List, Any
 from datetime import datetime
 
 
@@ -13,9 +13,9 @@ class FeatureTemplate:
     location: str
     backend: str
     notebook: str
-    category: Optional[str] = None
-    owner: Optional[str] = None
-    start_date: Optional[datetime] = None
-    frequency: Optional[str] = None
-    last_compute_date: Optional[datetime] = None
-    is_feature: bool = True
+    category: str
+    owner: str
+    tags: List[str]
+    start_date: datetime
+    frequency: str
+    last_compute_date: datetime

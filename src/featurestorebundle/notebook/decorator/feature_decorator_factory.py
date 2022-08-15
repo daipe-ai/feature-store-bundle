@@ -9,12 +9,13 @@ def create(entity: Entity):
 
     @DecoratedDecorator
     class feature_decorator(feature):  # noqa # pylint: disable=invalid-name
-        def __init__(self, *args, category=None, owner=None, start_date=None, frequency=None):
+        def __init__(self, *args, category=None, owner=None, tags=None, start_date=None, frequency=None):
             super().__init__(
                 *args,
                 entity=entity,
                 category=category,
                 owner=owner,
+                tags=tags,
                 start_date=start_date,
                 frequency=frequency,
             )

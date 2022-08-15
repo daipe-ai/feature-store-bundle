@@ -1,4 +1,5 @@
 import unittest
+import datetime as dt
 from pyspark.sql import types as t
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
@@ -26,7 +27,13 @@ class AddColumnQueryBuilderTest(unittest.TestCase):
             fillna_value_type="string",
             location="datalake/path",
             backend="delta_table",
-            notebook="/no/te/book",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
         )
         feature_instance = FeatureInstance(
             entity="test_entity",

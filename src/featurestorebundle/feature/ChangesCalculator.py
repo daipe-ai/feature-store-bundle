@@ -48,6 +48,7 @@ class ChangesCalculator:
             feature.template.notebook,
             feature.template.category,
             feature.template.owner,
+            feature.template.tags,
             feature.template.start_date,
             feature.template.frequency,
             feature.template.last_compute_date,

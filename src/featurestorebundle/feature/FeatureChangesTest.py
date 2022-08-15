@@ -35,9 +35,36 @@ class FeatureChangesTest(PySparkTestCase):
 
     def test_simple(self):
         feature_with_change_template = FeatureWithChangeTemplate(
-            "feature_{time_window}", "feature in {time_window}", 0, "int", "loc", "bck", "ntb"
+            name_template="feature_{time_window}",
+            description_template="feature in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
         )
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
+
+        template = FeatureTemplate(
+            name_template="a_{time_window}",
+            description_template="a in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
 
         features_with_change = [
             FeatureInstance(
@@ -62,9 +89,36 @@ class FeatureChangesTest(PySparkTestCase):
 
     def test_time_window_in_the_middle(self):
         feature_with_change_template = FeatureWithChangeTemplate(
-            "feature_{time_window}_suffix", "feature suffix in {time_window}", 0, "int", "loc", "bck", "ntb"
+            name_template="feature_{time_window}_suffix",
+            description_template="feature suffix in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
         )
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
+
+        template = FeatureTemplate(
+            name_template="a_{time_window}",
+            description_template="a in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
 
         features_with_change = [
             FeatureInstance(
@@ -101,9 +155,36 @@ class FeatureChangesTest(PySparkTestCase):
 
     def test_wrong_name(self):
         feature_with_change_template = FeatureWithChangeTemplate(
-            "{time_window}_suffix", "feature suffix in {time_window}", 0, "int", "loc", "bck", "ntb"
+            name_template="{time_window}_suffix",
+            description_template="feature suffix in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
         )
-        template = FeatureTemplate("a_{time_window}", "a in {time_window}", 0, "int", "loc", "bck", "ntb")
+
+        template = FeatureTemplate(
+            name_template="a_{time_window}",
+            description_template="a in {time_window}",
+            fillna_value=0,
+            fillna_value_type="int",
+            location="datalake/path",
+            backend="delta_table",
+            notebook="test_notebook",
+            category="test_category",
+            owner="test_owner",
+            tags=["feature"],
+            start_date=dt.datetime(2020, 1, 1),
+            frequency="daily",
+            last_compute_date=dt.datetime(2020, 1, 1),
+        )
 
         features_with_change = [
             FeatureInstance(

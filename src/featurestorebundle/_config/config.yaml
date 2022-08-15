@@ -10,8 +10,9 @@ parameters:
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
       backend: databricks # available: delta_table, delta_path, databricks
       defaults:
-        category:
-        owner:
+        category: 'default'
+        owner: 'unknown'
+        tags: []
         start_date: '2018-01-01'
         frequency: 'daily'
     metadata:
@@ -164,6 +165,8 @@ services:
 
   featurestorebundle.delta.PathSchemaMerger:
 
+  featurestorebundle.delta.DataFrameSchemaMerger:
+
   featurestorebundle.delta.TableCreator:
     arguments:
       - '@featurestorebundle.logger'
@@ -237,6 +240,8 @@ services:
   featurestorebundle.delta.metadata.writer.DeltaTableMetadataPreparer:
 
   featurestorebundle.delta.metadata.writer.DeltaPathMetadataPreparer:
+
+  featurestorebundle.delta.metadata.filter.MetadataFilteringManager:
 
   featurestorebundle.delta.target.reader.DeltaTableTargetsReader:
     arguments:

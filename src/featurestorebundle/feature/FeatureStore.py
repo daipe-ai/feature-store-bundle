@@ -11,9 +11,9 @@ from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
 from featurestorebundle.target.reader.TargetsReader import TargetsReader
 from featurestorebundle.delta.feature.filter.FeaturesFilteringManager import FeaturesFilteringManager
 from featurestorebundle.delta.feature.NullHandler import NullHandler
+from featurestorebundle.delta.metadata.filter.MetadataFilteringManager import MetadataFilteringManager
 from featurestorebundle.delta.target.TargetsFilteringManager import TargetsFilteringManager
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
-from featurestorebundle.delta.metadata.filter import get_metadata_for_entity, get_metadata_for_features
 
 
 # pylint: disable=too-many-instance-attributes
@@ -24,6 +24,7 @@ class FeatureStore:
         metadata_reader: MetadataReader,
         targets_reader: TargetsReader,
         features_filtering_manager: FeaturesFilteringManager,
+        metadata_filtering_manager: MetadataFilteringManager,
         targets_filtering_manager: TargetsFilteringManager,
         feature_list_factory: FeatureListFactory,
         null_handler: NullHandler,
@@ -33,46 +34,28 @@ class FeatureStore:
         self.__metadata_reader = metadata_reader
         self.__targets_reader = targets_reader
         self.__features_filtering_manager = features_filtering_manager
+        self.__metadata_filtering_manager = metadata_filtering_manager
         self.__targets_filtering_manager = targets_filtering_manager
         self.__feature_list_factory = feature_list_factory
         self.__null_handler = null_handler
         self.__entity_getter = entity_getter
 
     # pylint: disable=too-many-locals
-    def get_latest_attributes(
-        self,
-        entity_name: str,
-        timestamp: Optional[datetime] = None,
-        lookback: Optional[str] = None,
-        attributes: Optional[List[str]] = None,
-        skip_incomplete_rows: bool = False,
-    ) -> DataFrame:
-        relevant_attribute_list = self.__get_relevant_attribute_list(entity_name, attributes)
-
-        def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
-            selected_timestamp = timestamp or feature_list.get_max_last_compute_date()
-            look_back_days = timedelta(days=int(lookback[:-1])) if lookback is not None else selected_timestamp - datetime.min
-
-            return self.__features_filtering_manager.get_latest(
-                feature_store_info.feature_store,
-                feature_list,
-                selected_timestamp,
-                look_back_days,
-                skip_incomplete_rows,
-            )
-
-        return self.__get(relevant_attribute_list, wrapper)
-
-    # pylint: disable=too-many-locals
-    def get_latest_features(
+    def get_latest(
         self,
         entity_name: str,
         timestamp: Optional[datetime] = None,
         lookback: Optional[str] = None,
         features: Optional[List[str]] = None,
+        categories: Optional[List[str]] = None,
+        time_windows: Optional[List[str]] = None,
+        include_tags: Optional[List[str]] = None,
+        exclude_tags: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
-        relevant_feature_list = self.__get_relevant_feature_list(entity_name, features)
+        relevant_feature_list = self.__get_relevant_feature_list(
+            entity_name, features, categories, time_windows, include_tags, exclude_tags
+        )
 
         def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
             selected_timestamp = timestamp or feature_list.get_max_last_compute_date()
@@ -88,22 +71,6 @@ class FeatureStore:
 
         return self.__get(relevant_feature_list, wrapper)
 
-    def get_latest(
-        self,
-        entity_name: str,
-        timestamp: Optional[datetime] = None,
-        lookback: Optional[str] = None,
-        features: Optional[List[str]] = None,
-        skip_incomplete_rows: bool = False,
-    ) -> DataFrame:
-        return self.get_latest_features(
-            entity_name=entity_name,
-            timestamp=timestamp,
-            lookback=lookback,
-            features=features,
-            skip_incomplete_rows=skip_incomplete_rows,
-        )
-
     # pylint: disable=too-many-locals
     def get_for_target(
         self,
@@ -113,11 +80,17 @@ class FeatureStore:
         target_date_to: Optional[datetime] = None,
         time_diff: Optional[str] = None,
         features: Optional[List[str]] = None,
+        categories: Optional[List[str]] = None,
+        time_windows: Optional[List[str]] = None,
+        include_tags: Optional[List[str]] = None,
+        exclude_tags: Optional[List[str]] = None,
         skip_incomplete_rows: bool = False,
     ) -> DataFrame:
         targets = self.get_targets(entity_name, target_name, target_date_from, target_date_to, time_diff)
 
-        relevant_feature_list = self.__get_relevant_feature_list(entity_name, features)
+        relevant_feature_list = self.__get_relevant_feature_list(
+            entity_name, features, categories, time_windows, include_tags, exclude_tags
+        )
 
         def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
             return self.__features_filtering_manager.get_for_target(
@@ -142,39 +115,39 @@ class FeatureStore:
 
         return self.__targets_filtering_manager.get_targets(entity, target_store, target_name, date_from, date_to, time_diff)
 
-    def get_metadata(self, entity_name: Optional[str] = None, features: Optional[List[str]] = None) -> DataFrame:
+    def get_metadata(
+        self,
+        entity_name: Optional[str] = None,
+        features: Optional[List[str]] = None,
+        categories: Optional[List[str]] = None,
+        time_windows: Optional[List[str]] = None,
+        include_tags: Optional[List[str]] = None,
+        exclude_tags: Optional[List[str]] = None,
+    ) -> DataFrame:
         metadata = self.__metadata_reader.read(entity_name)
-
-        if entity_name is not None:
-            metadata = get_metadata_for_entity(metadata, entity_name)
-
-        if features is not None:
-            metadata = get_metadata_for_features(metadata, features)
+        metadata = self.__metadata_filtering_manager.filter(
+            metadata, entity_name, features, categories, time_windows, include_tags, exclude_tags
+        )
 
         return metadata
 
-    def __get_attribute_list(self, entity_name: str) -> FeatureList:
+    def __get_relevant_feature_list(
+        self,
+        entity_name: str,
+        features: Optional[List[str]] = None,
+        categories: Optional[List[str]] = None,
+        time_windows: Optional[List[str]] = None,
+        include_tags: Optional[List[str]] = None,
+        exclude_tags: Optional[List[str]] = None,
+    ) -> FeatureList:
         entity = self.__entity_getter.get_by_name(entity_name)
-        metadata = self.get_metadata(entity_name)
+        metadata = self.get_metadata(entity_name, features, categories, time_windows, include_tags, exclude_tags)
+        feature_list = self.__feature_list_factory.create(entity, metadata)
 
-        return self.__feature_list_factory.create(entity, metadata)
+        if feature_list.empty():
+            raise Exception("Your filtering conditions did not match any features")
 
-    def __get_relevant_attribute_list(self, entity_name: str, attributes: Optional[List[str]]) -> FeatureList:
-        attribute_list = self.__get_attribute_list(entity_name)
-
-        attributes = attributes or attribute_list.get_names()
-        attribute_list.check_features_registered(attributes)
-
-        return attribute_list.filter(lambda attribute_instance: attribute_instance.name in attributes)
-
-    def __get_relevant_feature_list(self, entity_name: str, features: Optional[List[str]]) -> FeatureList:
-        attribute_list = self.__get_attribute_list(entity_name)
-        feature_list = attribute_list.filter(lambda feature_instance: feature_instance.is_feature)
-
-        features = features or feature_list.get_names()
-        feature_list.check_features_registered(features)
-
-        return feature_list.filter(lambda feature_instance: feature_instance.name in features)
+        return feature_list
 
     def __get(
         self, feature_list: FeatureList, get_dataframe_function: Callable[[FeatureStoreStorageInfo, FeatureList], DataFrame]

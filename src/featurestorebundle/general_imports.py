@@ -26,10 +26,9 @@ from featurestorebundle.feature.FeatureStore import FeatureStore  # noqa
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage  # noqa
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter  # noqa
 
-# Features / Attributes
+# Features
 from featurestorebundle.feature.Feature import Feature  # noqa
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange  # noqa
-from featurestorebundle.attribute.Attribute import Attribute  # noqa
 
 # Decorator input functions
 from featurestorebundle.notebook.functions.input_functions import get_features  # noqa

@@ -41,12 +41,6 @@ class FeatureList:
     def get_unregistered(self, registered_feature_names: List[str]) -> FeatureList:
         return FeatureList(self.entity, [feature for feature in self.get_all() if feature.name not in registered_feature_names])
 
-    def check_features_registered(self, features: List[str]):
-        unregistered_features = set(features) - set(self.get_names())
-
-        if unregistered_features:
-            raise Exception(f"Features {', '.join(unregistered_features)} not registered")
-
     def merge(self, new_feature_list: FeatureList) -> FeatureList:
         return FeatureList(self.entity, self.__features + new_feature_list.get_all())
 

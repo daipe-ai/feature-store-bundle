@@ -56,10 +56,6 @@ class FeatureInstance:
         return self.__extra
 
     @property
-    def is_feature(self):
-        return self.__template.is_feature
-
-    @property
     def template(self):
         return self.__template
 
@@ -73,6 +69,7 @@ class FeatureInstance:
             "description_template": self.__template.description_template,
             "category": self.__template.category,
             "owner": self.__template.owner,
+            "tags": self.__template.tags,
             "start_date": self.__template.start_date,
             "frequency": self.__template.frequency,
             "last_compute_date": self.__template.last_compute_date,
@@ -80,7 +77,6 @@ class FeatureInstance:
             "variable_type": self.__variable_type,
             "fillna_value": str(self.__template.fillna_value),
             "fillna_value_type": self.__template.fillna_value_type,
-            "is_feature": self.__template.is_feature,
             "location": self.__template.location,
             "backend": self.__template.backend,
             "notebook": self.__template.notebook,
