@@ -83,10 +83,17 @@ class TableNames:
         return self.__replace_placeholders(self.__target_enum_path_template, entity_name)
 
     def __replace_placeholders(self, template: str, entity_name: str) -> str:
-        current_branch = self.__current_branch_resolver.resolve()
-        current_branch = self.__convert_to_valid_identifier(current_branch)
+        replacements = {"entity": entity_name}
 
-        return template.format(entity=entity_name, current_branch=current_branch)
+        if "{entity}" in template and entity_name is None:
+            raise Exception("Cannot replace entity placeholder for 'None'")
+
+        if "{current_branch}" in template:
+            current_branch = self.__current_branch_resolver.resolve()
+            current_branch = self.__convert_to_valid_identifier(current_branch)
+            replacements["current_branch"] = current_branch
+
+        return template.format(**replacements)
 
     def __convert_to_valid_identifier(self, identifier: str) -> str:
         return re.sub(r"[^0-9a-zA-Z]+", "_", identifier)
