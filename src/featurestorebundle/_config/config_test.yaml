@@ -25,9 +25,6 @@ services:
   pyspark.sql.session.SparkSession:
     factory: ['@featurestorebundle.test.SparkSessionFactory', 'create']
 
-  featurestorebundle.databricks.DatabricksCurrentBranchResolver:
-    class: featurestorebundle.test.DummyDatabricksCurrentBranchResolver
-
   featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
     class: featurestorebundle.test.DummyCurrentNotebookDefinitionGetter
 
