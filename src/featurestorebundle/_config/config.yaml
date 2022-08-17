@@ -53,11 +53,17 @@ parameters:
     entities:
     widgets:
       defaults:
-        sample: "complete"
+        sample: 'complete'
     time_windows:
     sampling:
       rate: 0.01
       seed: 42
+    stable_feature_store:
+      metadata:
+        table:
+      target:
+        table:
+        enum_table:
 
 services:
   featurestorebundle.logger:
@@ -231,6 +237,7 @@ services:
 
   featurestorebundle.metadata.reader.MetadataReader:
     arguments:
+      - '%featurestorebundle.stable_feature_store%'
       - !tagged_aliased ['metadata.reader', '%featurestorebundle.metadata.backend%']
 
   featurestorebundle.delta.metadata.writer.DeltaMetadataHandler:
