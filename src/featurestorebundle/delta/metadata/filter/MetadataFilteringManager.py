@@ -11,27 +11,31 @@ class MetadataFilteringManager:
         metadata: DataFrame,
         entity_name: Optional[str],
         features: Optional[List[str]],
+        templates: Optional[List[str]],
         categories: Optional[List[str]],
         time_windows: Optional[List[str]],
         include_tags: Optional[List[str]],
         exclude_tags: Optional[List[str]],
     ) -> DataFrame:
-        if entity_name is not None:
+        if entity_name:
             metadata = self.__get_for_entity(metadata, entity_name)
 
-        if features is not None:
+        if features:
             metadata = self.__get_for_features(metadata, features)
 
-        if categories is not None:
+        if templates:
+            metadata = self.__get_for_templates(metadata, templates)
+
+        if categories:
             metadata = self.__get_for_categories(metadata, categories)
 
-        if time_windows is not None:
+        if time_windows:
             metadata = self.__get_for_time_windows(metadata, time_windows)
 
-        if include_tags is not None:
+        if include_tags:
             metadata = self.__include_tags(metadata, include_tags)
 
-        if exclude_tags is not None:
+        if exclude_tags:
             metadata = self.__exclude_tags(metadata, exclude_tags)
 
         return metadata
@@ -41,6 +45,9 @@ class MetadataFilteringManager:
 
     def __get_for_features(self, metadata: DataFrame, features: List[str]) -> DataFrame:
         return metadata.filter(f.col("feature").isin(features))
+
+    def __get_for_templates(self, metadata: DataFrame, templates: List[str]) -> DataFrame:
+        return metadata.filter(f.col("feature_template").isin(templates))
 
     def __get_for_categories(self, metadata: DataFrame, categories: List[str]) -> DataFrame:
         return metadata.filter(f.col("category").isin(categories))

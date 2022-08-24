@@ -47,6 +47,7 @@ class FeatureStore:
         timestamp: Optional[datetime] = None,
         lookback: Optional[str] = None,
         features: Optional[List[str]] = None,
+        templates: Optional[List[str]] = None,
         categories: Optional[List[str]] = None,
         time_windows: Optional[List[str]] = None,
         include_tags: Optional[List[str]] = None,
@@ -56,7 +57,7 @@ class FeatureStore:
         metadata = self.__metadata_reader.read_for_latest(entity_name)
 
         relevant_feature_list = self.__get_relevant_feature_list(
-            metadata, entity_name, features, categories, time_windows, include_tags, exclude_tags
+            metadata, entity_name, features, templates, categories, time_windows, include_tags, exclude_tags
         )
 
         def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
@@ -82,6 +83,7 @@ class FeatureStore:
         target_date_to: Optional[datetime] = None,
         time_diff: Optional[str] = None,
         features: Optional[List[str]] = None,
+        templates: Optional[List[str]] = None,
         categories: Optional[List[str]] = None,
         time_windows: Optional[List[str]] = None,
         include_tags: Optional[List[str]] = None,
@@ -92,7 +94,7 @@ class FeatureStore:
         targets = self.get_targets(entity_name, target_name, target_date_from, target_date_to, time_diff)
 
         relevant_feature_list = self.__get_relevant_feature_list(
-            metadata, entity_name, features, categories, time_windows, include_tags, exclude_tags
+            metadata, entity_name, features, templates, categories, time_windows, include_tags, exclude_tags
         )
 
         def wrapper(feature_store_info: FeatureStoreStorageInfo, feature_list: FeatureList) -> DataFrame:
@@ -122,6 +124,7 @@ class FeatureStore:
         self,
         entity_name: Optional[str] = None,
         features: Optional[List[str]] = None,
+        templates: Optional[List[str]] = None,
         categories: Optional[List[str]] = None,
         time_windows: Optional[List[str]] = None,
         include_tags: Optional[List[str]] = None,
@@ -129,7 +132,7 @@ class FeatureStore:
     ) -> DataFrame:
         metadata = self.__metadata_reader.read(entity_name)
         metadata = self.__metadata_filtering_manager.filter(
-            metadata, entity_name, features, categories, time_windows, include_tags, exclude_tags
+            metadata, entity_name, features, templates, categories, time_windows, include_tags, exclude_tags
         )
 
         return metadata
@@ -139,13 +142,14 @@ class FeatureStore:
         metadata: DataFrame,
         entity_name: str,
         features: Optional[List[str]],
+        templates: Optional[List[str]],
         categories: Optional[List[str]],
         time_windows: Optional[List[str]],
         include_tags: Optional[List[str]],
         exclude_tags: Optional[List[str]],
     ) -> FeatureList:
         metadata = self.__metadata_filtering_manager.filter(
-            metadata, entity_name, features, categories, time_windows, include_tags, exclude_tags
+            metadata, entity_name, features, templates, categories, time_windows, include_tags, exclude_tags
         )
 
         entity = self.__entity_getter.get_by_name(entity_name)
