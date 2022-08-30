@@ -46,7 +46,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "str",
                     "loc",
                     "bck",
-                    "ntb",
+                    "ntb_name",
+                    "ntb_abspath",
+                    "ntb_relpath",
                 ],
                 [
                     self.__entity.name,
@@ -67,7 +69,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "int",
                     "loc",
                     "bck",
-                    "ntb",
+                    "ntb_name",
+                    "ntb_abspath",
+                    "ntb_relpath",
                 ],
                 [
                     self.__entity.name,
@@ -88,7 +92,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "NoneType",
                     "loc",
                     "bck",
-                    "ntb",
+                    "ntb_name",
+                    "ntb_abspath",
+                    "ntb_relpath",
                 ],
             ],
             get_metadata_schema(),
@@ -113,7 +119,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         fillna_value_type="str",
                         location="loc",
                         backend="bck",
-                        notebook="ntb",
+                        notebook_name="ntb_name",
+                        notebook_absolute_path="ntb_abspath",
+                        notebook_relative_path="ntb_relpath",
                         category="cat1",
                         owner="ow1",
                         tags=["feature"],
@@ -136,7 +144,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         fillna_value_type="int",
                         location="loc",
                         backend="bck",
-                        notebook="ntb",
+                        notebook_name="ntb_name",
+                        notebook_absolute_path="ntb_abspath",
+                        notebook_relative_path="ntb_relpath",
                         category="cat2",
                         owner="ow2",
                         tags=["feature"],
@@ -159,7 +169,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         fillna_value_type="NoneType",
                         location="loc",
                         backend="bck",
-                        notebook="ntb",
+                        notebook_name="ntb_name",
+                        notebook_absolute_path="ntb_abspath",
+                        notebook_relative_path="ntb_relpath",
                         category="cat3",
                         owner="ow3",
                         tags=["feature"],
@@ -183,7 +195,9 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.fillna_value_type, feature2.template.fillna_value_type)
             self.assertEqual(feature1.template.location, feature2.template.location)
             self.assertEqual(feature1.template.backend, feature2.template.backend)
-            self.assertEqual(feature1.template.notebook, feature2.template.notebook)
+            self.assertEqual(feature1.template.notebook_name, feature2.template.notebook_name)
+            self.assertEqual(feature1.template.notebook_absolute_path, feature2.template.notebook_absolute_path)
+            self.assertEqual(feature1.template.notebook_relative_path, feature2.template.notebook_relative_path)
             self.assertEqual(feature1.template.category, feature2.template.category)
             self.assertEqual(feature1.template.owner, feature2.template.owner)
             self.assertEqual(feature1.template.tags, feature2.template.tags)

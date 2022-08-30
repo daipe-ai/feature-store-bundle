@@ -305,7 +305,7 @@ services:
     arguments:
       - '%featurestorebundle.entities%'
 
-  featurestorebundle.notebook.services.NotebookNameGetter:
+  featurestorebundle.notebook.services.NotebookMetadataGetter:
 
   featurestorebundle.notebook.services.TimestampAdder:
     arguments:

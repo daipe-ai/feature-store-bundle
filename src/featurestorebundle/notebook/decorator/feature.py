@@ -16,7 +16,7 @@ from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDispla
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.frequency.FrequencyGuard import FrequencyGuard
-from featurestorebundle.notebook.services.NotebookNameGetter import NotebookNameGetter
+from featurestorebundle.notebook.services.NotebookMetadataGetter import NotebookMetadataGetter
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
@@ -116,7 +116,7 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
         """
         feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
         date_parser: DateParser = container.get(DateParser)
-        notebook_name_getter: NotebookNameGetter = container.get(NotebookNameGetter)
+        notebook_metadata_getter: NotebookMetadataGetter = container.get(NotebookMetadataGetter)
         features_writer: FeaturesWriter = container.get(FeaturesWriter)
 
         last_compute_date = date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None
@@ -125,7 +125,9 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
             feature_.create_template(
                 location=features_writer.get_location(self.__entity.name),
                 backend=features_writer.get_backend(),
-                notebook=notebook_name_getter.get(),
+                notebook_name=notebook_metadata_getter.get_name(),
+                notebook_absolute_path=notebook_metadata_getter.get_absolute_path(),
+                notebook_relative_path=notebook_metadata_getter.get_relative_path(),
                 category=self.__category,  # pyre-ignore[6]
                 owner=self.__owner,  # pyre-ignore[6]
                 tags=self.__tags,  # pyre-ignore[6]
