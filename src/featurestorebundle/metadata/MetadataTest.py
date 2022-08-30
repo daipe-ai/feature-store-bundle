@@ -40,7 +40,9 @@ class MetadataTest(PySparkTestCase):
                         fillna_value_type="NoneType",
                         location="datalake/path",
                         backend="delta_table",
-                        notebook="test_notebook",
+                        notebook_name="test_notebook",
+                        notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
+                        notebook_relative_path="test_folder/test_notebook",
                         category="test_category",
                         owner="test_owner",
                         tags=["feature"],
@@ -63,7 +65,9 @@ class MetadataTest(PySparkTestCase):
                         fillna_value_type="NoneType",
                         location="datalake/path",
                         backend="delta_table",
-                        notebook="test_notebook",
+                        notebook_name="test_notebook",
+                        notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
+                        notebook_relative_path="test_folder/test_notebook",
                         category="test_category",
                         owner="test_owner",
                         tags=["feature"],
@@ -99,7 +103,9 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("fillna_value_type", t.StringType(), True),
                     t.StructField("location", t.StringType(), True),
                     t.StructField("backend", t.StringType(), True),
-                    t.StructField("notebook", t.StringType(), True),
+                    t.StructField("notebook_name", t.StringType(), True),
+                    t.StructField("notebook_absolute_path", t.StringType(), True),
+                    t.StructField("notebook_relative_path", t.StringType(), True),
                 ]
             ),
         )
@@ -107,7 +113,7 @@ class MetadataTest(PySparkTestCase):
         self.compare_dataframes(expected_df, df, ["entity"])
 
     def test_metadata_validator_fields(self):
-        feature_template = FeatureTemplate("a", "b", "c", "d", "e", "f", "g", "h", "i", [], dt.datetime.min, "k", dt.datetime.min)
+        feature_template = FeatureTemplate("a", "b", "c", "d", "e", "f", "g", "h", "i", "j", "k", [], dt.datetime.min, "k", dt.datetime.min)
         self.assertTrue(
             # pylint: disable=protected-access
             all((hasattr(feature_template, field) for field in MetadataValidator._immutable_metadata_template_fields))

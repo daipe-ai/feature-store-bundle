@@ -28,35 +28,35 @@ class FeatureInstance:
         return cls(entity, name, description, dtype, variable_type, extra, feature_template)
 
     @property
-    def entity(self):
+    def entity(self) -> str:
         return self.__entity
 
     @property
-    def name(self):
+    def name(self) -> str:
         return self.__name
 
     @property
-    def description(self):
+    def description(self) -> str:
         return self.__description
 
     @property
-    def dtype(self):
+    def dtype(self) -> str:
         return self.__dtype
 
     @property
-    def variable_type(self):
+    def variable_type(self) -> str:
         return self.__variable_type
 
     @property
-    def storage_dtype(self):
+    def storage_dtype(self) -> str:
         return f"map<integer,{self.__dtype}>" if self.__template.fillna_value is None else self.__dtype
 
     @property
-    def extra(self):
+    def extra(self) -> Dict[str, str]:
         return self.__extra
 
     @property
-    def template(self):
+    def template(self) -> FeatureTemplate:
         return self.__template
 
     def get_metadata_dict(self) -> Dict[str, Union[str, Dict[str, str]]]:
@@ -79,7 +79,9 @@ class FeatureInstance:
             "fillna_value_type": self.__template.fillna_value_type,
             "location": self.__template.location,
             "backend": self.__template.backend,
-            "notebook": self.__template.notebook,
+            "notebook_name": self.__template.notebook_name,
+            "notebook_absolute_path": self.__template.notebook_absolute_path,
+            "notebook_relative_path": self.__template.notebook_relative_path,
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:

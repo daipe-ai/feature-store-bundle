@@ -39,19 +39,21 @@ class ChangesCalculator:
         feature_name = feature.template.name_template.format(**extra)
 
         template = FeatureTemplate(
-            feature.template.name_template,
-            feature.template.description_template,
-            0.0,
-            float.__name__,
-            feature.template.location,
-            feature.template.backend,
-            feature.template.notebook,
-            feature.template.category,
-            feature.template.owner,
-            feature.template.tags,
-            feature.template.start_date,
-            feature.template.frequency,
-            feature.template.last_compute_date,
+            name_template=feature.template.name_template,
+            description_template=feature.template.description_template,
+            fillna_value=0.0,
+            fillna_value_type=float.__name__,
+            location=feature.template.location,
+            backend=feature.template.backend,
+            notebook_name=feature.template.notebook_name,
+            notebook_absolute_path=feature.template.notebook_absolute_path,
+            notebook_relative_path=feature.template.notebook_relative_path,
+            category=feature.template.category,
+            owner=feature.template.owner,
+            tags=feature.template.tags,
+            start_date=feature.template.start_date,
+            frequency=feature.template.frequency,
+            last_compute_date=feature.template.last_compute_date,
         )
 
         return FeatureInstance.from_template(template, entity_name, feature_name, "double", "numerical", extra)
