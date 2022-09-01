@@ -155,11 +155,35 @@ services:
     tags:
       - {name: 'feature.reader', alias: 'databricks'}
 
+  featurestorebundle.delta.feature.deleter.DeltaTableFeaturesDeleter:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.deleter', alias: 'delta_table'}
+
+  featurestorebundle.delta.feature.deleter.DeltaPathFeaturesDeleter:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.deleter', alias: 'delta_path'}
+
+  featurestorebundle.databricks.feature.deleter.DatabricksFeatureStoreDeleter:
+    arguments:
+      - '@featurestorebundle.logger'
+    tags:
+      - {name: 'feature.deleter', alias: 'databricks'}
+
+  featurestorebundle.delta.feature.deleter.DeleteColumnsQueryBuilder:
+
   featurestorebundle.feature.reader.FeaturesReader:
 
   featurestorebundle.feature.reader.FeaturesReaderFactory:
     arguments:
       - !tagged 'feature.reader'
+
+  featurestorebundle.feature.deleter.FeaturesDeleter:
+    arguments:
+      - !tagged_aliased ['feature.deleter', '%featurestorebundle.feature.backend%']
 
   featurestorebundle.delta.EmptyDataFrameCreator:
 
@@ -237,10 +261,22 @@ services:
     tags:
       - {name: 'metadata.reader', alias: 'delta_path'}
 
+  featurestorebundle.delta.metadata.deleter.DeltaTableMetadataDeleter:
+    tags:
+      - {name: 'metadata.deleter', alias: 'delta_table'}
+
+  featurestorebundle.delta.metadata.deleter.DeltaPathMetadataDeleter:
+    tags:
+      - {name: 'metadata.deleter', alias: 'delta_path'}
+
   featurestorebundle.metadata.reader.MetadataReader:
     arguments:
       - '%featurestorebundle.stable_feature_store%'
       - !tagged_aliased ['metadata.reader', '%featurestorebundle.metadata.backend%']
+
+  featurestorebundle.metadata.deleter.MetadataDeleter:
+    arguments:
+      - !tagged_aliased ['metadata.deleter', '%featurestorebundle.metadata.backend%']
 
   featurestorebundle.delta.metadata.writer.DeltaMetadataHandler:
     arguments:

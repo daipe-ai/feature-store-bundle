@@ -129,7 +129,7 @@ pyfony-bundles = ">=0.4.0,<0.5.0"
 
 [[package]]
 name = "databricks-bundle"
-version = "1.4.10"
+version = "1.4.12"
 description = "Databricks runtime support for the Daipe framework"
 category = "main"
 optional = false
@@ -855,7 +855,7 @@ testing = ["jaraco.itertools", "func-timeout"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.8"
-content-hash = "68e971dcb1aac846de226764a1bb0db9cd06f7da1570acf190efce655b89208a"
+content-hash = "ca04382461ac89967035993d902574233b3f05b3a53e22edfd447de34b1f92da"
 
 [metadata.files]
 astroid = []

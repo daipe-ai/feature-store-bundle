@@ -5,6 +5,7 @@ from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.widgets.WidgetNames import WidgetNames
 from featurestorebundle.utils.errors import MissingEntitiesError, MissingWidgetDefaultError
+from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
 from featurestorebundle.target.reader.TargetsReader import TargetsReader
 from featurestorebundle.delta.target.schema import get_target_id_column_name
 
@@ -18,6 +19,7 @@ class WidgetsFactory:
         entities: Box,
         stages: Box,
         entity_getter: EntityGetter,
+        metadata_reader: MetadataReader,
         targets_reader: TargetsReader,
         widget_names: WidgetNames,
         widgets: Widgets,
@@ -27,6 +29,7 @@ class WidgetsFactory:
         self.__entities_list = list(entities) if entities is not None else []
         self.__stages = stages
         self.__entity_getter = entity_getter
+        self.__metadata_reader = metadata_reader
         self.__targets_reader = targets_reader
         self.__widget_names = widget_names
         self.__widgets = widgets
@@ -106,6 +109,38 @@ class WidgetsFactory:
         self.__widgets.add_select(
             self.__widget_names.sample_name, [self.__defaults.sample, self.__widget_names.sample_value], self.__defaults.sample
         )
+
+    def create_for_exploration(self):
+        self.__widgets.remove_all()
+
+        self.create_for_entity()
+
+        entity = self.__entity_getter.get()
+        metadata_rows = self.__metadata_reader.read(entity.name).collect()
+
+        templates = [self.__widget_names.none_placeholder] + list({row.feature_template for row in metadata_rows})
+        categories = [self.__widget_names.none_placeholder] + list({row.category for row in metadata_rows})
+        time_windows = [self.__widget_names.none_placeholder] + list(
+            {row.extra["time_window"] for row in metadata_rows if "time_window" in row.extra}
+        )
+        tags = [self.__widget_names.none_placeholder] + list({tag for row in metadata_rows for tag in row.tags})
+
+        self.__widgets.add_multiselect("templates", templates, [self.__widget_names.none_placeholder])
+        self.__widgets.add_multiselect("categories", categories, [self.__widget_names.none_placeholder])
+        self.__widgets.add_multiselect("time_windows", time_windows, [self.__widget_names.none_placeholder])
+        self.__widgets.add_multiselect("tags", tags, [self.__widget_names.none_placeholder])
+
+    def create_for_delete(self):
+        self.__widgets.remove_all()
+
+        self.create_for_entity()
+
+        entity = self.__entity_getter.get()
+        metadata_rows = self.__metadata_reader.read(entity.name).collect()
+
+        templates = [self.__widget_names.none_placeholder] + list({row.feature_template for row in metadata_rows})
+
+        self.__widgets.add_multiselect("templates", templates, [self.__widget_names.none_placeholder])
 
     def __check_default_exists(self, widget_name: str):
         if widget_name not in self.__defaults:

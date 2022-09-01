@@ -5,6 +5,7 @@ from dataclasses import dataclass
 class WidgetNames:
     all_notebooks_placeholder = "<all>"
     no_targets_placeholder = "<no target>"
+    none_placeholder = "<none>"
     sample_value = "sample"
     entity_name = "entity_name"
     target_name = "target_name"
