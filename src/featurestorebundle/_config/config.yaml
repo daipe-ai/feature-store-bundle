@@ -205,6 +205,8 @@ services:
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 
+  featurestorebundle.feature.FeatureNamesValidator:
+
   featurestorebundle.feature.ChangesCalculator:
 
   featurestorebundle.feature.FeatureListFactory:
