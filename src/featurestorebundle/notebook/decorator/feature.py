@@ -10,6 +10,7 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
+from featurestorebundle.feature.FeatureNamesValidator import FeatureNamesValidator
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.delta.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
@@ -64,6 +65,9 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
         date_parser: DateParser = container.get(DateParser)
         checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
         frequency_guard: FrequencyGuard = container.get(FrequencyGuard)
+        feature_names_validator: FeatureNamesValidator = container.get(FeatureNamesValidator)
+
+        feature_names_validator.validate(self.__feature_list)
 
         if container.get_parameters().featurestorebundle.metadata.display_in_notebook is True:
             metadata_html_displayer: MetadataHTMLDisplayer = container.get(MetadataHTMLDisplayer)
