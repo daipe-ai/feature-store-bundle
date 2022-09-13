@@ -25,8 +25,7 @@ class DeltaPathMetadataReader(MetadataReaderInterface):
         self.__empty_dataframe_creator = empty_dataframe_creator
 
     def read(self, entity_name: Optional[str]) -> DataFrame:
-        entity_name = entity_name or ""
-        path = self.__table_names.get_metadata_path(entity_name)
+        path = self.__table_names.get_metadata_path(entity_name)  # pyre-ignore[6]
 
         if not self.__path_existence_checker.exists(path):
             self.__logger.debug(f"Metadata does not exist at path {path}, returning empty metadata dataframe")

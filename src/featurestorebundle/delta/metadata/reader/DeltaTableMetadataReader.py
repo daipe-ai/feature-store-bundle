@@ -25,8 +25,7 @@ class DeltaTableMetadataReader(MetadataReaderInterface):
         self.__empty_dataframe_creator = empty_dataframe_creator
 
     def read(self, entity_name: Optional[str]) -> DataFrame:
-        entity_name = entity_name or ""
-        full_table_name = self.__table_names.get_metadata_full_table_name(entity_name)
+        full_table_name = self.__table_names.get_metadata_full_table_name(entity_name)  # pyre-ignore[6]
 
         if not self.__table_existence_checker.exists(full_table_name):
             self.__logger.debug(f"Metadata does not exist in hive {full_table_name}, returning empty metadata dataframe")

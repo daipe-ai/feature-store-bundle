@@ -86,7 +86,7 @@ class TableNames:
         replacements = {"entity": entity_name}
 
         if "{entity}" in template and entity_name is None:
-            raise Exception("Cannot replace entity placeholder for 'None'")
+            raise Exception("Cannot replace entity placeholder for 'None', try to pass entity name as parameter")
 
         if "{current_branch}" in template:
             current_branch = self.__current_branch_resolver.resolve()
