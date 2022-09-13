@@ -7,7 +7,7 @@ CONTAINER_ID="$(docker ps -aqf "name=^$CONTAINER_NAME$")"
 if [ -z "$CONTAINER_ID" ]
 then
     echo "Creating new container $CONTAINER_NAME"
-    docker run -it -d --platform linux/x86_64 --name "$CONTAINER_NAME" -v "/$PWD:/app pyfony/pyre-check" sleep infinity
+    docker run -it -d --platform linux/x86_64 --name "$CONTAINER_NAME" -v "/$PWD:/app" pyfony/pyre-check sleep infinity
 else
     echo "Using existing container $CONTAINER_NAME"
 fi
