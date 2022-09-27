@@ -16,7 +16,7 @@ from featurestorebundle.widgets.WidgetsFactory import WidgetsFactory  # noqa
 from featurestorebundle.widgets.StageGetter import get_stages, get_stage  # noqa
 
 # Decorator
-from featurestorebundle.notebook.decorator import feature_decorator_factory  # noqa
+from featurestorebundle.notebook.decorator.feature import feature  # noqa
 
 # FeaturesGetter
 from featurestorebundle.feature.FeaturesGetter import FeaturesGetter  # noqa
@@ -24,7 +24,7 @@ from featurestorebundle.feature.FeaturesGetter import FeaturesGetter  # noqa
 # Feature store
 from featurestorebundle.feature.FeatureStore import FeatureStore  # noqa
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage  # noqa
-from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter  # noqa
+from featurestorebundle.feature.writer.FeaturesTableWriter import FeaturesTableWriter  # noqa
 
 # Features
 from featurestorebundle.feature.Feature import Feature  # noqa

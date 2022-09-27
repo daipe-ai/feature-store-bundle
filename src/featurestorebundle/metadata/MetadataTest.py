@@ -3,7 +3,7 @@ import datetime as dt
 
 from pyspark.sql import types as t
 
-from featurestorebundle.delta.metadata.schema import get_metadata_schema
+from featurestorebundle.metadata.schema import get_metadata_schema
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
@@ -38,8 +38,8 @@ class MetadataTest(PySparkTestCase):
                         description_template="f1 description",
                         fillna_value=None,
                         fillna_value_type="NoneType",
-                        location="datalake/path",
-                        backend="delta_table",
+                        base_db="test_db",
+                        repository="https://test_repository.git",
                         notebook_name="test_notebook",
                         notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
                         notebook_relative_path="test_folder/test_notebook",
@@ -63,8 +63,8 @@ class MetadataTest(PySparkTestCase):
                         description_template="f2 description",
                         fillna_value=None,
                         fillna_value_type="NoneType",
-                        location="datalake/path",
-                        backend="delta_table",
+                        base_db="test_db",
+                        repository="https://test_repository.git",
                         notebook_name="test_notebook",
                         notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
                         notebook_relative_path="test_folder/test_notebook",
@@ -101,8 +101,8 @@ class MetadataTest(PySparkTestCase):
                     t.StructField("variable_type", t.StringType(), True),
                     t.StructField("fillna_value", t.StringType(), True),
                     t.StructField("fillna_value_type", t.StringType(), True),
-                    t.StructField("location", t.StringType(), True),
-                    t.StructField("backend", t.StringType(), True),
+                    t.StructField("base_db", t.StringType(), True),
+                    t.StructField("repository", t.StringType(), True),
                     t.StructField("notebook_name", t.StringType(), True),
                     t.StructField("notebook_absolute_path", t.StringType(), True),
                     t.StructField("notebook_relative_path", t.StringType(), True),

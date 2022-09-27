@@ -9,8 +9,8 @@ from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChan
 class FeatureWithChange(Feature):
     def create_template(
         self,
-        location: str,
-        backend: str,
+        base_db: str,
+        repository: str,
         notebook_name: str,
         notebook_absolute_path: str,
         notebook_relative_path: str,
@@ -26,8 +26,8 @@ class FeatureWithChange(Feature):
             description_template=self.description_template,
             fillna_value=self.fillna_with,
             fillna_value_type=type(self.fillna_with).__name__,
-            location=location,
-            backend=backend,
+            base_db=base_db,
+            repository=repository,
             notebook_name=notebook_name,
             notebook_absolute_path=notebook_absolute_path,
             notebook_relative_path=notebook_relative_path,

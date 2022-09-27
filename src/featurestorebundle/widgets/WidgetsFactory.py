@@ -1,3 +1,4 @@
+from pathlib import Path
 from logging import Logger
 from box import Box
 from daipecore.widgets.Widgets import Widgets
@@ -5,9 +6,9 @@ from daipecore.widgets.Widgets import Widgets
 from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.widgets.WidgetNames import WidgetNames
 from featurestorebundle.utils.errors import MissingEntitiesError, MissingWidgetDefaultError
-from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
-from featurestorebundle.target.reader.TargetsReader import TargetsReader
-from featurestorebundle.delta.target.schema import get_target_id_column_name
+from featurestorebundle.metadata.reader.MetadataTableReader import MetadataTableReader
+from featurestorebundle.target.reader.TargetsTableReader import TargetsTableReader
+from featurestorebundle.target.schema import get_target_id_column_name
 
 
 # pylint: disable=too-many-instance-attributes
@@ -19,8 +20,8 @@ class WidgetsFactory:
         entities: Box,
         stages: Box,
         entity_getter: EntityGetter,
-        metadata_reader: MetadataReader,
-        targets_reader: TargetsReader,
+        metadata_reader: MetadataTableReader,
+        targets_reader: TargetsTableReader,
         widget_names: WidgetNames,
         widgets: Widgets,
     ):
@@ -52,8 +53,7 @@ class WidgetsFactory:
         if not self.__entities_list:
             raise MissingEntitiesError("No entities are defined in config. Please set featurestorebundle.entities in config.yaml")
 
-        if len(self.__entities_list) > 1:
-            self.__widgets.add_select(self.__widget_names.entity_name, self.__entities_list, default_value=self.__entities_list[0])
+        self.__widgets.add_select(self.__widget_names.entity_name, self.__entities_list, default_value=self.__entities_list[0])
 
     def create_for_timestamp(self):
         self.__check_default_exists(self.__widget_names.timestamp_name)
@@ -96,14 +96,8 @@ class WidgetsFactory:
         stages = [self.__widget_names.all_notebooks_placeholder]
         for stage, notebook_definitions in self.__stages.items():
             for notebook_definition in notebook_definitions:
-                # for orchestration backwards compatibility
-                if isinstance(notebook_definition, str):
-                    notebook_name = notebook_definition.split("/")[-1]
-                    stages.append(f"{stage}: {notebook_name}")
-
-                if isinstance(notebook_definition, Box):
-                    notebook_name = notebook_definition.notebook.split("/")[-1]
-                    stages.append(f"{stage}: {notebook_name}")
+                notebook_name = Path(notebook_definition.notebook).stem
+                stages.append(f"{stage}: {notebook_name}")
 
         self.__widgets.add_multiselect(self.__widget_names.notebooks_name, stages, [self.__widget_names.all_notebooks_placeholder])
 

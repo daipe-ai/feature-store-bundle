@@ -10,8 +10,8 @@ class FeatureTemplate:
     description_template: str
     fillna_value: Any
     fillna_value_type: str
-    location: str
-    backend: str
+    base_db: str
+    repository: str
     notebook_name: str
     notebook_absolute_path: str
     notebook_relative_path: str

@@ -5,8 +5,8 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.delta.DataFrameSchemaMerger import DataFrameSchemaMerger
-from featurestorebundle.delta.metadata.schema import get_metadata_schema
+from featurestorebundle.dataframe.DataFrameSchemaMerger import DataFrameSchemaMerger
+from featurestorebundle.metadata.schema import get_metadata_schema
 
 
 class FeatureListFactory:
@@ -24,8 +24,8 @@ class FeatureListFactory:
                 row.description_template,
                 self.__convert_fillna_value(row.fillna_value, row.fillna_value_type),
                 row.fillna_value_type,
-                row.location,
-                row.backend,
+                row.base_db,
+                row.repository,
                 row.notebook_name,
                 row.notebook_absolute_path,
                 row.notebook_relative_path,

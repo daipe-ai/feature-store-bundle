@@ -14,24 +14,18 @@ class FrequencyGuard:
             return False
 
         if frequency in Frequencies.friendly_frequencies:
-            return self.__friendly_frequency_should_be_computed(start_date, current_date, frequency)
+            return self.__friendly_frequency_should_be_computed(current_date, frequency)
 
         return self.__other_frequency_should_be_computed(start_date, current_date, frequency)
 
-    def __friendly_frequency_should_be_computed(self, start_date: datetime, current_date: datetime, frequency: str) -> bool:
+    def __friendly_frequency_should_be_computed(self, current_date: datetime, frequency: str) -> bool:
         if frequency == Frequencies.daily:
             return True
 
         if frequency == Frequencies.weekly:
-            if start_date.weekday() != 0:
-                raise Exception("Weekly features can only start on monday")
-
             return current_date.weekday() == 0
 
         if frequency == Frequencies.monthly:
-            if start_date.day != 1:
-                raise Exception("Monthly features can only start on first day of month")
-
             return current_date.day == 1
 
         return False

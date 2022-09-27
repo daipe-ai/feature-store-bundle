@@ -14,8 +14,8 @@ from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureWithChange import FeatureWithChange
 from featurestorebundle.feature.FeatureWithChangeTemplate import FeatureWithChangeTemplate
 from featurestorebundle.feature.MasterFeature import MasterFeature
+from featurestorebundle.notebook.decorator.feature import feature
 from featurestorebundle.notebook.WindowedDataFrame import WindowedDataFrame
-from featurestorebundle.notebook.decorator import feature_decorator_factory
 from featurestorebundle.notebook.functions.time_windows import sum_windowed, count_windowed
 from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
@@ -31,7 +31,6 @@ class FeatureChangesTest(PySparkTestCase):
             time_column="timestamp",
             time_column_type=t.TimestampType(),
         )
-        self.__feature_decorator = feature_decorator_factory.create(self.__entity)
 
     def test_simple(self):
         feature_with_change_template = FeatureWithChangeTemplate(
@@ -39,8 +38,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="feature in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -57,8 +56,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="a in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -97,8 +96,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="feature suffix in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -115,8 +114,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="a in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -167,8 +166,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="feature suffix in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -185,8 +184,8 @@ class FeatureChangesTest(PySparkTestCase):
             description_template="a in {time_window}",
             fillna_value=0,
             fillna_value_type="int",
-            location="datalake/path",
-            backend="delta_table",
+            base_db="test_db",
+            repository="https://test_repository.git",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
             notebook_relative_path="test_folder/test_notebook",
@@ -231,7 +230,7 @@ class FeatureChangesTest(PySparkTestCase):
 
     def test_changes_values(self):
         @notebook_function()
-        @self.__feature_decorator(
+        @feature(
             Feature("f1_count_{time_window}", "f1 count description {time_window}", 0),
             FeatureWithChange("f1_sum_{time_window}", "f1 sum description {time_window}", 0),
         )

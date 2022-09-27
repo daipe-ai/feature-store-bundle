@@ -41,7 +41,7 @@ class FeaturesGetter:
 
         self.__logger.info(f"Loading latest features for entity '{entity.name}'")
 
-        return self.__feature_store.get_latest(entity.name, features=feature_names, skip_incomplete_rows=True)
+        return self.__feature_store.get_latest(entity.name, features=feature_names)
 
     def __get_features_for_target(self, feature_names: List[str]):
         entity = self.__entity_getter.get()
@@ -62,5 +62,4 @@ class FeaturesGetter:
             target_date_to=target_date_to,
             time_diff=target_time_shift,
             features=feature_names,
-            skip_incomplete_rows=True,
         )

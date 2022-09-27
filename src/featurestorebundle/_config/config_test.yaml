@@ -25,8 +25,39 @@ services:
   pyspark.sql.session.SparkSession:
     factory: ['@featurestorebundle.test.SparkSessionFactory', 'create']
 
-  featurestorebundle.orchestration.CurrentNotebookDefinitionGetter:
-    class: featurestorebundle.test.DummyCurrentNotebookDefinitionGetter
-
   featurestorebundle.notebook.services.NotebookMetadataGetter:
-    class: featurestorebundle.test.DummyNotebookMetadataGetter
+    class: featurestorebundle.test.mock.DummyNotebookMetadataGetter
+
+  featurestorebundle.databricks.repos.DatabricksRepositoryUrlResolver:
+    class: featurestorebundle.test.mock.DummyRepositoryUrlResolver
+
+  featurestorebundle.entity.EntityGetter:
+    class: featurestorebundle.test.mock.DummyEntityGetter
+
+  featurestorebundle.db.TableNames:
+    arguments:
+      feature_tables: '%featurestorebundle.feature%'
+      metadata_tables: '%featurestorebundle.metadata%'
+      target_tables: '%featurestorebundle.target%'
+      current_branch_resolver: '@featurestorebundle.databricks.repos.DatabricksCurrentBranchResolver'
+
+  featurestorebundle.feature.FeaturesGetter:
+    arguments:
+      logger: '@featurestorebundle.logger'
+      entity_getter: '@featurestorebundle.entity.EntityGetter'
+
+  featurestorebundle.feature.FeatureStore:
+    arguments:
+      entity_getter: '@featurestorebundle.entity.EntityGetter'
+
+  featurestorebundle.orchestration.Serializer:
+    arguments:
+      entity_getter: '@featurestorebundle.entity.EntityGetter'
+
+  featurestorebundle.widgets.WidgetsFactory:
+    arguments:
+      defaults: '%featurestorebundle.widgets.defaults%'
+      entities: '%featurestorebundle.entities%'
+      stages: '%featurestorebundle.orchestration.stages%'
+      logger: '@featurestorebundle.logger'
+      entity_getter: '@featurestorebundle.entity.EntityGetter'

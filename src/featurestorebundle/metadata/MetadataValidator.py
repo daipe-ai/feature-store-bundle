@@ -2,14 +2,14 @@ from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
-from featurestorebundle.metadata.reader.MetadataReader import MetadataReader
+from featurestorebundle.metadata.reader.MetadataTableReader import MetadataTableReader
 
 
 class MetadataValidator:
     _immutable_metadata_template_fields = ["start_date", "frequency", "fillna_value", "fillna_value_type"]
     _immutable_metadata_instance_fields = ["dtype"]
 
-    def __init__(self, metadata_reader: MetadataReader, feature_list_factory: FeatureListFactory):
+    def __init__(self, metadata_reader: MetadataTableReader, feature_list_factory: FeatureListFactory):
         self.__metadata_reader = metadata_reader
         self.__feature_list_factory = feature_list_factory
 
@@ -25,11 +25,17 @@ class MetadataValidator:
             for current_feature in current_feature_list.get_all():
                 if (
                     incoming_feature.name == current_feature.name
-                    and incoming_feature.template.location != current_feature.template.location
+                    and incoming_feature.template.repository != current_feature.template.repository
                 ):
                     raise Exception(
-                        f"Duplicate feature detected {current_feature.name} is already registered "
-                        f"for location {current_feature.template.location}"
+                        f"Duplicate feature detected '{current_feature.name}' is already registered "
+                        f"by repository '{current_feature.template.repository}'"
+                    )
+
+                if incoming_feature.name == current_feature.name and incoming_feature.template.base_db != current_feature.template.base_db:
+                    raise Exception(
+                        f"Duplicate feature detected '{current_feature.name}' is already registered "
+                        f"in database '{current_feature.template.base_db}'"
                     )
 
     def __check_immutable_fields_did_not_change(self, current_feature_list: FeatureList, incoming_feature_list: FeatureList):

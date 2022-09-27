@@ -48,10 +48,6 @@ class FeatureInstance:
         return self.__variable_type
 
     @property
-    def storage_dtype(self) -> str:
-        return f"map<integer,{self.__dtype}>" if self.__template.fillna_value is None else self.__dtype
-
-    @property
     def extra(self) -> Dict[str, str]:
         return self.__extra
 
@@ -77,8 +73,8 @@ class FeatureInstance:
             "variable_type": self.__variable_type,
             "fillna_value": str(self.__template.fillna_value),
             "fillna_value_type": self.__template.fillna_value_type,
-            "location": self.__template.location,
-            "backend": self.__template.backend,
+            "base_db": self.__template.base_db,
+            "repository": self.__template.repository,
             "notebook_name": self.__template.notebook_name,
             "notebook_absolute_path": self.__template.notebook_absolute_path,
             "notebook_relative_path": self.__template.notebook_relative_path,
