@@ -64,9 +64,9 @@ def with_timestamps_no_filter(input_data: Union[InputDecorator, DataFrame], enti
 
 
 @input_decorator_function
-def get_features() -> Callable[[ContainerInterface], DataFrame]:
+def get_features(features: Optional[List[str]] = None) -> Callable[[ContainerInterface], DataFrame]:
     def wrapper(container: ContainerInterface) -> DataFrame:
         features_getter: FeaturesGetter = container.get(FeaturesGetter)
-        return features_getter.get_features()
+        return features_getter.get_features(features)
 
     return wrapper
