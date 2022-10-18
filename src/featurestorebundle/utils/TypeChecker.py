@@ -5,11 +5,11 @@ from numbers import Number
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.utils.errors import WrongFillnaValueTypeError
 from featurestorebundle.utils.errors import WrongTypeError
-from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL, BINARY
+from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL, BINARY, ARRAY
 
 
 class TypeChecker:
-    _valid_variable_types = [CATEGORICAL, NUMERICAL, BINARY]
+    _valid_variable_types = [CATEGORICAL, NUMERICAL, BINARY, ARRAY]
 
     def check(self, feature_template: FeatureTemplate, dtype: str, variable_type: Optional[str]):
         self.check_fillna_valid(dtype, feature_template.fillna_value, feature_template)

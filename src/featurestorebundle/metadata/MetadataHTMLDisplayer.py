@@ -1,3 +1,4 @@
+from html import escape as escape_html
 from typing import List, Dict, Union
 
 from pyspark.dbutils import DBUtils
@@ -43,14 +44,14 @@ class MetadataHTMLDisplayer:
         return html
 
     def __get_table_row(self, metadata_dict: Dict[str, Union[str, Dict[str, str]]]) -> str:
-        # pyre-fixme[16]:
+        # pyre-ignore[6, 16]
         return f"""
         <tr>
             <td>{metadata_dict["name"]}</td>
             <td>{metadata_dict["description"]}</td>
             <td>{", ".join(f"<b>{key}</b>: {val}" for key, val in metadata_dict["extra"].items())}</td>
             <td>{metadata_dict["feature_template"]}</td>
-            <td>{metadata_dict["dtype"]}</td>
+            <td>{escape_html(metadata_dict["dtype"])}</td>
             <td>{metadata_dict["variable_type"]}</td>
         </tr>
         """
