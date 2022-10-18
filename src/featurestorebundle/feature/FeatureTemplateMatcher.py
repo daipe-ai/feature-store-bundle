@@ -10,25 +10,35 @@ from featurestorebundle.feature.FeaturePattern import FeaturePattern
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 
 from featurestorebundle.notebook.functions.time_windows import PERIODS
-from featurestorebundle.utils.types import get_variable_type_default
+from featurestorebundle.utils.types import get_variable_type_default, normalize_dtype
 
 
 class FeatureTemplateMatcher:
     def get_features(self, entity: Entity, feature_templates: List[FeatureTemplate], df: DataFrame) -> FeatureList:
         pk_columns = [entity.id_column, entity.time_column]
 
-        feature_columns = [col for col in df.schema.jsonValue()["fields"] if col["name"] not in pk_columns]
         feature_patterns = [FeaturePattern(feature_template) for feature_template in feature_templates]
         unmatched_patterns = set(feature_patterns)
 
         variable_types = {
-            col["name"]: col["metadata"]["variable_type"] if "variable_type" in col["metadata"] else get_variable_type_default(col["type"])
-            for col in feature_columns
+            field.name: field.metadata["variable_type"]
+            if "variable_type" in field.metadata
+            else get_variable_type_default(normalize_dtype(field.dataType.simpleString()))
+            for field in df.schema.fields
+            if field.name not in pk_columns
         }
 
         features = [
-            self.__get_feature(entity.name, col["name"], col["type"], variable_types[col["name"]], feature_patterns, unmatched_patterns)
-            for col in feature_columns
+            self.__get_feature(
+                entity.name,
+                field.name,
+                normalize_dtype(field.dataType.simpleString()),
+                variable_types[field.name],
+                feature_patterns,
+                unmatched_patterns,
+            )
+            for field in df.schema.fields
+            if field.name not in pk_columns
         ]
 
         if unmatched_patterns:
