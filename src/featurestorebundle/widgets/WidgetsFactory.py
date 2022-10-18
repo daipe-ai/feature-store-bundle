@@ -79,10 +79,12 @@ class WidgetsFactory:
             targets = []
 
         else:
-            targets = [
-                getattr(row, get_target_id_column_name())
-                for row in self.__targets_reader.read_enum(entity.name).select(get_target_id_column_name()).collect()
-            ]
+            targets = sorted(
+                [
+                    getattr(row, get_target_id_column_name())
+                    for row in self.__targets_reader.read_enum(entity.name).select(get_target_id_column_name()).collect()
+                ]
+            )
 
         self.__widgets.add_select(
             self.__widget_names.target_name,
@@ -118,12 +120,12 @@ class WidgetsFactory:
         entity = self.__entity_getter.get()
         metadata_rows = self.__metadata_reader.read(entity.name).collect()
 
-        templates = [self.__widget_names.none_placeholder] + list({row.feature_template for row in metadata_rows})
-        categories = [self.__widget_names.none_placeholder] + list({row.category for row in metadata_rows})
-        time_windows = [self.__widget_names.none_placeholder] + list(
-            {row.extra["time_window"] for row in metadata_rows if "time_window" in row.extra}
+        templates = [self.__widget_names.none_placeholder] + sorted(list({row.feature_template for row in metadata_rows}))
+        categories = [self.__widget_names.none_placeholder] + sorted(list({row.category for row in metadata_rows}))
+        time_windows = [self.__widget_names.none_placeholder] + sorted(
+            list({row.extra["time_window"] for row in metadata_rows if "time_window" in row.extra})
         )
-        tags = [self.__widget_names.none_placeholder] + list({tag for row in metadata_rows for tag in row.tags})
+        tags = [self.__widget_names.none_placeholder] + sorted(list({tag for row in metadata_rows for tag in row.tags}))
 
         self.__widgets.add_multiselect("templates", templates, [self.__widget_names.none_placeholder])
         self.__widgets.add_multiselect("categories", categories, [self.__widget_names.none_placeholder])
@@ -138,7 +140,7 @@ class WidgetsFactory:
         entity = self.__entity_getter.get()
         metadata_rows = self.__metadata_reader.read(entity.name).collect()
 
-        templates = [self.__widget_names.none_placeholder] + list({row.feature_template for row in metadata_rows})
+        templates = [self.__widget_names.none_placeholder] + sorted(list({row.feature_template for row in metadata_rows}))
 
         self.__widgets.add_multiselect("templates", templates, [self.__widget_names.none_placeholder])
 
