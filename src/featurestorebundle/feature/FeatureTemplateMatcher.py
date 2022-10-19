@@ -1,6 +1,7 @@
 from typing import List, Set
 
 from pyspark.sql import DataFrame
+from pyspark.sql.types import StructField
 
 from featurestorebundle.entity.Entity import Entity
 from featurestorebundle.utils.errors import TemplateMatchingError, TimeWindowFormatError
@@ -20,20 +21,12 @@ class FeatureTemplateMatcher:
         feature_patterns = [FeaturePattern(feature_template) for feature_template in feature_templates]
         unmatched_patterns = set(feature_patterns)
 
-        variable_types = {
-            field.name: field.metadata["variable_type"]
-            if "variable_type" in field.metadata
-            else get_variable_type_default(normalize_dtype(field.dataType.simpleString()))
-            for field in df.schema.fields
-            if field.name not in pk_columns
-        }
-
         features = [
             self.__get_feature(
                 entity.name,
                 field.name,
-                normalize_dtype(field.dataType.simpleString()),
-                variable_types[field.name],
+                self.__get_dtype(field),
+                self.__get_variable_type(field),
                 feature_patterns,
                 unmatched_patterns,
             )
@@ -74,6 +67,16 @@ class FeatureTemplateMatcher:
             return FeatureInstance.from_template(feature_template, entity, name, dtype, variable_type, extra)
 
         raise TemplateMatchingError(f"Column '{name}' could not be matched by any template.")
+
+    def __get_dtype(self, field: StructField) -> str:
+        return normalize_dtype(field.dataType.simpleString())
+
+    def __get_variable_type(self, field: StructField) -> str:
+        return (
+            field.metadata["variable_type"]
+            if "variable_type" in field.metadata
+            else get_variable_type_default(normalize_dtype(field.dataType.simpleString()))
+        )
 
     def __check_time_window(self, feature_pattern: FeaturePattern, time_window: str, feature_name: str):
         time_window_value = time_window[:-1]
