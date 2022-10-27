@@ -158,6 +158,10 @@ class FeatureStore:
         if feature_list.empty():
             raise Exception("Your filtering conditions did not match any features")
 
+        for feature in features or []:
+            if feature not in feature_list.get_names():
+                raise Exception(f"Feature '{feature}' not registered in Feature Store")
+
         return feature_list
 
     def __get(
