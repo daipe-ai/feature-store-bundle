@@ -7,7 +7,7 @@ from featurestorebundle.feature.FeatureInstance import FeatureInstance
 from featurestorebundle.feature.FeatureTemplate import FeatureTemplate
 from featurestorebundle.feature.FeatureList import FeatureList
 from featurestorebundle.feature.FeatureListFactory import FeatureListFactory
-from featurestorebundle.delta.metadata.schema import get_metadata_schema
+from featurestorebundle.metadata.schema import get_metadata_schema
 from pysparkbundle.test.PySparkTestCase import PySparkTestCase
 
 
@@ -44,8 +44,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "categorical",
                     "",
                     "str",
-                    "loc",
-                    "bck",
+                    "db",
+                    "repo",
                     "ntb_name",
                     "ntb_abspath",
                     "ntb_relpath",
@@ -67,8 +67,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "numerical",
                     0,
                     "int",
-                    "loc",
-                    "bck",
+                    "db",
+                    "repo",
                     "ntb_name",
                     "ntb_abspath",
                     "ntb_relpath",
@@ -90,8 +90,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                     "categorical",
                     "None",
                     "NoneType",
-                    "loc",
-                    "bck",
+                    "db",
+                    "repo",
                     "ntb_name",
                     "ntb_abspath",
                     "ntb_relpath",
@@ -117,8 +117,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc1",
                         fillna_value="",
                         fillna_value_type="str",
-                        location="loc",
-                        backend="bck",
+                        base_db="db",
+                        repository="repo",
                         notebook_name="ntb_name",
                         notebook_absolute_path="ntb_abspath",
                         notebook_relative_path="ntb_relpath",
@@ -142,8 +142,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc2",
                         fillna_value=0,
                         fillna_value_type="int",
-                        location="loc",
-                        backend="bck",
+                        base_db="db",
+                        repository="repo",
                         notebook_name="ntb_name",
                         notebook_absolute_path="ntb_abspath",
                         notebook_relative_path="ntb_relpath",
@@ -167,8 +167,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
                         description_template="desc3",
                         fillna_value=None,
                         fillna_value_type="NoneType",
-                        location="loc",
-                        backend="bck",
+                        base_db="db",
+                        repository="repo",
                         notebook_name="ntb_name",
                         notebook_absolute_path="ntb_abspath",
                         notebook_relative_path="ntb_relpath",
@@ -193,8 +193,8 @@ class FeaturesListFactoryTest(PySparkTestCase):
             self.assertEqual(feature1.template.description_template, feature2.template.description_template)
             self.assertEqual(feature1.template.fillna_value, feature2.template.fillna_value)
             self.assertEqual(feature1.template.fillna_value_type, feature2.template.fillna_value_type)
-            self.assertEqual(feature1.template.location, feature2.template.location)
-            self.assertEqual(feature1.template.backend, feature2.template.backend)
+            self.assertEqual(feature1.template.base_db, feature2.template.base_db)
+            self.assertEqual(feature1.template.repository, feature2.template.repository)
             self.assertEqual(feature1.template.notebook_name, feature2.template.notebook_name)
             self.assertEqual(feature1.template.notebook_absolute_path, feature2.template.notebook_absolute_path)
             self.assertEqual(feature1.template.notebook_relative_path, feature2.template.notebook_relative_path)

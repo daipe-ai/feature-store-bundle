@@ -13,12 +13,8 @@ class NotebookTasksFactory:
         notebook_tasks = []
 
         for notebook_definition in notebook_definitions:
-            # for orchestration backwards compatibility
-            if isinstance(notebook_definition, str):
-                notebook_tasks.append(NotebookTask(notebook_definition, parameters=notebook_arguments))
-
-            else:
-                config_arguments = notebook_definition.arguments if "arguments" in notebook_definition else {}
-                notebook_tasks.append(NotebookTask(notebook_definition.notebook, parameters={**notebook_arguments, **config_arguments}))
+            config_arguments = notebook_definition.arguments if "arguments" in notebook_definition else {}
+            arguments_merged = {**notebook_arguments, **config_arguments}
+            notebook_tasks.append(NotebookTask(notebook_definition.notebook, parameters=arguments_merged))
 
         return notebook_tasks

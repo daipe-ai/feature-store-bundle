@@ -16,15 +16,15 @@ class FeaturesStorage:
         self.__feature_list = FeatureList(entity, [])
 
     @property
-    def entity(self):
+    def entity(self) -> Entity:
         return self.__entity
 
     @property
-    def results(self):
+    def results(self) -> List[DataFrame]:
         return self.__results
 
     @property
-    def feature_list(self):
+    def feature_list(self) -> FeatureList:
         return self.__feature_list
 
     def add(self, result: DataFrame, feature_list: FeatureList):

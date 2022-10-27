@@ -1,53 +1,57 @@
 from typing import Optional, List, Tuple, Iterable
+from datetime import datetime
 from logging import Logger
-from daipecore.decorator.OutputDecorator import OutputDecorator
-from injecta.container.ContainerInterface import ContainerInterface
 from pyspark.sql import DataFrame
+
+from injecta.container.ContainerInterface import ContainerInterface
+from daipecore.decorator.DecoratedDecorator import DecoratedDecorator
+from daipecore.decorator.OutputDecorator import OutputDecorator
 
 from featurestorebundle.widgets.WidgetsGetter import WidgetsGetter
 from featurestorebundle.utils.DateParser import DateParser
-from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.db.TableNames import TableNames
+from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.feature.ChangesCalculator import ChangesCalculator
 from featurestorebundle.feature.Feature import Feature
 from featurestorebundle.feature.FeatureTemplateMatcher import FeatureTemplateMatcher
 from featurestorebundle.feature.FeatureNamesValidator import FeatureNamesValidator
 from featurestorebundle.feature.FeatureList import FeatureList
-from featurestorebundle.delta.feature.NullHandler import NullHandler
+from featurestorebundle.feature.NullHandler import NullHandler
 from featurestorebundle.metadata.MetadataHTMLDisplayer import MetadataHTMLDisplayer
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.frequency.FrequencyGuard import FrequencyGuard
 from featurestorebundle.notebook.services.NotebookMetadataGetter import NotebookMetadataGetter
-from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
-from featurestorebundle.orchestration.Serializator import Serializator
-from featurestorebundle.orchestration.CurrentNotebookDefinitionGetter import CurrentNotebookDefinitionGetter
+from featurestorebundle.orchestration.Serializer import Serializer
+from featurestorebundle.databricks.repos.DatabricksRepositoryUrlResolver import DatabricksRepositoryUrlResolver
 
 
+@DecoratedDecorator
 class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many-instance-attributes
     # pylint: disable=super-init-not-called
     def __init__(
         self,
         *args: Feature,
-        entity: Entity,
         category: Optional[str] = None,
         owner: Optional[str] = None,
         tags: Optional[List[str]] = None,
-        start_date: Optional[str] = None,
+        start_date: Optional[datetime] = None,
         frequency: Optional[str] = None,
     ):
         self._args = args
-        self.__entity = entity
         self.__category = category
         self.__owner = owner
         self.__tags = tags
         self.__start_date = start_date
         self.__frequency = frequency
+        self.__entity = None
         self.__last_compute_date = None
         self.__feature_list = None
 
     def modify_result(self, result, container: ContainerInterface):
-        self.__check_primary_key_columns(result)
+        self.__initialize_entity(container)
         self.__set_feature_defaults(container)
+        self.__check_primary_key_columns(result)
 
         changes_calculator: ChangesCalculator = container.get(ChangesCalculator)
         null_handler: NullHandler = container.get(NullHandler)
@@ -61,7 +65,7 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
         logger: Logger = container.get("featurestorebundle.logger")
         widgets_getter: WidgetsGetter = container.get(WidgetsGetter)
         checkpoint_dir_handler: CheckpointDirHandler = container.get(CheckpointDirHandler)
-        serializator: Serializator = container.get(Serializator)
+        serializer: Serializer = container.get(Serializer)
         date_parser: DateParser = container.get(DateParser)
         checkpoint_guard: CheckpointGuard = container.get(CheckpointGuard)
         frequency_guard: FrequencyGuard = container.get(FrequencyGuard)
@@ -74,10 +78,9 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
             metadata_html_displayer.display(self.__feature_list.get_metadata_dicts())
 
         if widgets_getter.timestamp_exists():
-            start_date = date_parser.parse_date(self.__start_date)  # pyre-ignore[6]
             timestamp = date_parser.parse_date(widgets_getter.get_timestamp())
 
-            if not frequency_guard.should_be_computed(start_date, timestamp, self.__frequency):  # pyre-ignore[6]
+            if not frequency_guard.should_be_computed(self.__start_date, timestamp, self.__frequency):  # pyre-ignore[6]
                 logger.info(f"Features should not be computed for '{widgets_getter.get_timestamp()}', skipping...")
                 return
 
@@ -87,7 +90,7 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
 
         if widgets_getter.features_orchestration_id_exists():
             orchestration_id = widgets_getter.get_features_orchestration_id()
-            serializator.serialize(result, self.__feature_list, orchestration_id)
+            serializer.serialize(result, self.__feature_list, orchestration_id)
 
     def __process_changes(
         self, changes_calculator: ChangesCalculator, feature_list: FeatureList, result: DataFrame
@@ -119,39 +122,41 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
         )
         """
         feature_template_matcher: FeatureTemplateMatcher = container.get(FeatureTemplateMatcher)
-        date_parser: DateParser = container.get(DateParser)
         notebook_metadata_getter: NotebookMetadataGetter = container.get(NotebookMetadataGetter)
-        features_writer: FeaturesWriter = container.get(FeaturesWriter)
-
-        last_compute_date = date_parser.parse_date(self.__last_compute_date) if self.__last_compute_date is not None else None
+        repository_url_resolver: DatabricksRepositoryUrlResolver = container.get(DatabricksRepositoryUrlResolver)
+        table_names: TableNames = container.get(TableNames)
 
         feature_templates = [
             feature_.create_template(
-                location=features_writer.get_location(self.__entity.name),
-                backend=features_writer.get_backend(),
+                base_db=table_names.get_features_base_db_name(self.__entity.name),
+                repository=repository_url_resolver.resolve(),
                 notebook_name=notebook_metadata_getter.get_name(),
                 notebook_absolute_path=notebook_metadata_getter.get_absolute_path(),
                 notebook_relative_path=notebook_metadata_getter.get_relative_path(),
                 category=self.__category,  # pyre-ignore[6]
                 owner=self.__owner,  # pyre-ignore[6]
                 tags=self.__tags,  # pyre-ignore[6]
-                start_date=date_parser.parse_date(self.__start_date),  # pyre-ignore[6]
+                start_date=self.__start_date,  # pyre-ignore[6]
                 frequency=self.__frequency,  # pyre-ignore[6]
-                last_compute_date=last_compute_date,  # pyre-ignore[6]
+                last_compute_date=self.__last_compute_date,
             )
             for feature_ in features
         ]
 
         return feature_template_matcher.get_features(self.__entity, feature_templates, df)
 
+    def __initialize_entity(self, container: ContainerInterface):
+        entity_getter: EntityGetter = container.get(EntityGetter)
+
+        self.__entity = entity_getter.get()
+
     def __set_feature_defaults(self, container: ContainerInterface):
         widgets_getter: WidgetsGetter = container.get(WidgetsGetter)
-        current_notebook_definition_getter: CurrentNotebookDefinitionGetter = container.get(CurrentNotebookDefinitionGetter)
-        notebook_definition = current_notebook_definition_getter.get()
+        date_parser: DateParser = container.get(DateParser)
 
-        self.__category = self.__category or str(container.get_parameters().featurestorebundle.feature.defaults.category)
-        self.__owner = self.__owner or str(container.get_parameters().featurestorebundle.feature.defaults.owner)
-        self.__tags = self.__tags or list(container.get_parameters().featurestorebundle.feature.defaults.tags)
-        self.__start_date = self.__start_date or str(notebook_definition.start_date)
-        self.__frequency = self.__frequency or str(notebook_definition.frequency)
-        self.__last_compute_date = str(widgets_getter.get_timestamp()) if widgets_getter.timestamp_exists() else None
+        self.__category = self.__category or container.get_parameters().featurestorebundle.feature.defaults.category
+        self.__owner = self.__owner or container.get_parameters().featurestorebundle.feature.defaults.owner
+        self.__tags = self.__tags or container.get_parameters().featurestorebundle.feature.defaults.tags.to_list()
+        self.__start_date = self.__start_date or container.get_parameters().featurestorebundle.feature.defaults.start_date
+        self.__frequency = self.__frequency or container.get_parameters().featurestorebundle.feature.defaults.frequency
+        self.__last_compute_date = date_parser.parse_date(widgets_getter.get_timestamp()) if widgets_getter.timestamp_exists() else None

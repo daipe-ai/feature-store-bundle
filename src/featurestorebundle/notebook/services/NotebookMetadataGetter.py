@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 from pyspark.dbutils import DBUtils
 from databricksbundle.repos import repository_root_resolver
 
@@ -14,4 +15,4 @@ class NotebookMetadataGetter:
         return os.path.relpath("/Workspace" + self.get_absolute_path(), repository_root_resolver.resolve())
 
     def get_name(self) -> str:
-        return self.get_absolute_path().split("/")[-1]
+        return Path(self.get_absolute_path()).stem

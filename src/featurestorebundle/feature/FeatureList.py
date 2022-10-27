@@ -77,7 +77,7 @@ class FeatureList:
             if name not in result:
                 result[name] = ([change_feature], [time_window])
             else:
-                features, time_windows = result[name]
+                features, time_windows = result[name]  # noqa
                 result[name] = (features + [change_feature], time_windows + [time_window])
 
         return [MasterFeature(name, features, time_windows) for name, (features, time_windows) in result.items()]

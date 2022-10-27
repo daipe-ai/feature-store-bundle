@@ -5,13 +5,13 @@ from box import Box
 from concurrent.futures import ThreadPoolExecutor
 from pyspark.sql import DataFrame
 from pyspark.dbutils import DBUtils
-from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
+from featurestorebundle.feature.writer.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
-from featurestorebundle.orchestration.Serializator import Serializator
+from featurestorebundle.orchestration.Serializer import Serializer
 from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
-from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
+from featurestorebundle.feature.writer.FeaturesTableWriter import FeaturesTableWriter
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
 from featurestorebundle.widgets.WidgetNames import WidgetNames
@@ -26,8 +26,8 @@ class DatabricksOrchestrator:
         num_parallel: int,
         dbutils: DBUtils,
         notebook_tasks_factory: NotebookTasksFactory,
-        serializator: Serializator,
-        features_writer: FeaturesWriter,
+        serializer: Serializer,
+        features_writer: FeaturesTableWriter,
         features_preparer: FeaturesPreparer,
         post_actions_runner: PostActionsRunner,
         checkpoint_guard: CheckpointGuard,
@@ -39,7 +39,7 @@ class DatabricksOrchestrator:
         self.__num_parallel = num_parallel
         self.__dbutils = dbutils
         self.__notebook_tasks_factory = notebook_tasks_factory
-        self.__serializator = serializator
+        self.__serializer = serializer
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
         self.__post_actions_runner = post_actions_runner
@@ -87,7 +87,7 @@ class DatabricksOrchestrator:
             if future.exception() is not None:
                 raise future.exception()
 
-        features_storage = self.__serializator.deserialize(orchestration_id)
+        features_storage = self.__serializer.deserialize(orchestration_id)
 
         return features_storage
 
