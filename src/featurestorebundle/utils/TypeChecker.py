@@ -8,6 +8,7 @@ from featurestorebundle.utils.errors import WrongTypeError
 from featurestorebundle.utils.types import CATEGORICAL, NUMERICAL, BINARY, ARRAY
 
 
+# pylint: disable=too-many-public-methods
 class TypeChecker:
     _valid_variable_types = [CATEGORICAL, NUMERICAL, BINARY, ARRAY]
 
@@ -31,6 +32,9 @@ class TypeChecker:
         if self.is_feature_datetime(dtype) and not self.is_value_datetime(value):
             raise WrongFillnaValueTypeError(value, feature_template.name_template, dtype)
 
+        if self.is_feature_array(dtype) and not self.is_value_array(value):
+            raise WrongFillnaValueTypeError(value, feature_template.name_template, dtype)
+
     def check_variable_type_valid(self, dtype: str, variable_type: Optional[str], feature_template: FeatureTemplate):
         if variable_type is None:
             return
@@ -46,6 +50,9 @@ class TypeChecker:
 
         if self.is_variable_type_binary(variable_type) and not self.is_feature_valid_binary(dtype):
             raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {BINARY}")
+
+        if self.is_variable_type_array(variable_type) and not self.is_feature_valid_array(dtype):
+            raise WrongTypeError(f"Data type {dtype} for feature {feature_template.name_template} cannot be {ARRAY}")
 
     def is_none(self, value) -> bool:
         return value is None
@@ -74,23 +81,35 @@ class TypeChecker:
     def is_feature_datetime(self, dtype: str) -> bool:
         return dtype in ["date", "timestamp"]
 
-    def is_variable_type_valid(self, variable_type: str):
+    def is_value_array(self, value) -> bool:
+        return isinstance(value, list)
+
+    def is_feature_array(self, dtype: str) -> bool:
+        return dtype.startswith("array")
+
+    def is_variable_type_valid(self, variable_type: str) -> bool:
         return variable_type in self._valid_variable_types
 
-    def is_variable_type_categorical(self, variable_type: str):
+    def is_variable_type_categorical(self, variable_type: str) -> bool:
         return variable_type == CATEGORICAL
 
-    def is_variable_type_numerical(self, variable_type: str):
+    def is_variable_type_numerical(self, variable_type: str) -> bool:
         return variable_type == NUMERICAL
 
-    def is_variable_type_binary(self, variable_type: str):
+    def is_variable_type_binary(self, variable_type: str) -> bool:
         return variable_type == BINARY
 
-    def is_feature_valid_categorical(self, dtype: str):
+    def is_variable_type_array(self, variable_type: str) -> bool:
+        return variable_type == ARRAY
+
+    def is_feature_valid_categorical(self, dtype: str) -> bool:
         return dtype in ["boolean", "byte", "short", "integer", "long", "string"]
 
-    def is_feature_valid_numerical(self, dtype: str):
+    def is_feature_valid_numerical(self, dtype: str) -> bool:
         return self.is_feature_numeric(dtype)
 
-    def is_feature_valid_binary(self, dtype: str):
-        return dtype == "boolean"
+    def is_feature_valid_binary(self, dtype: str) -> bool:
+        return self.is_feature_bool(dtype)
+
+    def is_feature_valid_array(self, dtype: str) -> bool:
+        return self.is_feature_array(dtype)

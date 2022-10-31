@@ -11,8 +11,14 @@ class NullHandler:
         self.__check_fillna_values_valid(feature_list)
 
         fill_dict = {
-            feature.name: feature.template.fillna_value for feature in feature_list.get_all() if feature.template.fillna_value is not None
+            feature.name: feature.template.fillna_value
+            for feature in feature_list.get_all()
+            if feature.template.fillna_value is not None and not feature.dtype.startswith("array")
         }
+
+        for feature in feature_list.get_all():
+            if feature.dtype.startswith("array") and feature.template.fillna_value is not None:
+                df = df.withColumn(feature.name, f.when(f.col(feature.name).isNull(), f.array(feature.template.fillna_value)))
 
         return df.fillna(fill_dict)
 
