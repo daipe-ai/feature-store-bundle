@@ -18,7 +18,10 @@ class NullHandler:
 
         for feature in feature_list.get_all():
             if feature.dtype.startswith("array") and feature.template.fillna_value is not None:
-                df = df.withColumn(feature.name, f.when(f.col(feature.name).isNull(), f.array(feature.template.fillna_value)))
+                df = df.withColumn(
+                    feature.name,
+                    f.when(f.col(feature.name).isNull(), f.array(feature.template.fillna_value)).otherwise(f.col(feature.name)),
+                )
 
         return df.fillna(fill_dict)
 
