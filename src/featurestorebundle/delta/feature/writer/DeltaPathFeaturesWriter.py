@@ -1,10 +1,10 @@
 from featurestorebundle.db.TableNames import TableNames
-from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator import DeltaFeaturesMergeConfigGenerator
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.feature.FeaturesValidator import FeaturesValidator
 from featurestorebundle.metadata.MetadataValidator import MetadataValidator
 from featurestorebundle.delta.feature.writer.DeltaFeaturesDataHandler import DeltaFeaturesDataHandler
+from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator import DeltaFeaturesMergeConfigGenerator
 from featurestorebundle.delta.feature.writer.DeltaPathFeaturesPreparer import DeltaPathFeaturesPreparer
 from featurestorebundle.feature.writer.FeaturesWriterInterface import FeaturesWriterInterface
 from featurestorebundle.metadata.writer.MetadataWriter import MetadataWriter
@@ -16,6 +16,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
         self,
         metadata_writer: MetadataWriter,
         delta_data_handler: DeltaFeaturesDataHandler,
+        merge_config_generator: DeltaFeaturesMergeConfigGenerator,
         features_path_preparer: DeltaPathFeaturesPreparer,
         features_preparer: FeaturesPreparer,
         features_validator: FeaturesValidator,
@@ -24,6 +25,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
     ):
         self.__metadata_writer = metadata_writer
         self.__delta_data_handler = delta_data_handler
+        self.__merge_config_generator = merge_config_generator
         self.__features_path_preparer = features_path_preparer
         self.__features_preparer = features_preparer
         self.__features_validator = features_validator
@@ -36,7 +38,7 @@ class DeltaPathFeaturesWriter(FeaturesWriterInterface):
         path = self.__table_names.get_features_path(entity.name)
 
         features_data = self.__features_preparer.prepare(features_storage)
-        merge_config = DeltaFeaturesMergeConfigGenerator().generate(entity, features_data, entity.get_primary_key())
+        merge_config = self.__merge_config_generator.generate(entity, features_data, entity.get_primary_key())
 
         self.__features_validator.validate(entity, features_data, feature_list)
         self.__metadata_validator.validate(entity, feature_list)

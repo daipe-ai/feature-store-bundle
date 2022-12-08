@@ -1,9 +1,10 @@
 import os
-import pyspark.sql.types as t
 import unittest
 from collections import namedtuple
-from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator import DeltaFeaturesMergeConfigGenerator
+from pyspark.sql import types as t
+from pyfonycore.bootstrap import bootstrapped_container
 from featurestorebundle.entity.Entity import Entity
+from featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator import DeltaFeaturesMergeConfigGenerator
 
 os.environ["APP_ENV"] = "test"
 
@@ -48,7 +49,9 @@ class DeltaFeaturesMergeConfigGeneratorTest(unittest.TestCase):
         )
         fake_df = FakeResult("not_a_real_dataframe")
 
-        self.__config = DeltaFeaturesMergeConfigGenerator().generate(
+        self.__container = bootstrapped_container.init("test")
+        self.__merge_config_generator: DeltaFeaturesMergeConfigGenerator = self.__container.get(DeltaFeaturesMergeConfigGenerator)
+        self.__config = self.__merge_config_generator.generate(
             self.entity, fake_df, [self.entity.id_column, self.entity.time_column]  # noqa # pyre-ignore[6]
         )
 

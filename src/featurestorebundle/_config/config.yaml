@@ -91,6 +91,8 @@ services:
       - '@featurestorebundle.databricks.DatabricksCurrentBranchResolver'
 
   featurestorebundle.delta.feature.writer.DeltaFeaturesMergeConfigGenerator:
+    arguments:
+      - '%featurestorebundle.orchestration.timestamp_shift%'
 
   featurestorebundle.delta.feature.writer.DeltaFeaturesRegistrator:
 
