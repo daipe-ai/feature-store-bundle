@@ -9,6 +9,7 @@ parameters:
         table_template: 'features_{entity}'
         path_template: '%featurestorebundle.base_path%/features/{entity}.delta'
       backend: databricks # available: delta_table, delta_path, databricks
+      track_missing: True
       defaults:
         category: 'default'
         owner: 'unknown'
@@ -226,6 +227,8 @@ services:
   featurestorebundle.delta.feature.filter.TargetFeaturesFilterer:
 
   featurestorebundle.delta.feature.filter.IncompleteRowsHandler:
+    arguments:
+      - '%featurestorebundle.feature.track_missing%'
 
   featurestorebundle.feature.FeatureTemplateMatcher:
 
@@ -383,6 +386,8 @@ services:
       - '%featurestorebundle.checkpoint.default_checkpoint_dir%'
 
   featurestorebundle.delta.feature.NullHandler:
+    arguments:
+      - '%featurestorebundle.feature.track_missing%'
 
   featurestorebundle.utils.DateParser:
     arguments:

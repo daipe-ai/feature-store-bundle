@@ -5,7 +5,13 @@ from featurestorebundle.utils.errors import IncompleteRowsError
 
 
 class IncompleteRowsHandler:
+    def __init__(self, track_missing_features: bool):
+        self.__track_missing_features = track_missing_features
+
     def handle(self, features_data: DataFrame, skip_incomplete_rows: bool):
+        if not self.__track_missing_features:
+            return features_data
+
         if skip_incomplete_rows:
             return features_data.na.drop(how="any")
 

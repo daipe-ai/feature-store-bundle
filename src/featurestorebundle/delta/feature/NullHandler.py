@@ -7,6 +7,9 @@ from featurestorebundle.feature.FeatureList import FeatureList
 
 
 class NullHandler:
+    def __init__(self, track_missing_features: bool):
+        self.__track_missing_features = track_missing_features
+
     def fill_nulls(self, df: DataFrame, feature_list: FeatureList) -> DataFrame:
         self.__check_fillna_values_valid(feature_list)
 
@@ -28,6 +31,9 @@ class NullHandler:
         return df.fillna(fill_dict)
 
     def to_storage_format(self, df: DataFrame, feature_list: FeatureList, entity: Entity) -> DataFrame:
+        if not self.__track_missing_features:
+            return df
+
         features = [col for col in df.columns if col not in entity.get_primary_key()]
 
         for feature in features:
@@ -39,6 +45,9 @@ class NullHandler:
         return df
 
     def from_storage_format(self, df: DataFrame, feature_list: FeatureList) -> DataFrame:
+        if not self.__track_missing_features:
+            return df
+
         features = [col for col in df.columns if col not in feature_list.entity.get_primary_key()]
 
         for feature in features:
