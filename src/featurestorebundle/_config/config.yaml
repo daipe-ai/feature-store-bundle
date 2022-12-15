@@ -378,6 +378,8 @@ services:
     arguments:
       - '%featurestorebundle.orchestration%'
 
+  featurestorebundle.orchestration.TablesValidator:
+
   featurestorebundle.frequency.FrequencyGuard:
 
   featurestorebundle.frequency.FrequencyChecker:

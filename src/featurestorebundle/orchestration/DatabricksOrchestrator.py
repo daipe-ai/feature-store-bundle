@@ -5,12 +5,14 @@ from box import Box
 from concurrent.futures import ThreadPoolExecutor
 from pyspark.sql import DataFrame
 from pyspark.dbutils import DBUtils
+from featurestorebundle.entity.EntityGetter import EntityGetter
 from featurestorebundle.delta.feature.FeaturesPreparer import FeaturesPreparer
 from featurestorebundle.feature.FeaturesStorage import FeaturesStorage
 from featurestorebundle.orchestration.NotebookTask import NotebookTask
 from featurestorebundle.orchestration.NotebookTasksFactory import NotebookTasksFactory
 from featurestorebundle.orchestration.Serializator import Serializator
 from featurestorebundle.orchestration.PostActionsRunner import PostActionsRunner
+from featurestorebundle.orchestration.TablesValidator import TablesValidator
 from featurestorebundle.feature.writer.FeaturesWriter import FeaturesWriter
 from featurestorebundle.checkpoint.CheckpointGuard import CheckpointGuard
 from featurestorebundle.checkpoint.CheckpointDirHandler import CheckpointDirHandler
@@ -25,11 +27,13 @@ class DatabricksOrchestrator:
         orchestration_stages: Box,
         num_parallel: int,
         dbutils: DBUtils,
+        entity_getter: EntityGetter,
         notebook_tasks_factory: NotebookTasksFactory,
         serializator: Serializator,
         features_writer: FeaturesWriter,
         features_preparer: FeaturesPreparer,
         post_actions_runner: PostActionsRunner,
+        tables_validator: TablesValidator,
         checkpoint_guard: CheckpointGuard,
         checkpoint_dir_handler: CheckpointDirHandler,
         widget_names: WidgetNames,
@@ -38,19 +42,24 @@ class DatabricksOrchestrator:
         self.__orchestration_stages = orchestration_stages
         self.__num_parallel = num_parallel
         self.__dbutils = dbutils
+        self.__entity_getter = entity_getter
         self.__notebook_tasks_factory = notebook_tasks_factory
         self.__serializator = serializator
         self.__features_writer = features_writer
         self.__features_preparer = features_preparer
         self.__post_actions_runner = post_actions_runner
+        self.__tables_validator = tables_validator
         self.__checkpoint_guard = checkpoint_guard
         self.__checkpoint_dir_handler = checkpoint_dir_handler
         self.__widget_names = widget_names
 
     def orchestrate(self, stages: Optional[Box] = None):
         stages = self.__orchestration_stages if stages is None else stages
+        entity = self.__entity_getter.get()
 
         self.__logger.info("Starting features orchestration")
+
+        self.__tables_validator.validate(entity.name)
 
         for stage, notebook_definitions in stages.items():
             self.__logger.info(f"Running stage {stage}")
