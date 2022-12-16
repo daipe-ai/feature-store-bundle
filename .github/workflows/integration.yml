@@ -1,0 +1,11 @@
+name: Integration tests pipeline
+
+on:
+  pull_request:
+    branches:
+      - 'master'
+
+jobs:
+  integration:
+    uses: daipe-ai/feature-store-bundle-integration/.github/workflows/integration.yml@master
+    secrets: inherit
