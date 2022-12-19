@@ -59,6 +59,6 @@ class DeltaFeaturesMergeConfigGenerator:
         if self.__widgets_getter.timestamp_exists():
             # timestamp column partition pruning condition to avoid scanning whole table during delta merge
             timestamp = self.__date_parser.parse_date(self.__widgets_getter.get_timestamp()) + dt.timedelta(**self.__timestamp_shift)
-            merge_condition += f" AND target.{entity.time_column} = timestamp({timestamp})"
+            merge_condition += f" AND target.{entity.time_column} = timestamp('{timestamp}')"
 
         return merge_condition
