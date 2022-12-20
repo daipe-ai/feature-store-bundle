@@ -9,12 +9,16 @@ from featurestorebundle.databricks.DatabricksFeatureStoreClientFactory import Da
 class TablesValidator:
     def __init__(
         self,
+        features_backend: str,
+        metadata_backend: str,
         spark: SparkSession,
         table_names: TableNames,
         table_existence_checker: TableExistenceChecker,
         path_existence_checker: PathExistenceChecker,
         feature_store_client_factory: DatabricksFeatureStoreClientFactory,
     ):
+        self.__features_backend = features_backend
+        self.__metadata_backend = metadata_backend
         self.__spark = spark
         self.__table_names = table_names
         self.__table_existence_checker = table_existence_checker
@@ -29,22 +33,32 @@ class TablesValidator:
         full_table_name = self.__table_names.get_features_full_table_name(entity_name)
         path = self.__table_names.get_features_path(entity_name)
 
-        self.__validate_feature_store_and_hive(full_table_name)
-        self.__validate_hive_and_path(full_table_name, path)
+        if self.__features_backend == "databricks":
+            self.__validate_feature_store_and_hive(full_table_name)
+
+        if self.__features_backend in ["databricks", "delta_table"]:
+            self.__validate_hive_and_path(full_table_name, path)
 
     def __validate_metadata_table(self, entity_name: str):
         full_table_name = self.__table_names.get_metadata_full_table_name(entity_name)
         path = self.__table_names.get_metadata_path(entity_name)
 
-        self.__validate_hive_and_path(full_table_name, path)
+        if self.__metadata_backend == "delta_table":
+            self.__validate_hive_and_path(full_table_name, path)
 
     def __validate_feature_store_and_hive(self, full_table_name: str):
         if self.__table_exists_in_feature_store(full_table_name) and not self.__table_exists_in_hive(full_table_name):
             raise Exception(f"Table '{full_table_name}' exists in Databricks Feature Store but not in hive")
 
+        if not self.__table_exists_in_feature_store(full_table_name) and self.__table_exists_in_hive(full_table_name):
+            raise Exception(f"Table {full_table_name} exists in hive but not in Databricks Feature Store")
+
     def __validate_hive_and_path(self, full_table_name: str, path: str):
         if self.__table_exists_in_hive(full_table_name) and not self.__table_exists_in_path(path):
             raise Exception(f"Table '{full_table_name}' exists in hive but not in path '{path}'")
+
+        if not self.__table_exists_in_hive(full_table_name) and self.__table_exists_in_path(path):
+            raise Exception(f"Table '{full_table_name}' doesn't exists in hive but exists in path '{path}'")
 
         if self.__table_exists_in_hive(full_table_name) and self.__get_table_path(full_table_name) != path:
             raise Exception(
