@@ -379,6 +379,9 @@ services:
       - '%featurestorebundle.orchestration%'
 
   featurestorebundle.orchestration.TablesValidator:
+    arguments:
+      - '%featurestorebundle.feature.backend%'
+      - '%featurestorebundle.metadata.backend%'
 
   featurestorebundle.frequency.FrequencyGuard:
 
