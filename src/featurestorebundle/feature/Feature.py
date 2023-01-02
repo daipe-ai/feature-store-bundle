@@ -1,4 +1,4 @@
-from dataclasses import dataclass
+from dataclasses import dataclass, field
 from typing import List, Any
 from datetime import datetime
 
@@ -10,6 +10,8 @@ class Feature:
     name_template: str
     description_template: str
     fillna_with: Any
+    category: str = field(default_factory=str)
+    tags: List[str] = field(default_factory=list)
 
     def create_template(
         self,
