@@ -28,11 +28,10 @@ class FeaturesGetter:
 
     def get_features(self, feature_names: Optional[List[str]] = None):
         feature_names = [] if feature_names is None else feature_names
-        target_name = self.__widgets_getter.get_target()
 
         return (
             self.__get_latest_features(feature_names)
-            if target_name == self.__widgets_getter.timestamp_exists()
+            if self.__widgets_getter.timestamp_exists()
             else self.__get_features_for_target(feature_names)
         )
 
