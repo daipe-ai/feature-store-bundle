@@ -404,4 +404,5 @@ services:
 
   featurestorebundle.feature.FeaturesGetter:
     arguments:
+      - '%featurestorebundle.orchestration.timestamp_shift%'
       - '@featurestorebundle.logger'
