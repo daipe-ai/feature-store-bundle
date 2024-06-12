@@ -11,7 +11,7 @@ from featurestorebundle.delta.feature.writer.AddColumnsQueryBuilder import AddCo
 
 class AddColumnQueryBuilderTest(unittest.TestCase):
     def test_sql_query_builder_build_add_columns_string(self):
-        add_columns_query_builder = AddColumnsQueryBuilder()
+        add_columns_query_builder = AddColumnsQueryBuilder(track_missing_features=True)
 
         entity = Entity(
             name="test_entity",
