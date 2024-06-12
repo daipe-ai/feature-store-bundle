@@ -97,6 +97,8 @@ services:
   featurestorebundle.delta.feature.writer.DeltaFeaturesRegistrator:
 
   featurestorebundle.delta.feature.writer.AddColumnsQueryBuilder:
+    arguments:
+      - '%featurestorebundle.feature.track_missing%'
 
   featurestorebundle.delta.feature.writer.DeltaTableFeaturesPreparer:
 
