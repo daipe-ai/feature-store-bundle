@@ -81,7 +81,6 @@ class FeatureInstance:
             "backend": self.__template.backend,
             "notebook_name": self.__template.notebook_name,
             "notebook_absolute_path": self.__template.notebook_absolute_path,
-            "notebook_relative_path": self.__template.notebook_relative_path,
         }
 
     def get_metadata_list(self) -> List[Union[Dict[str, str], str]]:

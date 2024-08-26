@@ -14,7 +14,6 @@ class FeatureTemplate:
     backend: str
     notebook_name: str
     notebook_absolute_path: str
-    notebook_relative_path: str
     category: str
     owner: str
     tags: List[str]

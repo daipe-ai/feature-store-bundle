@@ -28,7 +28,6 @@ def get_metadata_columns():
         t.StructField("backend", t.StringType(), True),
         t.StructField("notebook_name", t.StringType(), True),
         t.StructField("notebook_absolute_path", t.StringType(), True),
-        t.StructField("notebook_relative_path", t.StringType(), True),
     ]
 
 

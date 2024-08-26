@@ -131,7 +131,6 @@ class feature(OutputDecorator):  # noqa # pylint: disable=invalid-name, too-many
                 backend=features_writer.get_backend(),
                 notebook_name=notebook_metadata_getter.get_name(),
                 notebook_absolute_path=notebook_metadata_getter.get_absolute_path(),
-                notebook_relative_path=notebook_metadata_getter.get_relative_path(),
                 category=feature_.category if feature_.category else self.__category,  # pyre-ignore[6]
                 owner=self.__owner,  # pyre-ignore[6]
                 tags=feature_.tags if feature_.tags else self.__tags,  # pyre-ignore[6]
