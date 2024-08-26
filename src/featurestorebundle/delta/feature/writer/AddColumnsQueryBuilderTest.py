@@ -29,7 +29,6 @@ class AddColumnQueryBuilderTest(unittest.TestCase):
             backend="delta_table",
             notebook_name="test_notebook",
             notebook_absolute_path="/Repos/repository/test_folder/test_notebook",
-            notebook_relative_path="test_folder/test_notebook",
             category="test_category",
             owner="test_owner",
             tags=["feature"],

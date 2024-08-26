@@ -28,7 +28,6 @@ class FeatureListFactory:
                 row.backend,
                 row.notebook_name,
                 row.notebook_absolute_path,
-                row.notebook_relative_path,
                 row.category,
                 row.owner,
                 row.tags,

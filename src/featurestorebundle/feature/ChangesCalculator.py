@@ -47,7 +47,6 @@ class ChangesCalculator:
             backend=feature.template.backend,
             notebook_name=feature.template.notebook_name,
             notebook_absolute_path=feature.template.notebook_absolute_path,
-            notebook_relative_path=feature.template.notebook_relative_path,
             category=feature.template.category,
             owner=feature.template.owner,
             tags=feature.template.tags,
